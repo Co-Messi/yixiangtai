@@ -116,7 +116,7 @@ function lunarToSolar(lunarDate: Date): Date {
  * 计算天干地支（使用通用工具类）
  */
 function calculateGanZhi(date: Date): { year: string; month: string; day: string; hour: string; stemBranch: FourPillars } {
-  const ganZhiResult = getFourPillarsGanZhi(date);
+  const ganZhiResult = getFourPillarsGanZhi(date, 'traditional');
   
   // 解析四柱干支为单独的天干地支
   const fourPillars: FourPillars = {

@@ -2,6 +2,7 @@ import { BAZI_SYSTEM_INSTRUCTION } from './constants';
 import { getActiveApiKey, buildGeminiApiUrl, getActiveOpenaiApiKey, GEMINI_CONFIG } from '../../masters/config';
 import { useAppStore } from '../../core/store';
 import axios from 'axios';
+import { jsonrepair } from 'jsonrepair';
 import type { LifeKLineResult } from './types';
 
 export const generateLifeAnalysis = async (input: any): Promise<LifeKLineResult> => {
@@ -11,8 +12,12 @@ export const generateLifeAnalysis = async (input: any): Promise<LifeKLineResult>
         ? getActiveApiKey(state.settings.apiKey)
         : getActiveOpenaiApiKey(state.settings.openaiApiKey);
 
-    if (!apiKey) {
+    const cleanApiKey = apiKey ? apiKey.trim() : '';
+    if (!cleanApiKey) {
         throw new Error(`请先在设置中配置 ${isGemini ? 'Gemini' : 'OpenAI'} API Key`);
+    }
+    if (/[^\x00-\x7F]/.test(cleanApiKey)) {
+        throw new Error('API Key 包含非法字符（如中文或全角符号），请检查输入是否正确。');
     }
 
     const genderStr = input.gender === '男' ? '男 (乾造)' : '女 (坤造)';
@@ -20,9 +25,7 @@ export const generateLifeAnalysis = async (input: any): Promise<LifeKLineResult>
     const yangStems = ['甲', '丙', '戊', '庚', '壬'];
     const yearStemPolarity = yangStems.includes(yearStem) ? 'YANG' : 'YIN';
 
-    // 晚子时处理 logic mentioned in the prompt
-    const isNightZi = input.isNightZi || false;
-    const nightModeStr = isNightZi ? '【采取早晚子时：23-00点为当天日柱+下日时柱】' : '【采取传统子平：23点后即进入第二天】';
+    const nightModeStr = '【采取传统子平：23点后即进入第二天】';
 
     let isForward = false;
     if (input.gender === '男') {
@@ -77,10 +80,319 @@ export const generateLifeAnalysis = async (input: any): Promise<LifeKLineResult>
   `;
 
     let content = '';
+    const extractJsonContent = (raw: string): string => {
+        let jsonContent = raw.trim();
+        const fenced = jsonContent.match(/```(?:json)?\s*([\s\S]*?)```/);
+        if (fenced) {
+            jsonContent = fenced[1].trim();
+        } else {
+            const start = jsonContent.indexOf('{');
+            const end = jsonContent.lastIndexOf('}');
+            if (start !== -1 && end !== -1 && end > start) {
+                jsonContent = jsonContent.slice(start, end + 1);
+            }
+        }
+        return jsonContent;
+    };
+    const normalizeJsonPunctuation = (input: string): string => {
+        let result = '';
+        let inString = false;
+        let escaped = false;
+        for (let i = 0; i < input.length; i += 1) {
+            const ch = input[i];
+            if (inString) {
+                result += ch;
+                if (escaped) {
+                    escaped = false;
+                    continue;
+                }
+                if (ch === '\\') {
+                    escaped = true;
+                    continue;
+                }
+                if (ch === '"') {
+                    inString = false;
+                }
+                continue;
+            }
+
+            if (ch === '"') {
+                inString = true;
+                result += ch;
+                continue;
+            }
+
+            if (ch === '，') {
+                result += ',';
+                continue;
+            }
+            if (ch === '：') {
+                result += ':';
+                continue;
+            }
+
+            result += ch;
+        }
+        return result;
+    };
+    const escapeNewlinesInStrings = (input: string): string => {
+        let result = '';
+        let inString = false;
+        let escaped = false;
+        for (let i = 0; i < input.length; i += 1) {
+            const ch = input[i];
+            if (inString) {
+                if (escaped) {
+                    result += ch;
+                    escaped = false;
+                    continue;
+                }
+                if (ch === '\\') {
+                    result += ch;
+                    escaped = true;
+                    continue;
+                }
+                if (ch === '"') {
+                    inString = false;
+                    result += ch;
+                    continue;
+                }
+                if (ch === '\n') {
+                    result += '\\\\n';
+                    continue;
+                }
+                if (ch === '\r') {
+                    result += '\\\\r';
+                    continue;
+                }
+            } else if (ch === '"') {
+                inString = true;
+            }
+            result += ch;
+        }
+        return result;
+    };
+    const escapeUnescapedQuotesInStrings = (input: string): string => {
+        let result = '';
+        let inString = false;
+        let escaped = false;
+        for (let i = 0; i < input.length; i += 1) {
+            const ch = input[i];
+            if (inString) {
+                if (escaped) {
+                    result += ch;
+                    escaped = false;
+                    continue;
+                }
+                if (ch === '\\') {
+                    result += ch;
+                    escaped = true;
+                    continue;
+                }
+                if (ch === '"') {
+                    let j = i + 1;
+                    while (j < input.length && /\s/.test(input[j])) {
+                        j += 1;
+                    }
+                    const next = input[j];
+                    if (next && next !== ',' && next !== '}' && next !== ']') {
+                        result += '\\"';
+                        continue;
+                    }
+                    inString = false;
+                    result += ch;
+                    continue;
+                }
+                result += ch;
+                continue;
+            }
+
+            if (ch === '"') {
+                inString = true;
+            }
+            result += ch;
+        }
+        return result;
+    };
+    const insertMissingCommasInArrays = (input: string): string => {
+        const isWhitespace = (ch: string) => ch === ' ' || ch === '\n' || ch === '\r' || ch === '\t';
+        const isValueStart = (ch: string) =>
+            ch === '{' ||
+            ch === '[' ||
+            ch === '"' ||
+            ch === '-' ||
+            (ch >= '0' && ch <= '9') ||
+            ch === 't' ||
+            ch === 'f' ||
+            ch === 'n';
+
+        let output = '';
+        let inString = false;
+        let escaped = false;
+        let lastSignificant = '';
+        const stack: Array<'array' | 'object'> = [];
+
+        for (let i = 0; i < input.length; i += 1) {
+            const ch = input[i];
+
+            if (inString) {
+                output += ch;
+                if (escaped) {
+                    escaped = false;
+                    continue;
+                }
+                if (ch === '\\') {
+                    escaped = true;
+                    continue;
+                }
+                if (ch === '"') {
+                    inString = false;
+                    lastSignificant = '"';
+                }
+                continue;
+            }
+
+            if (isWhitespace(ch)) {
+                output += ch;
+                continue;
+            }
+
+            const inArray = stack[stack.length - 1] === 'array';
+            if (
+                inArray &&
+                isValueStart(ch) &&
+                lastSignificant &&
+                lastSignificant !== '[' &&
+                lastSignificant !== ',' &&
+                lastSignificant !== ':'
+            ) {
+                output += ',';
+            }
+
+            if (ch === '"') {
+                inString = true;
+            } else if (ch === '[') {
+                stack.push('array');
+            } else if (ch === '{') {
+                stack.push('object');
+            } else if (ch === ']' || ch === '}') {
+                stack.pop();
+            }
+
+            output += ch;
+            lastSignificant = ch;
+        }
+
+        return output;
+    };
+    const insertMissingCommasInObjects = (input: string): string => {
+        const isWhitespace = (ch: string) => ch === ' ' || ch === '\n' || ch === '\r' || ch === '\t';
+        let output = '';
+        let inString = false;
+        let escaped = false;
+        let lastSignificant = '';
+        const stack: Array<'array' | 'object'> = [];
+
+        for (let i = 0; i < input.length; i += 1) {
+            const ch = input[i];
+
+            if (inString) {
+                output += ch;
+                if (escaped) {
+                    escaped = false;
+                    continue;
+                }
+                if (ch === '\\') {
+                    escaped = true;
+                    continue;
+                }
+                if (ch === '"') {
+                    inString = false;
+                    lastSignificant = '"';
+                }
+                continue;
+            }
+
+            if (isWhitespace(ch)) {
+                output += ch;
+                continue;
+            }
+
+            const inObject = stack[stack.length - 1] === 'object';
+            if (
+                inObject &&
+                ch === '"' &&
+                lastSignificant &&
+                lastSignificant !== '{' &&
+                lastSignificant !== ',' &&
+                lastSignificant !== ':'
+            ) {
+                output += ',';
+            }
+
+            if (ch === '"') {
+                inString = true;
+            } else if (ch === '[') {
+                stack.push('array');
+            } else if (ch === '{') {
+                stack.push('object');
+            } else if (ch === ']' || ch === '}') {
+                stack.pop();
+            }
+
+            output += ch;
+            lastSignificant = ch;
+        }
+
+        return output;
+    };
+    const repairJson = (input: string): string => {
+        let output = normalizeJsonPunctuation(input);
+        output = output.replace(/\uFEFF/g, '');
+        output = output.replace(/,\s*([}\]])/g, '$1');
+        output = output.replace(/}\s*{/g, '},{');
+        output = output.replace(/]\s*\[/g, '],[');
+        output = escapeNewlinesInStrings(output);
+        output = escapeUnescapedQuotesInStrings(output);
+        output = insertMissingCommasInArrays(output);
+        output = insertMissingCommasInObjects(output);
+        return output;
+    };
+    const safeJsonRepair = (input: string): string | null => {
+        try {
+            return jsonrepair(input);
+        } catch (error) {
+            console.warn('🚨 [DEBUG] jsonrepair failed:', error);
+            return null;
+        }
+    };
+    const parseLifeKlineJson = (raw: string) => {
+        const jsonContent = extractJsonContent(raw);
+        const repairedByLib = safeJsonRepair(jsonContent);
+        const candidates = [
+            jsonContent,
+            repairJson(jsonContent),
+            repairedByLib
+        ].filter((value): value is string => typeof value === 'string' && value.length > 0);
+        let lastError: Error | null = null;
+        for (const candidate of candidates) {
+            try {
+                const data = JSON.parse(candidate);
+                if (!data || !Array.isArray(data.chartPoints) || data.chartPoints.length === 0) {
+                    throw new Error('模型返回的数据格式不正确（缺失 chartPoints）。');
+                }
+                return data;
+            } catch (error: any) {
+                lastError = error;
+            }
+        }
+        const err = lastError ? lastError.message : 'JSON 解析失败';
+        throw new Error(`JSON解析失败：${err}`);
+    };
 
     if (isGemini) {
         const modelId = GEMINI_CONFIG.MODELS.PRIMARY || 'gemini-3-flash-preview';
-        const apiUrl = buildGeminiApiUrl(modelId, apiKey);
+        const apiUrl = buildGeminiApiUrl(modelId, cleanApiKey);
         console.log(`🚨 [DEBUG] LifeKLine starting Gemini analysis with model: ${modelId}`);
         console.log(`🚨 [DEBUG] Full API URL (redacted key):`, apiUrl.replace(/key=.+$/, 'key=REDACTED'));
         const response = await axios.post(apiUrl, {
@@ -109,7 +421,7 @@ export const generateLifeAnalysis = async (input: any): Promise<LifeKLineResult>
             temperature: 0.7,
         }, {
             headers: {
-                'Authorization': `Bearer ${apiKey}`,
+                'Authorization': `Bearer ${cleanApiKey}`,
                 'Content-Type': 'application/json'
             }
         });
@@ -117,36 +429,55 @@ export const generateLifeAnalysis = async (input: any): Promise<LifeKLineResult>
     }
 
     try {
-        const data = JSON.parse(content);
+        const data = parseLifeKlineJson(content);
+        const chartData = data.chartPoints.map((point: any, index: number) => ({
+            age: Number(point.age ?? index + 1),
+            year: Number(point.year ?? 0),
+            ganZhi: String(point.ganZhi ?? ''),
+            daYun: point.daYun ? String(point.daYun) : undefined,
+            open: Number(point.open ?? 0),
+            close: Number(point.close ?? 0),
+            high: Number(point.high ?? 0),
+            low: Number(point.low ?? 0),
+            score: Number(point.score ?? 0),
+            reason: String(point.reason ?? '')
+        }));
+        const bazi = Array.isArray(data.bazi) ? data.bazi.map((item: any) => String(item)) : [];
 
         return {
-            chartData: data.chartPoints,
+            chartData,
             analysis: {
-                bazi: data.bazi || [],
-                summary: data.summary || "无摘要",
+                bazi,
+                summary: data.summary ? String(data.summary) : "无摘要",
                 summaryScore: data.summaryScore || 5,
-                personality: data.personality || "无性格分析",
+                personality: data.personality ? String(data.personality) : "无性格分析",
                 personalityScore: data.personalityScore || 5,
-                industry: data.industry || "无",
+                industry: data.industry ? String(data.industry) : "无",
                 industryScore: data.industryScore || 5,
-                fengShui: data.fengShui || "建议多亲近自然。",
+                fengShui: data.fengShui ? String(data.fengShui) : "建议多亲近自然。",
                 fengShuiScore: data.fengShuiScore || 5,
-                wealth: data.wealth || "无",
+                wealth: data.wealth ? String(data.wealth) : "无",
                 wealthScore: data.wealthScore || 5,
-                marriage: data.marriage || "无",
+                marriage: data.marriage ? String(data.marriage) : "无",
                 marriageScore: data.marriageScore || 5,
-                health: data.health || "无",
+                health: data.health ? String(data.health) : "无",
                 healthScore: data.healthScore || 5,
-                family: data.family || "无",
+                family: data.family ? String(data.family) : "无",
                 familyScore: data.familyScore || 5,
-                crypto: data.crypto || "暂无分析",
+                crypto: data.crypto ? String(data.crypto) : "暂无分析",
                 cryptoScore: data.cryptoScore || 5,
-                cryptoYear: data.cryptoYear || "待定",
-                cryptoStyle: data.cryptoStyle || "未知",
+                cryptoYear: data.cryptoYear ? String(data.cryptoYear) : "待定",
+                cryptoStyle: data.cryptoStyle ? String(data.cryptoStyle) : "未知",
             },
         };
     } catch (error: any) {
         console.error("🚨 [DEBUG] LifeKLine API Error:", error.message);
+        if (typeof content === 'string' && content.trim().length > 0) {
+            const head = content.slice(0, 800);
+            const tail = content.slice(-400);
+            console.error("🚨 [DEBUG] LifeKLine raw content (head):", head);
+            console.error("🚨 [DEBUG] LifeKLine raw content (tail):", tail);
+        }
         if (error.response) {
             console.error("Response data:", error.response.data);
             console.error("Response status:", error.response.status);

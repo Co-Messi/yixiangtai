@@ -16,6 +16,7 @@ const BaziForm: React.FC<BaziFormProps> = ({ onSubmit, isLoading }) => {
         yearPillar: '',
         monthPillar: '',
         dayPillar: '',
+        hourPillar: '',
         startAge: '6',
         firstDaYun: '',
         luckStartDate: '',
@@ -26,7 +27,7 @@ const BaziForm: React.FC<BaziFormProps> = ({ onSubmit, isLoading }) => {
         const date = new Date(dateTimeStr);
         if (isNaN(date.getTime())) return;
 
-        const pillars = getFourPillarsGanZhi(date, false); // Always use modern (00:00) rule
+        const pillars = getFourPillarsGanZhi(date, 'traditional'); // 传统子平：23点后换天
 
         // Calculate Start Age and Direction
         const yearStem = pillars.year.charAt(0);
@@ -252,6 +253,9 @@ const BaziForm: React.FC<BaziFormProps> = ({ onSubmit, isLoading }) => {
 
                                 </div>
                             )}
+                            <div className="text-[10px] text-[#777777] font-bold uppercase tracking-widest mt-2">
+                                排盘规则：传统子平（23:00后换日）
+                            </div>
                         </div>
 
                         {(['yearPillar', 'monthPillar', 'dayPillar', 'hourPillar'] as const).map(p => (

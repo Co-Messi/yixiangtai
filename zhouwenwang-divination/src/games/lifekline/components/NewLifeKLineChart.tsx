@@ -32,7 +32,7 @@ const CustomTooltip = ({ active, payload }: any) => {
                             大运：{data.daYun || '未知'}
                         </p>
                     </div>
-                    <div className={`text-xs font-bold px-2 py-1 rounded-full ${isUp ? 'bg-[#FF9900]/20 text-[#FF9900]' : 'bg-red-500/20 text-red-500'}`}>
+                    <div className={`text-xs font-bold px-2 py-1 rounded-full ${isUp ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
                         {isUp ? '吉 ▲' : '凶 ▼'}
                     </div>
                 </div>
@@ -70,7 +70,7 @@ const CandleShape = (props: any) => {
 
     const isUp = payload.close >= payload.open;
     const color = isUp ? '#22c55e' : '#ef4444';
-    const strokeColor = isUp ? '#166534' : '#991b1b';
+    const strokeColor = isUp ? '#15803d' : '#b91c1c';
 
     let highY = y;
     let lowY = y + height;
@@ -107,21 +107,21 @@ const CandleShape = (props: any) => {
 };
 
 const PeakLabel = (props: any) => {
-    const { x, y, width, value, maxHigh } = props;
-    if (value !== maxHigh) return null;
+    const { x, y, width, value, maxHigh, peakIndex, index } = props;
+    if (value !== maxHigh || index !== peakIndex) return null;
 
     return (
         <g>
             <path
                 d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"
                 transform={`translate(${x + width / 2 - 8}, ${y - 28}) scale(0.6)`}
-                fill="#F59E0B"
+                fill="#22c55e"
                 className="animate-pulse"
             />
             <text
                 x={x + width / 2}
                 y={y - 32}
-                fill="#F59E0B"
+                fill="#22c55e"
                 fontSize={10}
                 fontWeight="bold"
                 textAnchor="middle"
@@ -145,6 +145,7 @@ const NewLifeKLineChart: React.FC<NewLifeKLineChartProps> = ({ data }) => {
     });
 
     const maxHigh = data.length > 0 ? Math.max(...data.map(d => d.high)) : 100;
+    const peakIndex = data.findIndex(d => d.high === maxHigh);
 
     if (!data || data.length === 0) {
         return <div className="h-[500px] flex items-center justify-center text-[#444444]">无推演数据</div>;
@@ -160,11 +161,11 @@ const NewLifeKLineChart: React.FC<NewLifeKLineChartProps> = ({ data }) => {
                     <p className="text-xs text-[#666666]">基于虚岁 1-100 年的量化分析</p>
                 </div>
                 <div className="flex gap-4 text-[10px] font-medium">
-                    <span className="flex items-center text-[#FF9900] bg-[#FF9900]/10 px-2 py-1 rounded-full border border-[#FF9900]/20 uppercase tracking-widest">
-                        <div className="w-1.5 h-1.5 bg-[#FF9900] mr-2 rounded-full shadow-[0_0_8px_#FF9900]" /> 吉运 (UP)
+                    <span className="flex items-center text-green-400 bg-green-500/10 px-2 py-1 rounded-full border border-green-500/20 uppercase tracking-widest">
+                        <div className="w-1.5 h-1.5 bg-green-400 mr-2 rounded-full shadow-[0_0_8px_#22c55e]" /> 吉运 (UP)
                     </span>
-                    <span className="flex items-center text-red-500 bg-red-500/10 px-2 py-1 rounded-full border border-red-500/20 uppercase tracking-widest">
-                        <div className="w-1.5 h-1.5 bg-red-500 mr-2 rounded-full shadow-[0_0_8px_#ef4444]" /> 凶运 (DOWN)
+                    <span className="flex items-center text-red-400 bg-red-500/10 px-2 py-1 rounded-full border border-red-500/20 uppercase tracking-widest">
+                        <div className="w-1.5 h-1.5 bg-red-400 mr-2 rounded-full shadow-[0_0_8px_#ef4444]" /> 凶运 (DOWN)
                     </span>
                 </div>
             </div>
@@ -203,7 +204,7 @@ const NewLifeKLineChart: React.FC<NewLifeKLineChartProps> = ({ data }) => {
                             <Label
                                 value={point.daYun}
                                 position="top"
-                                fill="#FF9900"
+                                fill="#666666"
                                 fontSize={10}
                                 fontWeight="bold"
                                 className="opacity-60"
@@ -220,7 +221,7 @@ const NewLifeKLineChart: React.FC<NewLifeKLineChartProps> = ({ data }) => {
                         <LabelList
                             dataKey="high"
                             position="top"
-                            content={<PeakLabel maxHigh={maxHigh} />}
+                            content={<PeakLabel maxHigh={maxHigh} peakIndex={peakIndex} />}
                         />
                     </Bar>
                 </ComposedChart>

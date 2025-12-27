@@ -344,22 +344,27 @@ const BaZiPage = () => {
                     <label className="text-lg font-medium text-white whitespace-nowrap w-24 text-right">
                       出生时间
                     </label>
-                    <input
-                      type="datetime-local"
-                      value={formatDateTimeForInput(selectedBirthTime)}
-                      onChange={handleBirthTimeChange}
-                      className="flex-1 bg-black border border-black rounded-lg px-3 py-2 text-white text-base focus:border-[#FF9900] focus:outline-none [&::-webkit-datetime-edit]:text-white [&::-webkit-datetime-edit-text]:text-white [&::-webkit-datetime-edit-month-field]:text-white [&::-webkit-datetime-edit-day-field]:text-white [&::-webkit-datetime-edit-year-field]:text-white [&::-webkit-datetime-edit-hour-field]:text-white [&::-webkit-datetime-edit-minute-field]:text-white [&::-webkit-calendar-picker-indicator]:brightness-0 [&::-webkit-calendar-picker-indicator]:invert"
-                      style={{
-                        colorScheme: 'dark',
-                        color: 'white !important',
-                        WebkitTextFillColor: 'white',
-                        minHeight: '36px',
-                        height: '36px',
-                        lineHeight: '1.4',
-                        fontSize: '16px'
-                      }}
-                      disabled={isGenerating}
-                    />
+                    <div className="flex-1">
+                      <input
+                        type="datetime-local"
+                        value={formatDateTimeForInput(selectedBirthTime)}
+                        onChange={handleBirthTimeChange}
+                        className="w-full bg-black border border-black rounded-lg px-3 py-2 text-white text-base focus:border-[#FF9900] focus:outline-none [&::-webkit-datetime-edit]:text-white [&::-webkit-datetime-edit-text]:text-white [&::-webkit-datetime-edit-month-field]:text-white [&::-webkit-datetime-edit-day-field]:text-white [&::-webkit-datetime-edit-year-field]:text-white [&::-webkit-datetime-edit-hour-field]:text-white [&::-webkit-datetime-edit-minute-field]:text-white [&::-webkit-calendar-picker-indicator]:brightness-0 [&::-webkit-calendar-picker-indicator]:invert"
+                        style={{
+                          colorScheme: 'dark',
+                          color: 'white !important',
+                          WebkitTextFillColor: 'white',
+                          minHeight: '36px',
+                          height: '36px',
+                          lineHeight: '1.4',
+                          fontSize: '16px'
+                        }}
+                        disabled={isGenerating}
+                      />
+                      <div className="text-[10px] text-[#777777] font-bold uppercase tracking-widest mt-2">
+                        排盘规则：传统子平（23:00后换日）
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

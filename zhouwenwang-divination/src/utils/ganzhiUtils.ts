@@ -192,11 +192,13 @@ export function getMonthGanZhi(date: Date): string {
  */
 export function getDayGanZhi(date: Date): string {
   // 使用更准确的基准日期：2000年1月1日是戊午日
-  const baseDate = new Date(2000, 0, 1); // 2000年1月1日
+  // 取本地正午避免夏令时导致的跨日误差
+  const baseDate = new Date(2000, 0, 1, 12, 0, 0);
   const baseGanIndex = 4; // 戊
   const baseZhiIndex = 6; // 午
 
-  const timeDiff = date.getTime() - baseDate.getTime();
+  const targetDate = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 12, 0, 0);
+  const timeDiff = targetDate.getTime() - baseDate.getTime();
   const dayDiff = Math.floor(timeDiff / (24 * 60 * 60 * 1000));
 
   const ganIndex = (baseGanIndex + dayDiff) % 10;
@@ -214,14 +216,14 @@ export function getDayGanZhi(date: Date): string {
  * @param date 时间对象
  * @returns string 时干支
  */
-export function getHourGanZhi(date: Date): string {
+export function getHourGanZhi(date: Date, dayBaseDate: Date = date): string {
   const hour = date.getHours();
 
   // 使用工具函数获取地支索引
   const zhiIndex = getZhiIndexByHour(hour);
 
   // 时干计算：根据日干推算
-  const dayGan = getDayGanZhi(date).charAt(0);
+  const dayGan = getDayGanZhi(dayBaseDate).charAt(0);
   const dayGanIndex = TIANGAN.indexOf(dayGan as typeof TIANGAN[number]);
 
   // 时干计算公式：甲己日起甲子，乙庚日起丙子，丙辛日起戊子，丁壬日起庚子，戊癸日起壬子
@@ -246,27 +248,43 @@ export interface FourPillarsGanZhi {
   hour: string;
 }
 
-export function getFourPillarsGanZhi(date: Date, useTraditionalZi: boolean = false): FourPillarsGanZhi {
-  // Modern: 00:00 换天 (日期字面值)
-  // Traditional: 23:00 换天 (传统子平规则)
-  let calculationDate = new Date(date.getTime());
+export type ZiRule = 'modern' | 'traditional' | 'earlyLate';
 
+function resolveZiRule(rule: boolean | ZiRule | undefined): ZiRule {
+  if (rule === true) return 'traditional';
+  if (rule === false || rule === undefined) return 'modern';
+  return rule;
+}
+
+function addDays(date: Date, days: number): Date {
+  const next = new Date(date.getTime());
+  next.setDate(next.getDate() + days);
+  return next;
+}
+
+export function getFourPillarsGanZhi(date: Date, ziRule: boolean | ZiRule = false): FourPillarsGanZhi {
+  // Modern: 00:00 换天
+  // Traditional: 23:00 换天 (传统子平)
+  // EarlyLate: 23:00 子时日柱不变，时柱按次日
+  const rule = resolveZiRule(ziRule);
   const hour = date.getHours();
-  if (useTraditionalZi) {
-    // 传统子平：23:00 以后换天
-    if (hour >= 23) {
-      calculationDate.setTime(calculationDate.getTime() + 60 * 60 * 1000);
-    }
-  } else {
-    // 现代规则：00:00 以后换天 (JavaScript Date 默认行为)
-    // 不需要额外处理
+  const isLateZi = hour === 23;
+
+  let dayBaseDate = date;
+  let hourBaseDate = date;
+
+  if (rule === 'traditional' && isLateZi) {
+    dayBaseDate = addDays(date, 1);
+    hourBaseDate = dayBaseDate;
+  } else if (rule === 'earlyLate' && isLateZi) {
+    hourBaseDate = addDays(date, 1);
   }
 
   return {
-    year: getYearGanZhi(calculationDate),
-    month: getMonthGanZhi(calculationDate),
-    day: getDayGanZhi(calculationDate),
-    hour: getHourGanZhi(date) // 时柱始终根据实际时间计算
+    year: getYearGanZhi(date),
+    month: getMonthGanZhi(date),
+    day: getDayGanZhi(dayBaseDate),
+    hour: getHourGanZhi(date, hourBaseDate)
   };
 }
 

@@ -10,12 +10,7 @@ interface NewAnalysisResultProps {
 const ScoreBar = ({ score }: { score: number }) => {
     const normalizedScore = score > 10 ? Math.round(score / 10) : score;
 
-    let colorClass = "bg-[#444444]";
-    if (normalizedScore >= 9) colorClass = "bg-[#FF9900]";
-    else if (normalizedScore >= 7) colorClass = "bg-orange-400";
-    else if (normalizedScore >= 5) colorClass = "bg-yellow-600";
-    else if (normalizedScore >= 3) colorClass = "bg-orange-800";
-    else colorClass = "bg-red-900";
+    const colorClass = normalizedScore >= 9 ? "bg-green-500" : "bg-red-500";
 
     return (
         <div className="flex items-center gap-3 mt-3">
@@ -25,7 +20,7 @@ const ScoreBar = ({ score }: { score: number }) => {
                     style={{ width: `${normalizedScore * 10}%` }}
                 />
             </div>
-            <span className="text-[10px] font-black text-[#FF9900] min-w-[2.5rem] text-right uppercase tracking-tighter">
+            <span className={`text-[10px] font-black min-w-[2.5rem] text-right uppercase tracking-tighter ${normalizedScore >= 9 ? 'text-green-400' : 'text-red-400'}`}>
                 LV.{normalizedScore}
             </span>
         </div>
@@ -188,23 +183,23 @@ const NewAnalysisResult: React.FC<NewAnalysisResultProps> = ({ analysis }) => {
                             <ul className="space-y-2 font-mono text-[11px]">
                                 <li className="flex justify-between items-center border-b border-white/5 pb-2">
                                     <span className="text-[#444444]">0-2分</span>
-                                    <span className="text-red-900 font-black">极度波动</span>
+                                    <span className="text-red-500 font-black">极度波动</span>
                                 </li>
                                 <li className="flex justify-between items-center border-b border-white/5 pb-2">
                                     <span className="text-[#444444]">3-4分</span>
-                                    <span className="text-orange-800 font-black">时运不齐</span>
+                                    <span className="text-red-500 font-black">时运不齐</span>
                                 </li>
                                 <li className="flex justify-between items-center border-b border-white/5 pb-2">
                                     <span className="text-[#444444]">5-6分</span>
-                                    <span className="text-yellow-700 font-black">中平守势</span>
+                                    <span className="text-red-500 font-black">中平守势</span>
                                 </li>
                                 <li className="flex justify-between items-center border-b border-white/5 pb-2">
                                     <span className="text-[#444444]">7-8分</span>
-                                    <span className="text-orange-400 font-black">小有斩获</span>
+                                    <span className="text-red-500 font-black">小有斩获</span>
                                 </li>
                                 <li className="flex justify-between items-center">
                                     <span className="text-[#444444]">9-10分</span>
-                                    <span className="text-[#FF9900] font-black">天命所归</span>
+                                    <span className="text-green-400 font-black">天命所归</span>
                                 </li>
                             </ul>
                             <p className="text-[10px] text-[#555555] leading-relaxed border-t border-[#222222] pt-3 text-justify">

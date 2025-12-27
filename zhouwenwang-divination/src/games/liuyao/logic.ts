@@ -163,7 +163,7 @@ export function generateHexagram(divinationTime?: Date): LiuYaoResult {
   const { worldYao, responseYao } = calculateWorldResponse(originalNumber);
   
   // 获取起卦时间信息
-  const timeInfo = divinationTime ? getFourPillarsGanZhi(divinationTime) : undefined;
+  const timeInfo = divinationTime ? getFourPillarsGanZhi(divinationTime, 'traditional') : undefined;
   
   return {
     id: `liuyao_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
@@ -238,7 +238,7 @@ export function generatePlumBlossomHexagram(
   const { worldYao, responseYao } = calculateWorldResponse(originalNumber);
   
   // 获取起卦时间信息
-  const timeInfo = divinationTime ? getFourPillarsGanZhi(divinationTime) : undefined;
+  const timeInfo = divinationTime ? getFourPillarsGanZhi(divinationTime, 'traditional') : undefined;
   
   return {
     id: `liuyao_plum_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,

@@ -196,7 +196,7 @@ const MobileDetector: React.FC = () => {
             </motion.div>
 
             {/* 隐藏的重置按钮（仅用于开发调试） */}
-            {process.env.NODE_ENV === 'development' && (
+            {import.meta.env.DEV && (
               <button
                 onClick={resetPreference}
                 className="mt-2 text-xs text-[#666666] hover:text-[#888888] underline"
