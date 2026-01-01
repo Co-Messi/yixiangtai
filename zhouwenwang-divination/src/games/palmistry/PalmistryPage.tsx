@@ -255,7 +255,7 @@ const PalmistryPage: React.FC = () => {
 
   return (
     <motion.div
-      className="min-h-screen bg-black text-white"
+      className="min-h-screen text-[var(--ui-text)]"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -267,10 +267,10 @@ const PalmistryPage: React.FC = () => {
             className="text-center mb-2"
             variants={itemVariants}
           >
-            <h1 className="text-4xl font-bold text-white mb-4">
+            <h1 className="text-4xl font-bold text-[var(--ui-text)] mb-4">
               手相分析
             </h1>
-            <p className="text-brand-gray-300 text-lg">
+            <p className="text-[var(--ui-muted)] text-lg">
               掌中有乾坤，上传手相图片探寻命运轨迹
             </p>
           </motion.div>
@@ -301,29 +301,29 @@ const PalmistryPage: React.FC = () => {
                     relative border-2 border-dashed rounded-xl p-12 text-center cursor-pointer transition-all duration-300
                     ${dragOver 
                       ? 'border-brand-orange-500 bg-brand-orange-500/10' 
-                      : 'border-[#333333] hover:border-brand-gray-400 hover:bg-brand-gray-900/50'
+                      : 'border-[var(--ui-border)] hover:border-[var(--ui-border)] hover:bg-[var(--ui-surface-3)]'
                     }
                   `}
                 >
 
                   
                   <div className="space-y-6">
-                    <div className="text-6xl text-brand-gray-400">📷</div>
+                    <div className="text-6xl text-[var(--ui-muted-2)]">📷</div>
                     <div>
-                      <p className="text-white text-xl font-semibold mb-3">
+                      <p className="text-[var(--ui-text)] text-xl font-semibold mb-3">
                         {dragOver ? '释放以上传图片' : '上传手相图片'}
                       </p>
-                      <p className="text-brand-gray-300">
+                      <p className="text-[var(--ui-muted)]">
                         支持 JPG、PNG、WEBP 格式，文件大小不超过2M
                       </p>
                     </div>
                   </div>
                   
                   {isLoading && (
-                    <div className="absolute inset-0 bg-black/70 rounded-xl flex items-center justify-center">
+                    <div className="absolute inset-0 bg-[var(--ui-surface-3)]/70 rounded-xl flex items-center justify-center">
                       <div className="flex items-center space-x-3">
                         <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-brand-orange-500"></div>
-                        <span className="text-white">处理图片中...</span>
+                        <span className="text-[var(--ui-text)]">处理图片中...</span>
                       </div>
                     </div>
                   )}
@@ -335,16 +335,16 @@ const PalmistryPage: React.FC = () => {
                     <div style={{ width: '300px', maxWidth: '100%' }}>
                       {/* 图片预览 */}
                       <motion.div 
-                        className="bg-brand-gray-900 border border-[#333333] rounded-xl p-[1rem]"
+                        className="bg-[var(--ui-surface-2)] border border-[var(--ui-border)] rounded-xl p-[1rem]"
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ delay: 0.2 }}
                       >
                         <div className="flex justify-between items-center mb-4">
-                          <h3 className="text-white font-semibold text-lg">手相图片</h3>
+                          <h3 className="text-[var(--ui-text)] font-semibold text-lg">手相图片</h3>
                           <button
                             onClick={handleClearImage}
-                            className="text-[#FF9900] hover:text-[#E68A00] transition-colors font-medium"
+                            className="text-[var(--ui-accent)] hover:text-[var(--ui-accent-strong)] transition-colors font-medium"
                           >
                             重新选择
                           </button>
@@ -354,11 +354,11 @@ const PalmistryPage: React.FC = () => {
                           <img
                             src={imageData.preview}
                             alt="手相预览"
-                            className="max-w-full h-auto rounded-lg border border-brand-gray-600 max-h-60 mx-auto object-contain"
+                            className="max-w-full h-auto rounded-lg border border-[var(--ui-border)] max-h-60 mx-auto object-contain"
                           />
                         </div>
                         
-                        <div className="mt-4 text-center text-sm text-brand-gray-400">
+                        <div className="mt-4 text-center text-sm text-[var(--ui-muted-2)]">
                           {imageData.file.name} • {(imageData.file.size / 1024 / 1024).toFixed(2)} MB
                         </div>
                       </motion.div>
@@ -379,8 +379,8 @@ const PalmistryPage: React.FC = () => {
                   className={`
                     px-8 py-4 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg
                     ${canStartAnalysis
-                      ? 'bg-gradient-to-r from-[#FF9900] to-[#E68A00] text-black hover:from-[#E68A00] hover:to-[#CC7700] hover:shadow-xl hover:shadow-[#FF9900]/30'
-                      : 'bg-[#444444] text-[#888888] cursor-not-allowed'
+                      ? 'bg-gradient-to-r from-[var(--ui-accent)] to-[var(--ui-accent-strong)] text-white hover:from-[var(--ui-accent-strong)] hover:to-[var(--ui-accent-strong)] hover:shadow-xl hover:shadow-[0_12px_30px_rgba(37,94,234,0.25)]'
+                      : 'bg-[var(--ui-muted)] text-[var(--ui-muted-2)] cursor-not-allowed'
                     }
                   `}
                   whileHover={canStartAnalysis ? { scale: 1.05, y: -2 } : {}}
@@ -400,7 +400,7 @@ const PalmistryPage: React.FC = () => {
                 
                 {!selectedMaster && imageData && (
                   <motion.p 
-                    className="text-brand-gray-300 text-sm mt-4"
+                    className="text-[var(--ui-muted)] text-sm mt-4"
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.2 }}
@@ -420,42 +420,42 @@ const PalmistryPage: React.FC = () => {
             >
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-brand-gray-900/50 border border-[#333333] rounded-xl p-6">
+                <div className="bg-[var(--ui-surface-3)]/50 border border-[var(--ui-border)] rounded-xl p-6">
                   <div className="flex items-center mb-4">
-                    <div className="w-3 h-3 bg-[#FF9900] rounded-full mr-3"></div>
-                    <h3 className="text-white font-semibold text-lg">生命线</h3>
+                    <div className="w-3 h-3 bg-[var(--ui-accent)] rounded-full mr-3"></div>
+                    <h3 className="text-[var(--ui-text)] font-semibold text-lg">生命线</h3>
                   </div>
-                  <p className="text-brand-gray-300">
+                  <p className="text-[var(--ui-muted)]">
                     健康状况和生命力分析
                   </p>
                 </div>
 
-                <div className="bg-brand-gray-900/50 border border-[#333333] rounded-xl p-6">
+                <div className="bg-[var(--ui-surface-3)]/50 border border-[var(--ui-border)] rounded-xl p-6">
                   <div className="flex items-center mb-4">
-                    <div className="w-3 h-3 bg-[#FF9900] rounded-full mr-3"></div>
-                    <h3 className="text-white font-semibold text-lg">智慧线</h3>
+                    <div className="w-3 h-3 bg-[var(--ui-accent)] rounded-full mr-3"></div>
+                    <h3 className="text-[var(--ui-text)] font-semibold text-lg">智慧线</h3>
                   </div>
-                  <p className="text-brand-gray-300">
+                  <p className="text-[var(--ui-muted)]">
                     思维能力和性格特征解读
                   </p>
                 </div>
 
-                <div className="bg-brand-gray-900/50 border border-[#333333] rounded-xl p-6">
+                <div className="bg-[var(--ui-surface-3)]/50 border border-[var(--ui-border)] rounded-xl p-6">
                   <div className="flex items-center mb-4">
-                    <div className="w-3 h-3 bg-[#FF9900] rounded-full mr-3"></div>
-                    <h3 className="text-white font-semibold text-lg">感情线</h3>
+                    <div className="w-3 h-3 bg-[var(--ui-accent)] rounded-full mr-3"></div>
+                    <h3 className="text-[var(--ui-text)] font-semibold text-lg">感情线</h3>
                   </div>
-                  <p className="text-brand-gray-300">
+                  <p className="text-[var(--ui-muted)]">
                     情感状态和人际关系分析
                   </p>
                 </div>
 
-                <div className="bg-brand-gray-900/50 border border-[#333333] rounded-xl p-6">
+                <div className="bg-[var(--ui-surface-3)]/50 border border-[var(--ui-border)] rounded-xl p-6">
                   <div className="flex items-center mb-4">
-                    <div className="w-3 h-3 bg-[#FF9900] rounded-full mr-3"></div>
-                    <h3 className="text-white font-semibold text-lg">事业线</h3>
+                    <div className="w-3 h-3 bg-[var(--ui-accent)] rounded-full mr-3"></div>
+                    <h3 className="text-[var(--ui-text)] font-semibold text-lg">事业线</h3>
                   </div>
-                  <p className="text-brand-gray-300">
+                  <p className="text-[var(--ui-muted)]">
                     职业发展和成就潜力预测
                   </p>
                 </div>
@@ -473,13 +473,13 @@ const PalmistryPage: React.FC = () => {
                 transition={{ duration: 0.3 }}
               >
                 <div className="text-center">
-                  <h3 className="text-2xl font-semibold text-white mb-6">
+                  <h3 className="text-2xl font-semibold text-[var(--ui-text)] mb-6">
                     {selectedMaster?.name || 'AI大师'}正在细观掌纹，解读命运...
                   </h3>
                   
                   {/* 分析动画区域 */}
                   <div className="flex justify-center">
-                    <div className="bg-black flex items-center justify-center relative overflow-hidden rounded-xl" style={{ width: '560px', height: '315px' }}>
+                    <div className="bg-[var(--ui-surface-2)] flex items-center justify-center relative overflow-hidden rounded-xl" style={{ width: '560px', height: '315px' }}>
                       {/* 使用MP4视频作为加载动画 */}
                       <video 
                         autoPlay 
@@ -502,12 +502,12 @@ const PalmistryPage: React.FC = () => {
                         {/* 如果视频加载失败，显示备用动画 */}
                         <div className="relative">
                           <motion.div
-                            className="w-16 h-16 border-4 border-[#FF9900] border-t-transparent rounded-full"
+                            className="w-16 h-16 border-4 border-[var(--ui-accent)] border-t-transparent rounded-full"
                             animate={{ rotate: 360 }}
                             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                           />
                           <motion.div
-                            className="absolute inset-4 border-2 border-[#CCCCCC] border-b-transparent rounded-full"
+                            className="absolute inset-4 border-2 border-[var(--ui-muted-2)] border-b-transparent rounded-full"
                             animate={{ rotate: -360 }}
                             transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
                           />
@@ -516,7 +516,7 @@ const PalmistryPage: React.FC = () => {
                             animate={{ scale: [1, 1.2, 1] }}
                             transition={{ duration: 2, repeat: Infinity }}
                           >
-                            <span className="text-[#FF9900] text-2xl font-bold">相</span>
+                            <span className="text-[var(--ui-accent)] text-2xl font-bold">相</span>
                           </motion.div>
                         </div>
                       </video>

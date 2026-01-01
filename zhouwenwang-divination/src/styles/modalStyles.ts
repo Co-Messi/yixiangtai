@@ -8,35 +8,35 @@ import type { CSSProperties } from 'react';
 // ==================== 颜色主题 ====================
 export const colors = {
   // 主色调
-  primary: '#FF9900',
-  primaryLight: '#F59E0B',
-  primaryDark: '#E68A00',
+  primary: 'var(--ui-accent)',
+  primaryLight: 'var(--ui-accent-strong)',
+  primaryDark: 'var(--ui-accent-strong)',
   
   // 灰色系
   gray: {
-    50: '#F9FAFB',
-    100: '#F3F4F6',
-    200: '#E5E7EB',
-    300: '#D1D5DB',
-    400: '#9CA3AF',
-    500: '#6B7280',
-    600: '#4B5563',
-    700: '#374151',
-    800: '#1F2937',
-    900: '#111827',
+    50: 'var(--ui-surface-3)',
+    100: 'var(--ui-surface-2)',
+    200: 'var(--ui-border)',
+    300: 'var(--ui-border-soft)',
+    400: 'var(--ui-muted-2)',
+    500: 'var(--ui-muted)',
+    600: 'var(--ui-muted)',
+    700: 'var(--ui-text)',
+    800: 'var(--ui-text)',
+    900: 'var(--ui-text)',
   },
   
   // 状态颜色
-  success: '#10B981',
+  success: 'var(--ui-success)',
   successLight: '#34D399',
-  error: '#EF4444',
+  error: 'var(--ui-danger)',
   errorLight: '#F87171',
-  warning: '#F59E0B',
-  info: '#3B82F6',
+  warning: 'var(--ui-accent)',
+  info: 'var(--ui-accent)',
   
   // 特殊颜色
   white: '#FFFFFF',
-  black: '#000000',
+  black: 'var(--ui-text)',
   transparent: 'transparent',
 } as const;
 
@@ -44,26 +44,26 @@ export const colors = {
 export const gradients = {
   primary: `linear-gradient(90deg, ${colors.primary} 0%, ${colors.primaryLight} 100%)`,
   primaryReverse: `linear-gradient(90deg, ${colors.primaryLight} 0%, ${colors.primary} 100%)`,
-  primaryHover: `linear-gradient(90deg, ${colors.primaryDark} 0%, #D97706 100%)`,
+  primaryHover: `linear-gradient(90deg, ${colors.primaryDark} 0%, ${colors.primary} 100%)`,
   
-  success: 'linear-gradient(90deg, #059669 0%, #047857 100%)',
-  successHover: 'linear-gradient(90deg, #047857 0%, #065F46 100%)',
+  success: 'linear-gradient(90deg, #16A34A 0%, #15803D 100%)',
+  successHover: 'linear-gradient(90deg, #15803D 0%, #166534 100%)',
   
   error: 'linear-gradient(90deg, #DC2626 0%, #B91C1C 100%)',
   errorHover: 'linear-gradient(90deg, #B91C1C 0%, #991B1B 100%)',
   
-  info: 'linear-gradient(90deg, #2563EB 0%, #1D4ED8 100%)',
-  infoHover: 'linear-gradient(90deg, #1D4ED8 0%, #1E40AF 100%)',
+  info: 'linear-gradient(90deg, #3B82F6 0%, #2563EB 100%)',
+  infoHover: 'linear-gradient(90deg, #2563EB 0%, #1D4ED8 100%)',
   
   disabled: `linear-gradient(90deg, ${colors.gray[500]} 0%, ${colors.gray[600]} 100%)`,
   
-  background: 'linear-gradient(135deg, rgba(0, 0, 0, 0.9) 0%, rgba(17, 17, 17, 0.95) 100%)',
-  cardBackground: 'linear-gradient(135deg, #1a1a1a 0%, #0a0a0a 100%)',
+  background: 'linear-gradient(135deg, var(--ui-bg) 0%, var(--ui-bg-2) 100%)',
+  cardBackground: 'linear-gradient(135deg, var(--ui-surface) 0%, var(--ui-surface-2) 100%)',
   
   overlaySuccess: 'linear-gradient(90deg, rgba(0, 0, 0, 0.7) 0%, rgba(34, 197, 94, 0.2) 50%, rgba(0, 0, 0, 0.7) 100%)',
   overlayError: 'linear-gradient(90deg, rgba(0, 0, 0, 0.7) 0%, rgba(239, 68, 68, 0.2) 50%, rgba(0, 0, 0, 0.7) 100%)',
-  overlayWarning: 'linear-gradient(90deg, rgba(0, 0, 0, 0.7) 0%, rgba(245, 158, 11, 0.2) 50%, rgba(0, 0, 0, 0.7) 100%)',
-  overlayInfo: 'linear-gradient(90deg, rgba(0, 0, 0, 0.7) 0%, rgba(59, 130, 246, 0.2) 50%, rgba(0, 0, 0, 0.7) 100%)',
+  overlayWarning: 'linear-gradient(90deg, rgba(0, 0, 0, 0.7) 0%, rgba(59, 130, 246, 0.2) 50%, rgba(0, 0, 0, 0.7) 100%)',
+  overlayInfo: 'linear-gradient(90deg, rgba(0,  0, 0, 0.7) 0%, rgba(59, 130, 246, 0.2) 50%, rgba(0, 0, 0, 0.7) 100%)',
 } as const;
 
 // ==================== 基础样式组件 ====================
@@ -89,17 +89,17 @@ export const baseStyles = {
     width: '100%',
     maxWidth,
     background: gradients.cardBackground,
-    border: `1px solid rgba(255, 153, 0, 0.2)`,
+    border: `1px solid var(--ui-border)`,
     borderRadius: '16px',
-    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 153, 0, 0.1)',
+    boxShadow: 'var(--ui-shadow)',
     maxHeight: '85vh',
     overflow: 'hidden',
   }),
   
   // 标题栏
   modalHeader: {
-    background: 'linear-gradient(90deg, rgba(255, 153, 0, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%)',
-    borderBottom: '1px solid rgba(255, 153, 0, 0.2)',
+    background: 'var(--ui-surface-2)',
+    borderBottom: '1px solid var(--ui-border)',
     padding: '16px 24px',
   },
   
@@ -119,8 +119,8 @@ export const baseStyles = {
   
   // 卡片容器
   card: (padding: string = '18px') => ({
-    background: 'rgba(31, 41, 55, 0.5)',
-    border: '1px solid rgba(75, 85, 99, 0.5)',
+    background: 'var(--ui-surface-2)',
+    border: '1px solid var(--ui-border)',
     borderRadius: '12px',
     padding,
     backdropFilter: 'blur(4px)',
@@ -138,20 +138,20 @@ export const interactiveStyles = {
     cursor: 'pointer',
     transition: 'all 0.2s',
     background: isActive 
-      ? 'linear-gradient(90deg, rgba(255, 153, 0, 0.2) 0%, rgba(245, 158, 11, 0.2) 100%)'
+      ? 'var(--ui-accent-soft)'
       : 'transparent',
     color: isActive ? colors.primary : colors.gray[400],
-    border: isActive ? '1px solid rgba(255, 153, 0, 0.3)' : 'none',
+    border: isActive ? '1px solid var(--ui-accent)' : 'none',
   }),
   
   // 输入框
   input: {
     flex: 1,
     padding: '10px 14px',
-    background: 'rgba(0, 0, 0, 0.5)',
-    border: `1px solid ${colors.gray[600]}`,
+    background: 'var(--ui-surface-2)',
+    border: `1px solid var(--ui-border)`,
     borderRadius: '8px',
-    color: colors.gray[200],
+    color: 'var(--ui-text)',
     fontSize: '14px',
     outline: 'none',
     transition: 'all 0.2s',
@@ -159,8 +159,8 @@ export const interactiveStyles = {
   
   // 输入框聚焦状态
   inputFocus: {
-    borderColor: 'rgba(255, 153, 0, 0.5)',
-    boxShadow: '0 0 0 2px rgba(255, 153, 0, 0.1)',
+    borderColor: 'var(--ui-accent)',
+    boxShadow: '0 0 0 2px color-mix(in srgb, var(--ui-accent) 20%, transparent)',
   },
   
   // 按钮基础样式
@@ -182,13 +182,14 @@ export const interactiveStyles = {
   primaryButton: {
     background: gradients.primary,
     color: colors.white,
-    boxShadow: '0 4px 14px 0 rgba(255, 153, 0, 0.3)',
+    boxShadow: '0 10px 24px rgba(37, 94, 234, 0.25)',
   },
   
   // 次要按钮
   secondaryButton: {
-    background: gradients.info,
-    color: colors.white,
+    background: 'var(--ui-surface-2)',
+    color: 'var(--ui-text)',
+    border: '1px solid var(--ui-border)',
   },
   
   // 危险按钮
@@ -199,8 +200,8 @@ export const interactiveStyles = {
   
   // 禁用按钮
   disabledButton: {
-    background: gradients.disabled,
-    color: colors.white,
+    background: 'var(--ui-surface-3)',
+    color: 'var(--ui-muted-2)',
     cursor: 'not-allowed',
   },
 } as const;

@@ -265,7 +265,7 @@ const LiuYaoPage = () => {
 
   return (
     <motion.div 
-      className="min-h-screen bg-black text-white"
+      className="min-h-screen text-[var(--ui-text)]"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -276,10 +276,10 @@ const LiuYaoPage = () => {
           className="text-center mb-2"
           variants={itemVariants}
         >
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#EEEEEE] via-[#CCCCCC] to-[#FF9900] bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[var(--ui-text)] via-[var(--ui-muted-2)] to-[var(--ui-accent)] bg-clip-text text-transparent">
             六爻占卜
           </h1>
-          <p className="text-xl text-[#CCCCCC] max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-[var(--ui-muted-2)] max-w-3xl mx-auto leading-relaxed">
             传承千年的六爻占卜智慧，通过摇卦的方式获得卦象，解读人生吉凶
           </p>
         </motion.div>
@@ -298,12 +298,12 @@ const LiuYaoPage = () => {
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   placeholder="您想算点什么？"
-                  className="w-[300px] h-[46px] px-6 py-3 bg-[#222222] border-2 border-[#333333] rounded-xl !text-white !text-lg !font-bold placeholder:!text-[#888888] focus:border-[#FF9900] focus:outline-none transition-all duration-300"
+                  className="w-[300px] h-[46px] px-6 py-3 bg-[var(--ui-surface-2)] border-2 border-[var(--ui-border)] rounded-xl !text-[var(--ui-text)] !text-lg !font-bold placeholder:!text-[var(--ui-muted-2)] focus:border-[var(--ui-accent)] focus:outline-none transition-all duration-300"
                   style={{ 
                     color: 'white',
                     fontSize: '18px',
                     fontWeight: 'bold',
-                    backgroundColor: '#222222',
+                    backgroundColor: 'var(--ui-border)',
                     borderRadius: '12px',
                     height: '46px'
                   }}
@@ -315,8 +315,8 @@ const LiuYaoPage = () => {
                   disabled={isDivining || !question.trim()}
                   className={`px-8 py-3 h-[46px] rounded-xl font-bold text-lg transition-all duration-300 shadow-lg whitespace-nowrap flex items-center justify-center ${
                     isDivining || !question.trim()
-                      ? 'bg-[#444444] text-[#888888] cursor-not-allowed'
-                      : 'bg-gradient-to-r from-[#FF9900] to-[#E68A00] text-black hover:from-[#E68A00] hover:to-[#CC7700] hover:shadow-xl hover:shadow-[#FF9900]/30'
+                      ? 'bg-[var(--ui-muted)] text-[var(--ui-muted-2)] cursor-not-allowed'
+                      : 'bg-gradient-to-r from-[var(--ui-accent)] to-[var(--ui-accent-strong)] text-white hover:from-[var(--ui-accent-strong)] hover:to-[var(--ui-accent-strong)] hover:shadow-xl hover:shadow-[0_12px_30px_rgba(37,94,234,0.25)]'
                   }`}
                   whileHover={!isDivining && question.trim() ? { scale: 1.05, y: -2 } : {}}
                   whileTap={!isDivining && question.trim() ? { scale: 0.98 } : {}}
@@ -335,8 +335,8 @@ const LiuYaoPage = () => {
               {/* 时间选择区域 */}
               <div className="flex justify-center items-center gap-6 mb-6">
                 <div className="flex items-center gap-3">
-                  <Clock className="w-5 h-5 text-[#FF9900]" />
-                  <span className="text-white font-medium">起卦时间：</span>
+                  <Clock className="w-5 h-5 text-[var(--ui-accent)]" />
+                  <span className="text-[var(--ui-text)] font-medium">起卦时间：</span>
                 </div>
                 <div className="flex items-center gap-4">
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -344,20 +344,20 @@ const LiuYaoPage = () => {
                       type="radio"
                       checked={useCurrentTime}
                       onChange={() => setUseCurrentTime(true)}
-                      className="form-radio text-[#FF9900] focus:ring-[#FF9900] bg-[#222222] border-[#333333]"
+                      className="form-radio text-[var(--ui-accent)] focus:ring-[var(--ui-accent)] bg-[var(--ui-surface-2)] border-[var(--ui-border)]"
                       disabled={isDivining}
                     />
-                    <span className="text-[#CCCCCC]">当前时间</span>
+                    <span className="text-[var(--ui-muted-2)]">当前时间</span>
                   </label>
                   <label className="flex items-center gap-2 cursor-pointer">
                     <input
                       type="radio"
                       checked={!useCurrentTime}
                       onChange={() => setUseCurrentTime(false)}
-                      className="form-radio text-[#FF9900] focus:ring-[#FF9900] bg-[#222222] border-[#333333]"
+                      className="form-radio text-[var(--ui-accent)] focus:ring-[var(--ui-accent)] bg-[var(--ui-surface-2)] border-[var(--ui-border)]"
                       disabled={isDivining}
                     />
-                    <span className="text-[#CCCCCC]">自选时间</span>
+                    <span className="text-[var(--ui-muted-2)]">自选时间</span>
                   </label>
                 </div>
                 {!useCurrentTime && (
@@ -365,7 +365,7 @@ const LiuYaoPage = () => {
                     type="datetime-local"
                     value={selectedTime.toISOString().slice(0, 16)}
                     onChange={(e) => setSelectedTime(new Date(e.target.value))}
-                    className="px-3 py-2 bg-[#222222] border border-[#333333] rounded-lg text-white focus:border-[#FF9900] focus:outline-none transition-all duration-300"
+                    className="px-3 py-2 bg-[var(--ui-surface-2)] border border-[var(--ui-border)] rounded-lg text-[var(--ui-text)] focus:border-[var(--ui-accent)] focus:outline-none transition-all duration-300"
                     disabled={isDivining}
                   />
                 )}
@@ -373,13 +373,13 @@ const LiuYaoPage = () => {
 
               {/* 快速开始水平布局 - 居中 */}
               <div className="flex justify-center items-center gap-3">
-                <h4 className="text-lg font-medium text-white whitespace-nowrap">快速开始：</h4>
+                <h4 className="text-lg font-medium text-[var(--ui-text)] whitespace-nowrap">快速开始：</h4>
                 <div className="flex flex-wrap gap-4">
                   {quickQuestions.map((quickQuestion, index) => (
                     <motion.span
                       key={index}
                       onClick={() => !isDivining && quickStart(quickQuestion)}
-                      className={`px-4 py-2 text-[#CCCCCC] text-sm cursor-pointer hover:text-[#FF9900] transition-all duration-300 ${
+                      className={`px-4 py-2 text-[var(--ui-muted-2)] text-sm cursor-pointer hover:text-[var(--ui-accent)] transition-all duration-300 ${
                         isDivining ? 'opacity-50 cursor-not-allowed' : ''
                       }`}
                       whileHover={!isDivining ? { scale: 1.05, y: -2 } : {}}
@@ -406,11 +406,11 @@ const LiuYaoPage = () => {
                 transition={{ duration: 0.3 }}
               >
                 <div className="text-center">
-                  <h3 className="text-2xl font-semibold text-white mb-6">古法摇卦，天机显现</h3>
+                  <h3 className="text-2xl font-semibold text-[var(--ui-text)] mb-6">古法摇卦，天机显现</h3>
                   
                   {/* 摇卦动画区域 */}
                   <div className="flex justify-center">
-                    <div className="bg-black flex items-center justify-center relative overflow-hidden rounded-xl" style={{ width: '560px', height: '315px' }}>
+                    <div className="bg-[var(--ui-surface-2)] flex items-center justify-center relative overflow-hidden rounded-xl" style={{ width: '560px', height: '315px' }}>
                       {/* 实际使用MP4视频 */}
                       <video 
                         autoPlay 
@@ -444,12 +444,12 @@ const LiuYaoPage = () => {
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="relative">
                             <motion.div
-                              className="w-16 h-16 border-4 border-[#FF9900] border-t-transparent rounded-full"
+                              className="w-16 h-16 border-4 border-[var(--ui-accent)] border-t-transparent rounded-full"
                               animate={{ rotate: 360 }}
                               transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                             />
                             <motion.div
-                              className="absolute inset-4 border-2 border-[#CCCCCC] border-b-transparent rounded-full"
+                              className="absolute inset-4 border-2 border-[var(--ui-muted-2)] border-b-transparent rounded-full"
                               animate={{ rotate: -360 }}
                               transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
                             />
@@ -458,7 +458,7 @@ const LiuYaoPage = () => {
                               animate={{ scale: [1, 1.2, 1] }}
                               transition={{ duration: 2, repeat: Infinity }}
                             >
-                              <span className="text-[#FF9900] text-2xl font-bold">卦</span>
+                              <span className="text-[var(--ui-accent)] text-2xl font-bold">卦</span>
                             </motion.div>
                           </div>
                         </div>
@@ -483,7 +483,7 @@ const LiuYaoPage = () => {
 
                   {/* 卦象主体 - 深色卡片，填满剩余空间 */}
                   <motion.div 
-                    className="bg-[#1a1a1a] border border-[#333] p-6 flex flex-col"
+                    className="bg-[var(--ui-surface-2)] border border-[var(--ui-border)] p-6 flex flex-col"
                     style={{ 
                       minHeight: '280px',
                       borderRadius: '16px',
@@ -501,7 +501,7 @@ const LiuYaoPage = () => {
                           style={{ 
                             fontSize: '42px',
                             fontWeight: '900',
-                            color: '#3B82F6',
+                            color: 'var(--ui-accent)',
                             fontFamily: '"Noto Serif SC", "STKaiti", "STSong", serif',
                             textShadow: '0 0 15px rgba(59, 130, 246, 0.6), 0 0 25px rgba(59, 130, 246, 0.4)',
                             letterSpacing: '4px',
@@ -518,7 +518,7 @@ const LiuYaoPage = () => {
                             style={{ 
                               fontSize: '16px',
                               fontWeight: '600',
-                              color: '#FBBF24',
+                              color: 'var(--ui-accent)',
                               backgroundColor: 'rgba(251, 191, 36, 0.15)',
                               border: '1px solid rgba(251, 191, 36, 0.4)',
                               borderRadius: '8px',
@@ -536,7 +536,7 @@ const LiuYaoPage = () => {
                             style={{ 
                               fontSize: '13px',
                               fontWeight: '500',
-                              color: '#CCCCCC',
+                              color: 'var(--ui-muted-2)',
                               backgroundColor: 'rgba(204, 204, 204, 0.1)',
                               border: '1px solid rgba(204, 204, 204, 0.3)',
                               borderRadius: '6px',
@@ -553,7 +553,7 @@ const LiuYaoPage = () => {
                       </div>
                       
                       {/* 起卦时间信息 */}
-                      <div className="mt-3 text-sm text-[#888888]">
+                      <div className="mt-3 text-sm text-[var(--ui-muted-2)]">
                         <div className="flex items-center justify-center gap-4">
                           {result.divinationTime && (
                             <>
@@ -596,7 +596,7 @@ const LiuYaoPage = () => {
                               style={{ 
                                 fontSize: '20px',
                                 fontWeight: '800',
-                                color: '#FF9900',
+                                color: 'var(--ui-accent)',
                                 fontFamily: '"Noto Serif SC", "STKaiti", "STSong", serif',
                                 textShadow: '0 0 10px rgba(255, 153, 0, 0.6), 0 2px 4px rgba(0, 0, 0, 0.3)',
                                 letterSpacing: '1px',
@@ -618,10 +618,10 @@ const LiuYaoPage = () => {
                                   className="h-6 w-full rounded shadow-lg"
                                   style={{ 
                                     minHeight: '24px', 
-                                    backgroundColor: isMoving ? '#fbbf24' : '#f59e0b',
+                                    backgroundColor: isMoving ? 'var(--ui-accent)' : 'var(--ui-accent-strong)',
                                     boxShadow: isMoving 
-                                      ? '0 4px 12px rgba(251, 191, 36, 0.4)' 
-                                      : '0 4px 12px rgba(245, 158, 11, 0.4)'
+                                      ? '0 4px 12px color-mix(in srgb, var(--ui-accent) 40%, transparent)' 
+                                      : '0 4px 12px color-mix(in srgb, var(--ui-accent-strong) 40%, transparent)'
                                   }}
                                 ></div>
                               ) : (
@@ -631,22 +631,22 @@ const LiuYaoPage = () => {
                                     className="h-6 rounded shadow-lg"
                                     style={{ 
                                       minHeight: '24px', 
-                                      backgroundColor: isMoving ? '#9ca3af' : '#6b7280',
+                                      backgroundColor: isMoving ? 'var(--ui-muted)' : 'var(--ui-muted-2)',
                                       width: '42%',
                                       boxShadow: isMoving 
-                                        ? '0 4px 12px rgba(156, 163, 175, 0.3)' 
-                                        : '0 4px 12px rgba(107, 114, 128, 0.3)'
+                                        ? '0 4px 12px color-mix(in srgb, var(--ui-muted) 35%, transparent)' 
+                                        : '0 4px 12px color-mix(in srgb, var(--ui-muted-2) 35%, transparent)'
                                     }}
                                   ></div>
                                   <div 
                                     className="h-6 rounded shadow-lg"
                                     style={{ 
                                       minHeight: '24px', 
-                                      backgroundColor: isMoving ? '#9ca3af' : '#6b7280',
+                                      backgroundColor: isMoving ? 'var(--ui-muted)' : 'var(--ui-muted-2)',
                                       width: '42%',
                                       boxShadow: isMoving 
-                                        ? '0 4px 12px rgba(156, 163, 175, 0.3)' 
-                                        : '0 4px 12px rgba(107, 114, 128, 0.3)'
+                                        ? '0 4px 12px color-mix(in srgb, var(--ui-muted) 35%, transparent)' 
+                                        : '0 4px 12px color-mix(in srgb, var(--ui-muted-2) 35%, transparent)'
                                     }}
                                   ></div>
                                 </div>
@@ -660,10 +660,10 @@ const LiuYaoPage = () => {
                                   style={{ 
                                     fontSize: '28px',
                                     fontWeight: '900',
-                                    color: yaoTypeValue === 'yang' ? '#FCD34D' : '#E5E7EB',
+                                    color: yaoTypeValue === 'yang' ? 'var(--ui-accent)' : 'var(--ui-muted-2)',
                                     textShadow: yaoTypeValue === 'yang' 
-                                      ? '0 0 12px rgba(252, 211, 77, 0.8), 0 0 20px rgba(252, 211, 77, 0.4)' 
-                                      : '0 0 12px rgba(229, 231, 235, 0.8), 0 0 20px rgba(229, 231, 235, 0.4)',
+                                      ? '0 0 12px color-mix(in srgb, var(--ui-accent) 60%, transparent), 0 0 20px color-mix(in srgb, var(--ui-accent) 35%, transparent)' 
+                                      : '0 0 12px color-mix(in srgb, var(--ui-muted) 60%, transparent), 0 0 20px color-mix(in srgb, var(--ui-muted-2) 35%, transparent)',
                                     filter: 'drop-shadow(0 3px 6px rgba(0, 0, 0, 0.4))',
                                     animation: 'pulse 2s infinite'
                                   }}
@@ -686,11 +686,11 @@ const LiuYaoPage = () => {
                         disabled={analyzing || !selectedMaster || analysisComplete}
                         className={`w-full px-4 py-3 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg ${
                           analyzing || !selectedMaster || analysisComplete
-                            ? 'bg-[#444444] cursor-not-allowed'
-                            : 'bg-gradient-to-r from-[#FF9900] to-[#E68A00] hover:from-[#E68A00] hover:to-[#CC7700] hover:shadow-xl hover:shadow-[#FF9900]/30'
+                            ? 'bg-[var(--ui-muted)] cursor-not-allowed'
+                            : 'bg-gradient-to-r from-[var(--ui-accent)] to-[var(--ui-accent-strong)] hover:from-[var(--ui-accent-strong)] hover:to-[var(--ui-accent-strong)] hover:shadow-xl hover:shadow-[0_12px_30px_rgba(37,94,234,0.25)]'
                         }`}
                         style={{
-                          color: analyzing || !selectedMaster || analysisComplete ? '#888888' : '#000000'
+                          color: analyzing || !selectedMaster || analysisComplete ? 'var(--ui-muted-2)' : 'var(--ui-text)'
                         }}
                         whileHover={!analyzing && selectedMaster && !analysisComplete ? { scale: 1.02 } : {}}
                         whileTap={!analyzing && selectedMaster && !analysisComplete ? { scale: 0.98 } : {}}
@@ -698,18 +698,18 @@ const LiuYaoPage = () => {
                         {analyzing ? (
                           <span 
                             className="flex items-center justify-center gap-3"
-                            style={{ color: '#888888' }}
+                            style={{ color: 'var(--ui-muted-2)' }}
                           >
                             <div 
                               className="animate-spin rounded-full h-4 w-4 border-b-2"
-                              style={{ borderColor: '#888888' }}
+                              style={{ borderColor: 'var(--ui-muted-2)' }}
                             ></div>
-                            <span style={{ color: '#888888' }}>
+                            <span style={{ color: 'var(--ui-muted-2)' }}>
                               {analysis ? `${selectedMaster?.name}正在分析...` : `${selectedMaster?.name}解卦中...`}
                             </span>
                           </span>
                         ) : (
-                          <span style={{ color: analyzing || !selectedMaster || analysisComplete ? '#888888' : '#000000' }}>
+                          <span style={{ color: analyzing || !selectedMaster || analysisComplete ? 'var(--ui-muted-2)' : 'var(--ui-text)' }}>
                             {analysisComplete ? `${selectedMaster?.name}解卦完成` : '大师解卦'}
                           </span>
                         )}
@@ -718,7 +718,7 @@ const LiuYaoPage = () => {
                       {!selectedMaster && (
                         <motion.button 
                           onClick={() => navigate('/settings')}
-                          className="w-full mt-2 bg-gradient-to-r from-[#FF9900] to-[#E68A00] text-black px-4 py-3 rounded-xl font-bold text-sm hover:from-[#E68A00] hover:to-[#CC7700] transition-all duration-300 shadow-lg hover:shadow-[#FF9900]/30"
+                          className="w-full mt-2 bg-gradient-to-r from-[var(--ui-accent)] to-[var(--ui-accent-strong)] text-white px-4 py-3 rounded-xl font-bold text-sm hover:from-[var(--ui-accent-strong)] hover:to-[var(--ui-accent-strong)] transition-all duration-300 shadow-lg hover:shadow-[0_12px_30px_rgba(37,94,234,0.25)]"
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                         >

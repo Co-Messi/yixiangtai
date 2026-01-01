@@ -24,23 +24,23 @@ const CustomTooltip = ({ active, payload, label }: any) => {
     const isRising = data.close > data.open;
     
     return (
-      <div className="bg-[#1a1a1a] backdrop-blur-sm p-4 rounded-lg shadow-xl border border-[#333333] text-sm">
+      <div className="bg-[var(--ui-surface-2)] backdrop-blur-sm p-4 rounded-lg shadow-xl border border-[var(--ui-border)] text-sm">
         <div className="flex items-center justify-between mb-2">
-          <span className="font-bold text-lg text-white">{data.year} {data.yearGanZhi}年 ({data.age}岁)</span>
+          <span className="font-bold text-lg text-[var(--ui-text)]">{data.year} {data.yearGanZhi}年 ({data.age}岁)</span>
           <span className={`px-2 py-0.5 rounded text-xs font-bold ${
             isRising ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'
           }`}>
             {data.summary} {isRising ? '▲' : '▼'}
           </span>
         </div>
-        <div className="grid grid-cols-2 gap-x-6 gap-y-1 mb-3 text-[#CCCCCC]">
-          <div>大运: <span className="font-medium text-white">{data.daYun}</span></div>
-          <div>开盘: <span className="font-medium text-white">{data.open}</span></div>
+        <div className="grid grid-cols-2 gap-x-6 gap-y-1 mb-3 text-[var(--ui-muted-2)]">
+          <div>大运: <span className="font-medium text-[var(--ui-text)]">{data.daYun}</span></div>
+          <div>开盘: <span className="font-medium text-[var(--ui-text)]">{data.open}</span></div>
           <div>收盘: <span className={`font-medium ${isRising ? 'text-green-400' : 'text-red-400'}`}>{data.close}</span></div>
-          <div>最高: <span className="font-medium text-white">{data.high}</span></div>
-          <div>最低: <span className="font-medium text-white">{data.low}</span></div>
+          <div>最高: <span className="font-medium text-[var(--ui-text)]">{data.high}</span></div>
+          <div>最低: <span className="font-medium text-[var(--ui-text)]">{data.low}</span></div>
         </div>
-        <div className="text-xs text-[#888888] border-t border-[#333333] pt-2 mt-1 max-w-[240px]">
+        <div className="text-xs text-[var(--ui-muted-2)] border-t border-[var(--ui-border)] pt-2 mt-1 max-w-[240px]">
           {data.wuxingAnalysis}
         </div>
       </div>
@@ -140,17 +140,17 @@ export const KlineChart: React.FC<KlineChartProps> = ({ data, height = 500 }) =>
   }));
 
   return (
-    <div className="w-full bg-[#1a1a1a] border border-[#333333] rounded-xl shadow-sm p-6">
+    <div className="w-full bg-[var(--ui-surface-2)] border border-[var(--ui-border)] rounded-xl shadow-sm p-6">
       <div className="flex justify-between items-center mb-6">
-        <h3 className="text-xl font-bold text-white">人生流年大运K线图</h3>
+        <h3 className="text-xl font-bold text-[var(--ui-text)]">人生流年大运K线图</h3>
         <div className="flex items-center space-x-4 text-sm">
           <div className="flex items-center">
             <span className="w-3 h-3 bg-green-500 rounded-sm mr-2"></span>
-            <span className="text-[#CCCCCC]">吉运 (涨)</span>
+            <span className="text-[var(--ui-muted-2)]">吉运 (涨)</span>
           </div>
           <div className="flex items-center">
             <span className="w-3 h-3 bg-red-500 rounded-sm mr-2"></span>
-            <span className="text-[#CCCCCC]">凶运 (跌)</span>
+            <span className="text-[var(--ui-muted-2)]">凶运 (跌)</span>
           </div>
         </div>
       </div>
@@ -161,32 +161,32 @@ export const KlineChart: React.FC<KlineChartProps> = ({ data, height = 500 }) =>
             data={processedData}
             margin={{ top: 20, right: 30, left: 0, bottom: 20 }}
           >
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#333333" />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--ui-border)" />
             <XAxis 
               dataKey="age" 
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 12, fill: '#CCCCCC' }}
+              tick={{ fontSize: 12, fill: 'var(--ui-muted-2)' }}
               interval={9} // 每10年显示一个刻度
               tickFormatter={(val) => `${val}`}
-              label={{ value: '年龄', position: 'insideBottomRight', offset: -10, fill: '#CCCCCC' }}
+              label={{ value: '年龄', position: 'insideBottomRight', offset: -10, fill: 'var(--ui-muted-2)' }}
             />
             <YAxis 
               domain={[0, 100]} 
               hide={false}
               tickLine={false}
               axisLine={false}
-              tick={{ fontSize: 12, fill: '#CCCCCC' }}
-              label={{ value: '运势分', angle: -90, position: 'insideLeft', fill: '#CCCCCC' }}
+              tick={{ fontSize: 12, fill: 'var(--ui-muted-2)' }}
+              label={{ value: '运势分', angle: -90, position: 'insideLeft', fill: 'var(--ui-muted-2)' }}
             />
             <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(0,0,0,0.02)' }} />
             
             {/* 辅助线：60分及格线 */}
-            <ReferenceLine y={60} stroke="#444444" strokeDasharray="3 3" />
+            <ReferenceLine y={60} stroke="var(--ui-muted)" strokeDasharray="3 3" />
             
             {/* 大运分割线 (每10年) */}
             {processedData.filter(d => d.age % 10 === 0).map((d, i) => (
-               <ReferenceLine key={i} x={d.age} stroke="#2a2a2a" />
+               <ReferenceLine key={i} x={d.age} stroke="var(--ui-surface-3)" />
             ))}
 
             {/* 绘制 K 线 */}
@@ -207,7 +207,7 @@ export const KlineChart: React.FC<KlineChartProps> = ({ data, height = 500 }) =>
         </ResponsiveContainer>
       </div>
       
-      <div className="mt-4 flex justify-between text-xs text-[#888888] px-4">
+      <div className="mt-4 flex justify-between text-xs text-[var(--ui-muted-2)] px-4">
         {/* 在底部显示对应的大运，每10年显示一次 */}
         {processedData.filter((d, i) => i === 0 || d.age % 10 === 0).map((d, i) => (
            <div key={i} style={{ width: '10%' }} className="text-center">

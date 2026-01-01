@@ -1,9 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700&display=swap');
+
 /* TailwindCSS 现在使用 CDN 版本，不再需要本地编译 */
 /* @tailwind base; */
 /* @tailwind components; */
 /* @tailwind utilities; */
 
-/* 补充基础样式重置，确保与之前的样式保持一致 */
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -14,22 +15,71 @@
 
 html, body {
   height: 100%;
-  background-color: #000000 !important;
-  color: #FFFFFF !important;
-  color-scheme: dark !important;
 }
 
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  font-family: "Manrope", "PingFang SC", "Microsoft YaHei", sans-serif;
+  line-height: 1.6;
   font-weight: 400;
+  letter-spacing: 0.01em;
+  --ui-bg: #f3f5f8;
+  --ui-bg-2: #e9edf2;
+  --ui-surface: #ffffff;
+  --ui-surface-2: #f4f6f9;
+  --ui-surface-3: #eef2f6;
+  --ui-border: #d7dde5;
+  --ui-border-soft: #e3e8ef;
+  --ui-text: #14181f;
+  --ui-muted: #5d6672;
+  --ui-muted-2: #8a94a0;
+  --ui-accent: #3b7cff;
+  --ui-accent-strong: #255eea;
+  --ui-accent-soft: #e5efff;
+  --ui-success: #16a34a;
+  --ui-danger: #dc2626;
+  --ui-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+  --ui-glow: 0 0 0 1px rgba(59, 124, 255, 0.25), 0 10px 30px rgba(59, 124, 255, 0.18);
+  --ui-glass: rgba(255, 255, 255, 0.7);
+  --ui-glass-strong: rgba(255, 255, 255, 0.88);
+  --ui-font-display: "Manrope", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+html.theme-dark {
+  --ui-bg: #0f1115;
+  --ui-bg-2: #141821;
+  --ui-surface: #171b24;
+  --ui-surface-2: #1d2330;
+  --ui-surface-3: #232a3a;
+  --ui-border: #2c3445;
+  --ui-border-soft: #374158;
+  --ui-text: #e6eaf0;
+  --ui-muted: #a2adba;
+  --ui-muted-2: #7d8793;
+  --ui-accent: #5b8cff;
+  --ui-accent-strong: #3d6bff;
+  --ui-accent-soft: #1c2b4a;
+  --ui-success: #22c55e;
+  --ui-danger: #ef4444;
+  --ui-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  --ui-glow: 0 0 0 1px rgba(91, 140, 255, 0.3), 0 12px 36px rgba(91, 140, 255, 0.35);
+  --ui-glass: rgba(17, 22, 30, 0.72);
+  --ui-glass-strong: rgba(17, 22, 30, 0.9);
+}
+
+html.theme-light {
+  color-scheme: light;
+}
+
+html.theme-dark {
+  color-scheme: dark;
 }
 
 body {
-  line-height: 1.5;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
-  margin: 0;
+  background-color: var(--ui-bg);
+  color: var(--ui-text);
 }
 
 img, picture, video, canvas, svg {
@@ -47,17 +97,19 @@ p, h1, h2, h3, h4, h5, h6 {
 
 #root, #__next {
   isolation: isolate;
-  background-color: #000000 !important;
-  color: #FFFFFF !important;
+  background-color: transparent;
+  color: inherit;
+  min-height: 100vh;
 }
 
 a {
   font-weight: 500;
-  color: #FF9900;
+  color: var(--ui-accent);
   text-decoration: inherit;
 }
+
 a:hover {
-  color: #ffaa33;
+  color: var(--ui-accent-strong);
 }
 
 h1 {
@@ -65,35 +117,41 @@ h1 {
   line-height: 1.1;
 }
 
-/* 默认按钮样式 */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--ui-font-display);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
 button {
-  border-radius: 8px;
+  border-radius: 10px;
   border: 1px solid transparent;
   padding: 0.6em 1.2em;
   font-size: 1em;
   font-weight: 500;
   font-family: inherit;
   cursor: pointer;
-  transition: border-color 0.25s;
+  transition: border-color 0.25s, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-/* 只覆盖默认按钮样式，不影响自定义样式的按钮 */
 button:not([style*="background"]):not([class*="bg-"]) {
-  background-color: #1a1a1a !important;
-  color: #FFFFFF !important;
-  border-color: transparent !important;
+  background: var(--ui-surface-2);
+  color: var(--ui-text);
+  border-color: var(--ui-border);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
 }
 
 button:not([style*="background"]):not([class*="bg-"]):hover {
-  border-color: #FF9900 !important;
+  border-color: var(--ui-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
 }
 
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 3px auto -webkit-focus-ring-color;
 }
 
-/* 图标旋转动画 - 当父元素group被hover时触发 */
 .group:hover .icon-rotate-on-hover {
   transform: rotate(360deg);
   transition: transform 0.6s ease-in-out;
@@ -103,20 +161,16 @@ button:focus-visible {
   transition: transform 0.6s ease-in-out;
 }
 
-/* 强制所有输入元素使用暗色主题 */
 input, select, textarea {
-  background-color: #222222 !important;
-  color: #FFFFFF !important;
-  border-color: #444444 !important;
+  background-color: var(--ui-surface-2);
+  color: var(--ui-text);
+  border-color: var(--ui-border);
 }
 
-/* datetime-local 控件样式优化 */
 input[type="datetime-local"] {
-  color-scheme: dark;
-  color: white !important;
-  -webkit-text-fill-color: white !important;
-  background-color: black !important;
-  border-color: black !important;
+  color: var(--ui-text);
+  background-color: var(--ui-surface-2);
+  border-color: var(--ui-border);
   min-height: 36px;
   height: 36px;
   font-size: 16px;
@@ -124,57 +178,100 @@ input[type="datetime-local"] {
   vertical-align: middle;
 }
 
-input[type="datetime-local"]::-webkit-datetime-edit {
-  color: white !important;
-  -webkit-text-fill-color: white !important;
+html.theme-dark input[type="datetime-local"] {
+  color-scheme: dark;
 }
 
-input[type="datetime-local"]::-webkit-datetime-edit-text {
-  color: white !important;
-  -webkit-text-fill-color: white !important;
+html.theme-light input[type="datetime-local"] {
+  color-scheme: light;
 }
 
+input[type="datetime-local"]::-webkit-datetime-edit,
+input[type="datetime-local"]::-webkit-datetime-edit-text,
 input[type="datetime-local"]::-webkit-datetime-edit-month-field,
 input[type="datetime-local"]::-webkit-datetime-edit-day-field,
 input[type="datetime-local"]::-webkit-datetime-edit-year-field,
 input[type="datetime-local"]::-webkit-datetime-edit-hour-field,
 input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
-  color: white !important;
-  -webkit-text-fill-color: white !important;
+  color: var(--ui-text);
+  -webkit-text-fill-color: var(--ui-text);
+}
+
+html.theme-dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: brightness(0) invert(1);
+}
+
+html.theme-light input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: none;
 }
 
 input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-  filter: brightness(0) invert(1);
-  opacity: 1;
+  opacity: 0.85;
   cursor: pointer;
 }
 
 input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
-  opacity: 0.8;
+  opacity: 1;
 }
 
-/* 注释掉自动跟随系统主题的设置，强制使用暗色主题 */
-/*
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}
-*/
-
-/* 只为根元素设置 color-scheme，避免过度覆盖 */
-html {
-  color-scheme: dark !important;
+.app-shell {
+  min-height: 100vh;
+  background-image:
+    radial-gradient(900px circle at 15% -10%, color-mix(in srgb, var(--ui-accent) 12%, transparent), transparent 60%),
+    radial-gradient(900px circle at 90% -5%, color-mix(in srgb, var(--ui-accent) 10%, transparent), transparent 60%),
+    linear-gradient(180deg, var(--ui-bg) 0%, var(--ui-bg-2) 100%);
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: var(--ui-text);
 }
 
-/* 五行能量条闪光动画 */
+.lux-card {
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
+  box-shadow: var(--ui-shadow);
+  backdrop-filter: blur(12px);
+}
+
+.lux-pill {
+  border: 1px solid var(--ui-border);
+  background: var(--ui-surface-2);
+  color: var(--ui-text);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+}
+
+.lux-title {
+  font-family: var(--ui-font-display);
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+.surface-dark {
+  background: var(--ui-surface-2);
+  border: 1px solid var(--ui-border);
+  box-shadow: var(--ui-shadow);
+  backdrop-filter: blur(14px);
+}
+
+.surface-light {
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
+  box-shadow: var(--ui-shadow);
+  color: var(--ui-text);
+}
+
+.text-ink {
+  color: var(--ui-text);
+}
+
+.text-ivory {
+  color: var(--ui-text);
+}
+
+.hairline {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ui-border), transparent);
+}
+
 @keyframes shimmer {
   0% {
     transform: translateX(-100%);
@@ -184,9 +281,6 @@ html {
   }
 }
 
-/* ======== 轻量级动画系统 ======== */
-
-/* 淡入动画 */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -200,7 +294,6 @@ html {
   animation: fadeIn 0.3s ease-out forwards;
 }
 
-/* 淡出动画 */
 @keyframes fadeOut {
   from {
     opacity: 1;
@@ -214,7 +307,6 @@ html {
   animation: fadeOut 0.3s ease-in forwards;
 }
 
-/* 从上滑入 */
 @keyframes slideInFromTop {
   from {
     opacity: 0;
@@ -230,7 +322,6 @@ html {
   animation: slideInFromTop 0.4s ease-out forwards;
 }
 
-/* 从下滑入 */
 @keyframes slideInFromBottom {
   from {
     opacity: 0;
@@ -246,7 +337,6 @@ html {
   animation: slideInFromBottom 0.4s ease-out forwards;
 }
 
-/* 从左滑入 */
 @keyframes slideInFromLeft {
   from {
     opacity: 0;
@@ -262,7 +352,6 @@ html {
   animation: slideInFromLeft 0.4s ease-out forwards;
 }
 
-/* 从右滑入 */
 @keyframes slideInFromRight {
   from {
     opacity: 0;
@@ -278,7 +367,6 @@ html {
   animation: slideInFromRight 0.4s ease-out forwards;
 }
 
-/* 缩放动画 */
 @keyframes scaleIn {
   from {
     opacity: 0;
@@ -294,7 +382,6 @@ html {
   animation: scaleIn 0.3s ease-out forwards;
 }
 
-/* 弹跳动画 */
 @keyframes bounceIn {
   0% {
     opacity: 0;
@@ -317,7 +404,6 @@ html {
   animation: bounceIn 0.6s ease-out forwards;
 }
 
-/* 慢速旋转 */
 @keyframes spinSlow {
   from {
     transform: rotate(0deg);
@@ -331,7 +417,6 @@ html {
   animation: spinSlow 2s linear infinite;
 }
 
-/* 动画延迟类 */
 .animation-delay-100 {
   animation-delay: 0.1s;
 }

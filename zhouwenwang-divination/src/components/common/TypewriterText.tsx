@@ -52,7 +52,7 @@ const TypewriterText: React.FC<TypewriterTextProps> = ({
       </span>
       {showCursor && (
         <motion.span
-          className="ml-1 text-[#FF9900] font-bold"
+          className="ml-1 text-[var(--ui-accent)] font-bold"
           animate={{ opacity: [1, 0] }}
           transition={{
             duration: 0.8,

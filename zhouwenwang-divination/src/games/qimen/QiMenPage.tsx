@@ -277,13 +277,13 @@ const QiMenPage = () => {
   // 获取五行颜色
   const getWuxingColor = (wuxing: string) => {
     const colorMap: { [key: string]: string } = {
-      '木': '#22C55E', // 绿色
-      '火': '#EF4444', // 红色  
-      '土': '#8B4513', // 棕色
-      '金': '#FFD700', // 金色
-      '水': '#3B82F6'  // 蓝色
+      '木': 'var(--ui-success)',
+      '火': 'var(--ui-danger)',
+      '土': 'var(--ui-muted)',
+      '金': 'var(--ui-accent-strong)',
+      '水': 'var(--ui-accent)'
     };
-    return colorMap[wuxing] || '#CCCCCC';
+    return colorMap[wuxing] || 'var(--ui-muted-2)';
   };
 
   // 获取宫位的五行属性
@@ -316,7 +316,7 @@ const QiMenPage = () => {
     ];
 
     return (
-      <div className="grid grid-cols-3 gap-0 max-w-2xl mx-auto border-2 border-white">
+      <div className="grid grid-cols-3 gap-0 max-w-2xl mx-auto border-2 border-[var(--ui-border)]">
           {layout.map((row, rowIndex) =>
             row.map((position, colIndex) => {
             const palace = chartData.palaces.find(p => p.position === position);
@@ -335,14 +335,14 @@ const QiMenPage = () => {
               <motion.div
                 key={position}
                 className={`
-                  aspect-square p-2 border border-white transition-all duration-300 relative overflow-hidden
+                  aspect-square p-2 border border-[var(--ui-border)] transition-all duration-300 relative overflow-hidden
                   ${palace.isCenter 
-                    ? 'bg-gradient-to-br from-[#FF9900]/10 to-[#FF9900]/3' 
+                    ? 'bg-gradient-to-br from-[var(--ui-accent)]/10 to-[var(--ui-accent)]/3' 
                     : isExcellentPosition
                       ? 'bg-gradient-to-br from-green-800/30 to-green-900/10'
                       : isGoodPosition
                         ? 'bg-gradient-to-br from-green-900/20 to-green-950/10'
-                        : 'bg-gradient-to-br from-[#0a0a0a] to-[#151515]'
+                        : 'bg-gradient-to-br from-[var(--ui-surface-2)] to-[var(--ui-surface-3)]'
                   }
                 `}
                 whileHover={{ scale: 1.01 }}
@@ -365,7 +365,7 @@ const QiMenPage = () => {
                     <span 
                       style={{
                         fontSize: '14px',
-                        color: '#CCCCCC',
+                        color: 'var(--ui-muted-2)',
                         fontWeight: '500'
                       }}
                     >
@@ -402,7 +402,7 @@ const QiMenPage = () => {
                         style={{
                           fontSize: '16px',
                           fontWeight: '600',
-                          color: isGoodStar(palace.star) ? '#FCD34D' : '#CCCCCC',
+                          color: isGoodStar(palace.star) ? 'var(--ui-accent)' : 'var(--ui-muted-2)',
                           lineHeight: '1.1',
                           whiteSpace: 'nowrap'
                         }}
@@ -415,7 +415,7 @@ const QiMenPage = () => {
                         style={{
                           fontSize: '16px',
                           fontWeight: '600',
-                          color: isGoodDoor(palace.door) ? '#F87171' : '#CCCCCC',
+                          color: isGoodDoor(palace.door) ? 'var(--ui-danger)' : 'var(--ui-muted-2)',
                           lineHeight: '1.1',
                           whiteSpace: 'nowrap'
                         }}
@@ -470,7 +470,7 @@ const QiMenPage = () => {
                     <span 
                       style={{
                         fontSize: '14px',
-                        color: '#DDDDDD',
+                        color: 'var(--ui-muted)',
                         fontWeight: '500'
                       }}
                     >
@@ -490,7 +490,7 @@ const QiMenPage = () => {
 
   return (
     <motion.div 
-      className="min-h-screen bg-black text-white"
+      className="min-h-screen text-[var(--ui-text)]"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -501,10 +501,10 @@ const QiMenPage = () => {
           className="text-center mb-2"
           variants={itemVariants}
         >
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#EEEEEE] via-[#CCCCCC] to-[#FF9900] bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[var(--ui-text)] via-[var(--ui-muted-2)] to-[var(--ui-accent)] bg-clip-text text-transparent">
             奇门遁甲
           </h1>
-          <p className="text-xl text-[#CCCCCC] max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-[var(--ui-muted-2)] max-w-3xl mx-auto leading-relaxed">
             古代最高层次的预测学，以时间、空间、人和为三要素，探寻吉凶祸福的运行规律
           </p>
         </motion.div>
@@ -524,12 +524,12 @@ const QiMenPage = () => {
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   placeholder="您想算点什么？"
-                  className="w-[300px] h-[46px] px-6 py-3 bg-[#222222] border-2 border-[#333333] rounded-xl !text-white !text-lg !font-bold placeholder:!text-[#888888] focus:border-[#FF9900] focus:outline-none transition-all duration-300"
+                  className="w-[300px] h-[46px] px-6 py-3 bg-[var(--ui-surface-2)] border-2 border-[var(--ui-border)] rounded-xl !text-[var(--ui-text)] !text-lg !font-bold placeholder:!text-[var(--ui-muted-2)] focus:border-[var(--ui-accent)] focus:outline-none transition-all duration-300"
                   style={{ 
                     color: 'white',
                     fontSize: '18px',
                     fontWeight: 'bold',
-                    backgroundColor: '#222222',
+                    backgroundColor: 'var(--ui-border)',
                     borderRadius: '12px',
                     height: '46px'
                   }}
@@ -541,8 +541,8 @@ const QiMenPage = () => {
                   disabled={isGenerating || !question.trim()}
                   className={`px-8 py-3 h-[46px] rounded-xl font-bold text-lg transition-all duration-300 shadow-lg whitespace-nowrap flex items-center justify-center ${
                     isGenerating || !question.trim()
-                      ? 'bg-[#444444] text-[#888888] cursor-not-allowed'
-                      : 'bg-gradient-to-r from-[#FF9900] to-[#E68A00] text-black hover:from-[#E68A00] hover:to-[#CC7700] hover:shadow-xl hover:shadow-[#FF9900]/30'
+                      ? 'bg-[var(--ui-muted)] text-[var(--ui-muted-2)] cursor-not-allowed'
+                      : 'bg-gradient-to-r from-[var(--ui-accent)] to-[var(--ui-accent-strong)] text-white hover:from-[var(--ui-accent-strong)] hover:to-[var(--ui-accent-strong)] hover:shadow-xl hover:shadow-[0_12px_30px_rgba(37,94,234,0.25)]'
                   }`}
                   whileHover={!isGenerating && question.trim() ? { scale: 1.05, y: -2 } : {}}
                   whileTap={!isGenerating && question.trim() ? { scale: 0.98 } : {}}
@@ -560,13 +560,13 @@ const QiMenPage = () => {
 
               {/* 快速开始水平布局 - 居中 */}
               <div className="flex justify-center items-center gap-3 mb-8">
-                <h4 className="text-lg font-medium text-white whitespace-nowrap">快速开始：</h4>
+                <h4 className="text-lg font-medium text-[var(--ui-text)] whitespace-nowrap">快速开始：</h4>
                 <div className="flex flex-wrap gap-4">
                   {quickQuestions.map((quickQuestion, index) => (
                     <motion.span
                       key={index}
                       onClick={() => !isGenerating && quickStart(quickQuestion)}
-                      className={`px-4 py-2 text-[#CCCCCC] text-sm cursor-pointer hover:text-[#FF9900] transition-all duration-300 ${
+                      className={`px-4 py-2 text-[var(--ui-muted-2)] text-sm cursor-pointer hover:text-[var(--ui-accent)] transition-all duration-300 ${
                         isGenerating ? 'opacity-50 cursor-not-allowed' : ''
                       }`}
                       whileHover={!isGenerating ? { scale: 1.05, y: -2 } : {}}
@@ -584,8 +584,8 @@ const QiMenPage = () => {
               {/* 时间选择区域 - 简洁版本 */}
               <div className="flex justify-center items-center gap-3">
                 <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-[#FF9900]" />
-                  <h4 className="text-lg font-medium text-white whitespace-nowrap">起盘时间：</h4>
+                  <Clock className="h-5 w-5 text-[var(--ui-accent)]" />
+                  <h4 className="text-lg font-medium text-[var(--ui-text)] whitespace-nowrap">起盘时间：</h4>
                 </div>
                 
                 <div className="flex items-center gap-4">
@@ -594,10 +594,10 @@ const QiMenPage = () => {
                       type="radio"
                       checked={useCurrentTime}
                       onChange={() => handleUseCurrentTimeChange(true)}
-                      className="text-[#FF9900] focus:ring-[#FF9900]"
+                      className="text-[var(--ui-accent)] focus:ring-[var(--ui-accent)]"
                       disabled={isGenerating}
                     />
-                    <span className="text-[#CCCCCC]">当前时间</span>
+                    <span className="text-[var(--ui-muted-2)]">当前时间</span>
                   </label>
                   
                   <label className="flex items-center gap-2 cursor-pointer">
@@ -605,10 +605,10 @@ const QiMenPage = () => {
                       type="radio"
                       checked={!useCurrentTime}
                       onChange={() => handleUseCurrentTimeChange(false)}
-                      className="text-[#FF9900] focus:ring-[#FF9900]"
+                      className="text-[var(--ui-accent)] focus:ring-[var(--ui-accent)]"
                       disabled={isGenerating}
                     />
-                    <span className="text-[#CCCCCC]">选择时间</span>
+                    <span className="text-[var(--ui-muted-2)]">选择时间</span>
                   </label>
                   
                   {!useCurrentTime && (
@@ -616,7 +616,7 @@ const QiMenPage = () => {
                       type="datetime-local"
                       value={formatDateTimeForInput(selectedTime)}
                       onChange={handleTimeChange}
-                      className="bg-black border border-black rounded-lg px-3 py-2 text-white text-base focus:border-[#FF9900] focus:outline-none [&::-webkit-datetime-edit]:text-white [&::-webkit-datetime-edit-text]:text-white [&::-webkit-datetime-edit-month-field]:text-white [&::-webkit-datetime-edit-day-field]:text-white [&::-webkit-datetime-edit-year-field]:text-white [&::-webkit-datetime-edit-hour-field]:text-white [&::-webkit-datetime-edit-minute-field]:text-white [&::-webkit-calendar-picker-indicator]:brightness-0 [&::-webkit-calendar-picker-indicator]:invert"
+                      className="bg-[var(--ui-surface-2)] border border-black rounded-lg px-3 py-2 text-[var(--ui-text)] text-base focus:border-[var(--ui-accent)] focus:outline-none [&::-webkit-datetime-edit]:text-[var(--ui-text)] [&::-webkit-datetime-edit-text]:text-[var(--ui-text)] [&::-webkit-datetime-edit-month-field]:text-[var(--ui-text)] [&::-webkit-datetime-edit-day-field]:text-[var(--ui-text)] [&::-webkit-datetime-edit-year-field]:text-[var(--ui-text)] [&::-webkit-datetime-edit-hour-field]:text-[var(--ui-text)] [&::-webkit-datetime-edit-minute-field]:text-[var(--ui-text)] [&::-webkit-calendar-picker-indicator]:brightness-0 [&::-webkit-calendar-picker-indicator]:invert"
                       style={{
                         colorScheme: 'dark',
                         color: 'white !important',
@@ -648,11 +648,11 @@ const QiMenPage = () => {
                 transition={{ duration: 0.3 }}
               >
                 <div className="text-center">
-                  <h3 className="text-2xl font-semibold text-white mb-6">奇门起盘，时空定局</h3>
+                  <h3 className="text-2xl font-semibold text-[var(--ui-text)] mb-6">奇门起盘，时空定局</h3>
                   
                   {/* 起盘动画区域 */}
                   <div className="flex justify-center">
-                    <div className="bg-black flex items-center justify-center relative overflow-hidden rounded-xl" style={{ width: '560px', height: '315px' }}>
+                    <div className="bg-[var(--ui-surface-2)] flex items-center justify-center relative overflow-hidden rounded-xl" style={{ width: '560px', height: '315px' }}>
                       {/* 实际使用MP4视频 */}
                       <video 
                         autoPlay 
@@ -675,12 +675,12 @@ const QiMenPage = () => {
                         {/* 如果视频加载失败，显示备用动画 */}
                         <div className="relative">
                           <motion.div
-                            className="w-16 h-16 border-4 border-[#FF9900] border-t-transparent rounded-full"
+                            className="w-16 h-16 border-4 border-[var(--ui-accent)] border-t-transparent rounded-full"
                             animate={{ rotate: 360 }}
                             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                           />
                           <motion.div
-                            className="absolute inset-4 border-2 border-[#CCCCCC] border-b-transparent rounded-full"
+                            className="absolute inset-4 border-2 border-[var(--ui-muted-2)] border-b-transparent rounded-full"
                             animate={{ rotate: -360 }}
                             transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
                           />
@@ -689,7 +689,7 @@ const QiMenPage = () => {
                             animate={{ scale: [1, 1.2, 1] }}
                             transition={{ duration: 2, repeat: Infinity }}
                           >
-                            <span className="text-[#FF9900] text-2xl font-bold">遁</span>
+                            <span className="text-[var(--ui-accent)] text-2xl font-bold">遁</span>
                           </motion.div>
                         </div>
                       </video>
@@ -713,8 +713,8 @@ const QiMenPage = () => {
                   {/* 基本信息条 */}
                   <motion.div 
                     style={{
-                      background: '#1a1a1a',
-                      border: '1px solid #333',
+                      background: 'var(--ui-surface-2)',
+                      border: '1px solid var(--ui-border)',
                       padding: '20px 24px',
                       borderRadius: '12px 12px 0 0'
                     }}
@@ -729,29 +729,29 @@ const QiMenPage = () => {
                       textAlign: 'center'
                     }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div style={{ color: '#CCCCCC', fontSize: '14px', fontWeight: '500' }}>时间</div>
+                        <div style={{ color: 'var(--ui-muted-2)', fontSize: '14px', fontWeight: '500' }}>时间</div>
                         <div style={{ color: 'white', fontSize: '16px', fontWeight: '600', whiteSpace: 'nowrap' }}>{formatDateTime(chartData)}</div>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div style={{ color: '#CCCCCC', fontSize: '14px', fontWeight: '500' }}>遁甲</div>
-                        <div style={{ color: '#FF9900', fontSize: '16px', fontWeight: '700', whiteSpace: 'nowrap' }}>
+                        <div style={{ color: 'var(--ui-muted-2)', fontSize: '14px', fontWeight: '500' }}>遁甲</div>
+                        <div style={{ color: 'var(--ui-accent)', fontSize: '16px', fontWeight: '700', whiteSpace: 'nowrap' }}>
                           {chartData.escapeType === 'yang' ? '阳' : '阴'}遁{chartData.bureauNumber}局
                         </div>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div style={{ color: '#CCCCCC', fontSize: '14px', fontWeight: '500' }}>值符</div>
-                        <div style={{ color: '#FBBF24', fontSize: '16px', fontWeight: '600', whiteSpace: 'nowrap' }}>{chartData.dutyChief}</div>
+                        <div style={{ color: 'var(--ui-muted-2)', fontSize: '14px', fontWeight: '500' }}>值符</div>
+                        <div style={{ color: 'var(--ui-accent)', fontSize: '16px', fontWeight: '600', whiteSpace: 'nowrap' }}>{chartData.dutyChief}</div>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div style={{ color: '#CCCCCC', fontSize: '14px', fontWeight: '500' }}>值使</div>
-                        <div style={{ color: '#34D399', fontSize: '16px', fontWeight: '600', whiteSpace: 'nowrap' }}>{chartData.dutyDoor}</div>
+                        <div style={{ color: 'var(--ui-muted-2)', fontSize: '14px', fontWeight: '500' }}>值使</div>
+                        <div style={{ color: 'var(--ui-success)', fontSize: '16px', fontWeight: '600', whiteSpace: 'nowrap' }}>{chartData.dutyDoor}</div>
                       </div>
                     </div>
                   </motion.div>
 
                   {/* 奇门盘主体 - 深色卡片 */}
                   <motion.div 
-                    className="bg-[#1a1a1a] border border-[#333] p-6 flex flex-col"
+                    className="bg-[var(--ui-surface-2)] border border-[var(--ui-border)] p-6 flex flex-col"
                     style={{ 
                       minHeight: '400px',
                       borderRadius: '0 0 16px 16px',
@@ -763,7 +763,7 @@ const QiMenPage = () => {
                   >
                     {/* 九宫图 */}
                     <div className="flex-1 overflow-hidden mb-4">
-                      <h4 className="text-lg font-medium text-white mb-4 text-center">九宫布局</h4>
+                      <h4 className="text-lg font-medium text-[var(--ui-text)] mb-4 text-center">九宫布局</h4>
                       <div className="flex justify-center">
                         {renderNinePalaces()}
                       </div>
@@ -776,11 +776,11 @@ const QiMenPage = () => {
                         disabled={isAnalyzing || !selectedMaster || analysisComplete}
                         className={`w-full px-4 py-3 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg flex items-center justify-center ${
                           isAnalyzing || !selectedMaster || analysisComplete
-                            ? 'bg-[#444444] cursor-not-allowed'
-                            : 'bg-gradient-to-r from-[#FF9900] to-[#E68A00] hover:from-[#E68A00] hover:to-[#CC7700] hover:shadow-xl hover:shadow-[#FF9900]/30'
+                            ? 'bg-[var(--ui-muted)] cursor-not-allowed'
+                            : 'bg-gradient-to-r from-[var(--ui-accent)] to-[var(--ui-accent-strong)] hover:from-[var(--ui-accent-strong)] hover:to-[var(--ui-accent-strong)] hover:shadow-xl hover:shadow-[0_12px_30px_rgba(37,94,234,0.25)]'
                         }`}
                         style={{
-                          color: isAnalyzing || !selectedMaster || analysisComplete ? '#888888' : '#000000'
+                          color: isAnalyzing || !selectedMaster || analysisComplete ? 'var(--ui-muted-2)' : 'var(--ui-text)'
                         }}
                         whileHover={!isAnalyzing && selectedMaster && !analysisComplete ? { scale: 1.02 } : {}}
                         whileTap={!isAnalyzing && selectedMaster && !analysisComplete ? { scale: 0.98 } : {}}
@@ -788,18 +788,18 @@ const QiMenPage = () => {
                         {isAnalyzing ? (
                           <span 
                             className="flex items-center justify-center gap-3"
-                            style={{ color: '#888888' }}
+                            style={{ color: 'var(--ui-muted-2)' }}
                           >
                             <div 
                               className="animate-spin rounded-full h-4 w-4 border-b-2"
-                              style={{ borderColor: '#888888' }}
+                              style={{ borderColor: 'var(--ui-muted-2)' }}
                             ></div>
-                            <span style={{ color: '#888888' }}>
+                            <span style={{ color: 'var(--ui-muted-2)' }}>
                               {aiAnalysis ? `${selectedMaster?.name}正在分析...` : `${selectedMaster?.name}解盘中...`}
                             </span>
                           </span>
                         ) : (
-                          <span style={{ color: isAnalyzing || !selectedMaster || analysisComplete ? '#888888' : '#000000' }}>
+                          <span style={{ color: isAnalyzing || !selectedMaster || analysisComplete ? 'var(--ui-muted-2)' : 'var(--ui-text)' }}>
                             {analysisComplete ? `${selectedMaster?.name}解盘完成` : '大师解盘'}
                           </span>
                         )}
@@ -808,7 +808,7 @@ const QiMenPage = () => {
                       {!selectedMaster && (
                         <motion.button 
                           onClick={() => navigate('/settings')}
-                          className="w-full mt-2 bg-gradient-to-r from-[#FF9900] to-[#E68A00] text-black px-4 py-3 rounded-xl font-bold text-sm hover:from-[#E68A00] hover:to-[#CC7700] transition-all duration-300 shadow-lg hover:shadow-[#FF9900]/30 flex items-center justify-center"
+                          className="w-full mt-2 bg-gradient-to-r from-[var(--ui-accent)] to-[var(--ui-accent-strong)] text-white px-4 py-3 rounded-xl font-bold text-sm hover:from-[var(--ui-accent-strong)] hover:to-[var(--ui-accent-strong)] transition-all duration-300 shadow-lg hover:shadow-[0_12px_30px_rgba(37,94,234,0.25)] flex items-center justify-center"
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                         >

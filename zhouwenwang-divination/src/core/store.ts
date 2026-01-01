@@ -62,6 +62,7 @@ type AppStore = SettingsSlice & UISlice & MasterSlice & GameSlice;
 const defaultSettings: Settings = {
   apiKey: '',
   openaiApiKey: '',
+  theme: 'dark',
   sidebarCollapsed: false,
   serverUrl: getDefaultServerUrl(),
 };

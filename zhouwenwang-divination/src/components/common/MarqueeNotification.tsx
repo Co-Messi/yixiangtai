@@ -126,7 +126,7 @@ export const MarqueeNotification: React.FC<MarqueeNotificationProps> = ({
               <motion.div
                 style={{
                   display: 'inline-block',
-                  color: '#FBBF24',
+                  color: 'var(--ui-accent)',
                   fontSize: '16px',
                   fontWeight: '500',
                   textShadow: '0 2px 4px rgba(0, 0, 0, 0.5)',

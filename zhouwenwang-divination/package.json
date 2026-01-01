@@ -1,8 +1,7 @@
 {
   "name": "zhouwenwang-divination",
   "private": true,
-  "version": "0.0.0",
-  "type": "module",
+  "version": "0.0.0"type": "module",
   "main": "electron/main.cjs",
   "homepage": "./",
   "scripts": {
@@ -75,7 +74,7 @@
       "node_modules/**/*"
     ],
     "mac": {
-      "icon": "public/icon.png",
+      "icon": "build/icon.icns",
       "category": "public.app-category.entertainment",
       "target": [
         {
@@ -86,7 +85,7 @@
     },
     "dmg": {
       "title": "周文王占卜",
-      "icon": "public/icon.png",
+      "icon": "build/icon.icns",
       "background": null,
       "backgroundColor": "#ffffff",
       "window": {

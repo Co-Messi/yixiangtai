@@ -47,7 +47,8 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const [success, setSuccess] = useState<string | null>(null);
 
   const [storageInfo, setStorageInfo] = useState(getStorageInfo());
-  const [activeTab, setActiveTab] = useState<'api' | 'master' | 'data'>('api');
+  const [activeTab, setActiveTab] = useState<'api' | 'appearance' | 'master' | 'data'>('api');
+  const [theme, setTheme] = useState(settings.theme);
 
   // 当设置变化时更新本地状态
   useEffect(() => {
@@ -55,7 +56,8 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
     setOpenaiApiKeyLocal(settings.openaiApiKey || '');
     setServerUrl(settings.serverUrl || getDefaultServerUrl());
     setStorageInfo(getStorageInfo());
-  }, [settings.apiKey, settings.openaiApiKey, settings.serverUrl]);
+    setTheme(settings.theme);
+  }, [settings.apiKey, settings.openaiApiKey, settings.serverUrl, settings.theme]);
 
 
 
@@ -63,6 +65,19 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
   const clearMessages = () => {
     setError(null);
     setSuccess(null);
+  };
+
+  const handleThemeChange = async (nextTheme: 'light' | 'dark') => {
+    try {
+      setTheme(nextTheme);
+      const result = await updateSettings({ theme: nextTheme });
+      if (!result.success) {
+        setError(result.error || '主题切换失败');
+      }
+    } catch (error) {
+      console.error('主题切换失败:', error);
+      setError('主题切换失败');
+    }
   };
 
   /**
@@ -374,10 +389,11 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
 
         <div style={baseStyles.modalContent}>
           {/* 标签页导航 */}
-          <div style={{ padding: '16px 24px 0', borderBottom: '1px solid #333333' }}>
+          <div style={{ padding: '16px 24px 0', borderBottom: '1px solid var(--ui-border)' }}>
             <nav style={{ display: 'flex', gap: '4px' }}>
               {[
                 { key: 'api', label: 'API配置', icon: Key },
+                { key: 'appearance', label: '外观', icon: Settings },
                 { key: 'master', label: '大师选择', icon: User },
                 { key: 'data', label: '数据管理', icon: Trash2 },
               ].map(({ key, label, icon: Icon }) => (
@@ -423,14 +439,14 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     ...presetStyles.message('success'),
                     padding: '16px'
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#4ADE80', marginBottom: '8px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--ui-success)', marginBottom: '8px' }}>
                       <Check className="h-4 w-4" />
                       <span style={{ fontWeight: '500' }}>配置文件中已预配置API密钥</span>
                     </div>
-                    <p style={{ fontSize: '13px', color: '#A7F3D0', lineHeight: '1.5' }}>
+                    <p style={{ fontSize: '13px', color: 'var(--ui-success)', lineHeight: '1.5' }}>
                       系统正在使用配置文件中的API密钥，无需在此处手动配置。
                       <br />
-                      如需修改，请编辑 <code style={{ background: 'rgba(0, 0, 0, 0.3)', padding: '2px 6px', borderRadius: '4px', fontSize: '12px', fontFamily: 'monospace' }}>src/masters/config.ts</code> 文件中的 <code style={{ background: 'rgba(0, 0, 0, 0.3)', padding: '2px 6px', borderRadius: '4px', fontSize: '12px', fontFamily: 'monospace' }}>API_CONFIG.GEMINI_API_KEY</code>。
+                      如需修改，请编辑 <code style={{ background: 'var(--ui-surface-3)', padding: '2px 6px', borderRadius: '4px', fontSize: '12px', fontFamily: 'monospace' }}>src/masters/config.ts</code> 文件中的 <code style={{ background: 'var(--ui-surface-3)', padding: '2px 6px', borderRadius: '4px', fontSize: '12px', fontFamily: 'monospace' }}>API_CONFIG.GEMINI_API_KEY</code>。
                     </p>
                   </div>
                 )}
@@ -499,8 +515,8 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                       {...presetStyles.buttonWithHover('secondary', isTestingApiKey || !apiKey.trim(), {
                         whiteSpace: 'nowrap',
                         background: isTestingApiKey || !apiKey.trim()
-                          ? 'linear-gradient(90deg, #6B7280 0%, #4B5563 100%)'
-                          : 'linear-gradient(90deg, #059669 0%, #047857 100%)'
+                          ? 'linear-gradient(90deg, var(--ui-surface-3) 0%, var(--ui-surface-2) 100%)'
+                          : 'linear-gradient(90deg, var(--ui-success) 0%, var(--ui-success) 100%)'
                       })}
                     >
                       {isTestingApiKey ? '验证中...' : '验证密钥'}
@@ -549,6 +565,41 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
               </div>
             )}
 
+            {/* 外观设置标签页 */}
+            {activeTab === 'appearance' && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                <div style={baseStyles.card()}>
+                  <label style={textStyles.label}>
+                    <Settings className="h-4 w-4" style={{ color: colors.primary }} />
+                    <span>主题模式</span>
+                  </label>
+                  <p style={textStyles.description}>
+                    选择浅色或深色模式，界面会随之切换。
+                  </p>
+                  <div style={{ display: 'flex', gap: '10px' }}>
+                    <button
+                      onClick={() => handleThemeChange('light')}
+                      {...presetStyles.buttonWithHover('secondary', false, {
+                        flex: 1,
+                        borderColor: theme === 'light' ? colors.primary : colors.gray[700]
+                      })}
+                    >
+                      浅色
+                    </button>
+                    <button
+                      onClick={() => handleThemeChange('dark')}
+                      {...presetStyles.buttonWithHover('secondary', false, {
+                        flex: 1,
+                        borderColor: theme === 'dark' ? colors.primary : colors.gray[700]
+                      })}
+                    >
+                      深色
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* 大师选择标签页 */}
             {activeTab === 'master' && (
               <div style={baseStyles.card()}>
@@ -591,7 +642,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                     <div style={{
                       width: '100%',
                       height: '8px',
-                      backgroundColor: colors.gray[700],
+                      backgroundColor: 'var(--ui-surface-3)',
                       borderRadius: '4px',
                       overflow: 'hidden'
                     }}>
@@ -599,7 +650,7 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                         width: `${Math.min(storageInfo.percentage, 100)}%`,
                         height: '100%',
                         backgroundColor: storageInfo.percentage > 80 ? colors.error :
-                          storageInfo.percentage > 60 ? '#F59E0B' : colors.primary,
+                          storageInfo.percentage > 60 ? 'var(--ui-accent-strong)' : colors.primary,
                         transition: 'all 0.3s ease'
                       }} />
                     </div>
@@ -607,10 +658,10 @@ export function SettingsModal({ isOpen, onClose }: SettingsModalProps) {
                       <div style={{
                         marginTop: '8px',
                         padding: '8px 12px',
-                        backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                        border: '1px solid rgba(239, 68, 68, 0.3)',
+                        backgroundColor: 'color-mix(in srgb, var(--ui-danger) 10%, transparent)',
+                        border: '1px solid color-mix(in srgb, var(--ui-danger) 35%, transparent)',
                         borderRadius: '6px',
-                        color: '#FCA5A5',
+                        color: 'var(--ui-danger)',
                         fontSize: '13px'
                       }}>
                         ⚠️ 存储空间即将用完，建议清理历史记录

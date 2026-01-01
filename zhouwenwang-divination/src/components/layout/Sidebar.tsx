@@ -5,8 +5,7 @@ import {
   Home, 
   Settings, 
   ChevronLeft, 
-  ChevronRight,
-  Star
+  ChevronRight
 } from 'lucide-react';
 import { getAllGames } from '../../games';
 import { useSettings, useUI } from '../../core/store';
@@ -60,20 +59,19 @@ const NavItem: React.FC<NavItemProps> = ({ to, icon, label, isCollapsed, isActiv
       to={to}
       onClick={() => clearError()} // 点击导航项时清除错误
       className={`
-        flex items-center px-5 py-4 rounded-xl transition-all duration-300 ease-in-out
-        font-medium text-base min-h-[52px] mb-2 text-white
+        flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out
+        font-medium text-sm min-h-[44px]
         ${isActive 
-          ? 'bg-[#2a2a2a] text-white shadow-md' 
-          : 'hover:bg-[#1a1a1a] hover:text-white hover:shadow-sm'
+          ? 'bg-[var(--ui-surface-2)] text-[var(--ui-text)] border border-[var(--ui-border)] shadow-[0_8px_18px_rgba(15,23,42,0.1)]' 
+          : 'text-[var(--ui-muted)] hover:bg-[var(--ui-surface-2)] hover:text-[var(--ui-text)]'
         }
-        ${isCollapsed ? 'justify-center px-3' : 'justify-start'}
+        ${isCollapsed ? 'justify-center px-2.5' : 'justify-start'}
       `}
-      style={{ margin: isCollapsed ? '0.5rem' : '1rem' }}
+      style={{ margin: isCollapsed ? '0.3rem' : '0.45rem' }}
       title={isCollapsed ? label : undefined}
     >
       <motion.span 
         className="flex-shrink-0 flex items-center justify-center w-5 h-5"
-        style={{ margin: '1rem' }}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         transition={{ duration: 0.2 }}
@@ -110,20 +108,19 @@ const SettingsItem: React.FC<SettingsItemProps> = ({ icon, label, isCollapsed, i
         onClick();
       }}
       className={`
-        flex items-center px-5 py-4 rounded-xl transition-all duration-300 ease-in-out
-        font-medium text-base min-h-[52px] mb-2 text-white
+        flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 ease-in-out
+        font-medium text-sm min-h-[44px]
         ${isActive 
-          ? 'bg-[#2a2a2a] text-white shadow-md' 
-          : 'hover:bg-[#1a1a1a] hover:text-white hover:shadow-sm'
+          ? 'bg-[var(--ui-surface-2)] text-[var(--ui-text)] border border-[var(--ui-border)] shadow-[0_8px_18px_rgba(15,23,42,0.1)]' 
+          : 'text-[var(--ui-muted)] hover:bg-[var(--ui-surface-2)] hover:text-[var(--ui-text)]'
         }
-        ${isCollapsed ? 'justify-center px-3' : 'justify-start'}
+        ${isCollapsed ? 'justify-center px-2.5' : 'justify-start'}
       `}
-      style={{ margin: isCollapsed ? '0.5rem' : '1rem' }}
+      style={{ margin: isCollapsed ? '0.3rem' : '0.45rem' }}
       title={isCollapsed ? label : undefined}
     >
       <motion.span 
         className="flex-shrink-0 flex items-center justify-center w-5 h-5"
-        style={{ margin: '1rem' }}
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         transition={{ duration: 0.2 }}
@@ -203,38 +200,22 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
     <>
       <motion.div 
         className={`
-          bg-black border-r border-[#333333] fixed left-0 top-0 h-screen flex flex-col transition-all duration-300 ease-in-out z-40
+          bg-[var(--ui-surface)] border-r border-[var(--ui-border)] fixed left-0 top-0 h-screen flex flex-col transition-all duration-300 ease-in-out z-40
+          shadow-[0_12px_30px_rgba(15,23,42,0.08)]
           ${className || ''}
         `}
         style={{
-          width: isCollapsed ? '80px' : '256px'
+          width: isCollapsed ? '72px' : '200px'
         }}
         layout
         transition={{ duration: 0.3 }}
       >
         {/* Header */}
-        <div className={`p-4 border-b border-[#333333] flex items-center ${isCollapsed ? 'justify-center' : 'justify-between'}`}>
-          <AnimatePresence>
-            {!isCollapsed && (
-              <motion.div 
-                className="flex items-center gap-2"
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
-                transition={{ duration: 0.3 }}
-                style={{ marginTop: '1rem', marginBottom: '1rem', marginLeft: '1.5rem', marginRight: '1rem' }}
-              >
-                <Star className="w-5 h-5 text-[#FF9900]" style={{ marginRight: '1rem' }} />
-                <h1 className="text-white font-medium" style={{ fontSize: '22px' }}>
-                  AI占卜
-                </h1>
-              </motion.div>
-            )}
-          </AnimatePresence>
+        <div className={`p-3 flex items-center ${isCollapsed ? 'justify-center' : 'justify-end'}`}>
           <motion.button
             onClick={toggleSidebar}
-            className="p-2 rounded-lg text-[#CCCCCC] hover:bg-[#333333] hover:text-white transition-colors"
-            style={{ margin: isCollapsed ? '0.5rem' : '1rem' }}
+            className="p-2 rounded-xl text-[var(--ui-muted)] hover:bg-[var(--ui-surface-2)] hover:text-[var(--ui-text)] transition-colors border border-transparent hover:border-[var(--ui-border)]"
+            style={{ margin: isCollapsed ? '0.3rem' : '0.45rem' }}
             aria-label={isCollapsed ? '展开侧边栏' : '折叠侧边栏'}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
@@ -250,7 +231,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4">
+        <nav className="flex-1 p-3">
           {navItems.map((item, index) => (
             <motion.div
               key={item.to}
@@ -273,7 +254,7 @@ const Sidebar: React.FC<SidebarProps> = ({ className }) => {
         {/* 设置按钮 - 固定在底部 */}
         <div className="mt-auto">
           <motion.div 
-            className="p-4 border-t border-[#333333] bg-black"
+            className="p-3 border-t border-[var(--ui-border)] bg-transparent"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: 0.25 }}

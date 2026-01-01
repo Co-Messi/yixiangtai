@@ -41,84 +41,84 @@ export const dreamCategories: DreamCategoryInfo[] = [
     name: '感情姻缘',
     description: '恋爱、婚姻、情感相关的梦境',
     keywords: ['结婚', '恋爱', '分手', '吵架', '亲吻', '拥抱', '暗恋', '表白', '婚礼', '离婚'],
-    color: '#FF69B4'
+    color: 'var(--ui-accent)'
   },
   {
     id: DREAM_CATEGORIES.CAREER,
     name: '事业学业',
     description: '工作、学习、考试相关的梦境',
     keywords: ['工作', '考试', '升职', '失业', '面试', '老板', '同事', '学校', '考试', '毕业'],
-    color: '#4169E1'
+    color: 'var(--ui-accent-strong)'
   },
   {
     id: DREAM_CATEGORIES.WEALTH,
     name: '财运金钱',
     description: '金钱、财富、投资相关的梦境',
     keywords: ['钱', '发财', '中奖', '捡钱', '丢钱', '投资', '股票', '银行', '金银', '宝石'],
-    color: '#FFD700'
+    color: 'var(--ui-success)'
   },
   {
     id: DREAM_CATEGORIES.HEALTH,
     name: '健康生死',
     description: '身体健康、疾病、生死相关的梦境',
     keywords: ['生病', '死亡', '医院', '药', '手术', '受伤', '血', '医生', '康复', '治疗'],
-    color: '#32CD32'
+    color: 'var(--ui-success)'
   },
   {
     id: DREAM_CATEGORIES.FAMILY,
     name: '家庭亲情',
     description: '家人、亲戚、家庭关系的梦境',
     keywords: ['父母', '孩子', '兄弟', '姐妹', '祖父母', '亲戚', '家庭', '团聚', '争吵', '和睦'],
-    color: '#FF6347'
+    color: 'var(--ui-danger)'
   },
   {
     id: DREAM_CATEGORIES.TRAVEL,
     name: '出行旅游',
     description: '旅行、交通、地点相关的梦境',
     keywords: ['旅行', '飞行', '开车', '坐车', '迷路', '回家', '搬家', '山', '海', '桥'],
-    color: '#20B2AA'
+    color: 'var(--ui-accent)'
   },
   {
     id: DREAM_CATEGORIES.NATURE,
     name: '自然天象',
     description: '天气、自然现象、宇宙相关的梦境',
     keywords: ['下雨', '晴天', '雪', '地震', '洪水', '火', '风', '彩虹', '太阳', '月亮'],
-    color: '#9370DB'
+    color: 'var(--ui-accent)'
   },
   {
     id: DREAM_CATEGORIES.ANIMALS,
     name: '动物昆虫',
     description: '各种动物、昆虫相关的梦境',
     keywords: ['狗', '猫', '蛇', '鸟', '鱼', '老虎', '龙', '马', '虫子', '蝴蝶'],
-    color: '#CD853F'
+    color: 'var(--ui-muted)'
   },
   {
     id: DREAM_CATEGORIES.OBJECTS,
     name: '物品器具',
     description: '日常物品、工具、器具的梦境',
     keywords: ['手机', '车', '衣服', '鞋子', '书', '食物', '房子', '钥匙', '包', '眼镜'],
-    color: '#708090'
+    color: 'var(--ui-muted-2)'
   },
   {
     id: DREAM_CATEGORIES.PEOPLE,
     name: '人物角色',
     description: '梦见各种人物、角色的梦境',
     keywords: ['明星', '朋友', '陌生人', '老人', '小孩', '美女', '帅哥', '死人', '仇人', '恩人'],
-    color: '#DDA0DD'
+    color: 'var(--ui-accent)'
   },
   {
     id: DREAM_CATEGORIES.SPIRITS,
     name: '神灵鬼怪',
     description: '神仙、鬼怪、灵异现象的梦境',
     keywords: ['鬼', '神仙', '佛', '观音', '土地', '祖先', '灵魂', '法师', '寺庙', '庙会'],
-    color: '#B22222'
+    color: 'var(--ui-danger)'
   },
   {
     id: DREAM_CATEGORIES.OTHER,
     name: '其他类型',
     description: '无法归类的特殊梦境',
     keywords: ['奇异', '超现实', '变形', '时空', '预言', '重复', '噩梦', '美梦', '模糊', '清晰'],
-    color: '#696969'
+    color: 'var(--ui-muted-2)'
   }
 ];
 
@@ -274,17 +274,17 @@ function predictFortune(keywords: string[], text: string): 'great' | 'good' | 'n
 export function getFortuneDescription(fortune: string): { text: string; color: string; emoji: string } {
   switch (fortune) {
     case 'great':
-      return { text: '大吉大利', color: '#FF6B35', emoji: '🎉' };
+      return { text: '大吉大利', color: 'var(--ui-success)', emoji: '🎉' };
     case 'good':
-      return { text: '吉', color: '#4ECDC4', emoji: '✨' };
+      return { text: '吉', color: 'var(--ui-accent)', emoji: '✨' };
     case 'neutral':
-      return { text: '平', color: '#95A5A6', emoji: '🤔' };
+      return { text: '平', color: 'var(--ui-muted-2)', emoji: '🤔' };
     case 'bad':
-      return { text: '凶', color: '#E74C3C', emoji: '⚠️' };
+      return { text: '凶', color: 'var(--ui-danger)', emoji: '⚠️' };
     case 'terrible':
-      return { text: '大凶', color: '#8E44AD', emoji: '💀' };
+      return { text: '大凶', color: 'var(--ui-danger)', emoji: '💀' };
     default:
-      return { text: '未知', color: '#BDC3C7', emoji: '❓' };
+      return { text: '未知', color: 'var(--ui-muted-2)', emoji: '❓' };
   }
 }
 
@@ -293,7 +293,7 @@ export function getFortuneDescription(fortune: string): { text: string; color: s
  */
 export function getCategoryColor(categoryId: string): string {
   const category = dreamCategories.find(c => c.id === categoryId);
-  return category?.color || '#696969';
+  return category?.color || 'var(--ui-muted-2)';
 }
 
 /**

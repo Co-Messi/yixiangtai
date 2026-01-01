@@ -25,7 +25,7 @@ const ElectronInfo: React.FC = () => {
   }
 
   return (
-    <div className="fixed bottom-4 right-4 bg-gray-800 text-white p-3 rounded-lg shadow-lg text-xs z-50">
+    <div className="fixed bottom-4 right-4 bg-[var(--ui-surface-3)] text-[var(--ui-text)] p-3 rounded-lg shadow-lg text-xs z-50">
       <div className="font-semibold mb-1">🖥️ 桌面应用模式</div>
       {envInfo && (
         <div className="space-y-1">

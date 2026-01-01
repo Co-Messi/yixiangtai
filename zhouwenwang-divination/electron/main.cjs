@@ -24,7 +24,8 @@ function createWindow() {
       webSecurity: false, // Allow external API calls (Gemini, OpenAI)
       preload: path.join(__dirname, 'preload.js'),
     },
-    titleBarStyle: 'default',
+    titleBarStyle: 'hiddenInset',
+    backgroundColor: '#141418',
     show: false, // 先不显示，等加载完毕后再显示
   });
 

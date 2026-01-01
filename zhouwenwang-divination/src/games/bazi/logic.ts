@@ -324,13 +324,13 @@ export function formatBaZiChart(chartData: BaZiChartData): string {
  */
 export function getWuxingColor(wuxing: string): string {
   const colors = {
-    '金': '#FFD700', // 金色
-    '木': '#22C55E', // 绿色
-    '水': '#3B82F6', // 蓝色
-    '火': '#EF4444', // 红色
-    '土': '#8B4513'  // 棕色
+    '金': 'var(--ui-accent-strong)',
+    '木': 'var(--ui-success)',
+    '水': 'var(--ui-accent)',
+    '火': 'var(--ui-danger)',
+    '土': 'var(--ui-muted)'
   };
-  return colors[wuxing as keyof typeof colors] || '#CCCCCC';
+  return colors[wuxing as keyof typeof colors] || 'var(--ui-muted-2)';
 }
 
 /**

@@ -64,15 +64,15 @@ const LifeKlinePage: React.FC = () => {
 
   return (
     <motion.div
-      className="min-h-screen bg-[#050505] text-white selection:bg-[#FF9900]/30 overflow-x-hidden relative"
+      className="min-h-screen bg-transparent text-[var(--ui-text)] selection:bg-[var(--ui-accent)]/30 overflow-x-hidden relative"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
     >
       {/* Background Orbs */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#FF9900]/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#FF6B00]/5 rounded-full blur-[120px]" />
+        <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[var(--ui-accent)]/5 rounded-full blur-[120px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[var(--ui-accent)]/6 rounded-full blur-[120px]" />
       </div>
 
       <div className="max-w-7xl mx-auto px-4 py-16 relative z-10">
@@ -80,22 +80,22 @@ const LifeKlinePage: React.FC = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="inline-block px-4 py-1.5 rounded-full bg-[#1A1A1A] border border-[#333333] text-[#FF9900] text-[10px] font-black uppercase tracking-[0.3em] mb-8"
+            className="inline-block px-4 py-1.5 rounded-full bg-[var(--ui-surface-3)] border border-[var(--ui-border)] text-[var(--ui-accent)] text-[10px] font-black uppercase tracking-[0.3em] mb-8"
           >
             Quantum Fate Intelligence
           </motion.div>
           <motion.h1
             initial={{ y: -20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
-            className="text-6xl md:text-8xl font-black mb-8 bg-gradient-to-b from-white to-[#444444] bg-clip-text text-transparent font-serif tracking-tighter"
+            className="text-6xl md:text-8xl font-black mb-8 bg-gradient-to-b from-[var(--ui-text)] to-[var(--ui-muted-2)] bg-clip-text text-transparent font-serif tracking-tighter"
           >
-            人生<span className="text-[#FF9900]">K</span>线
+            人生<span className="text-[var(--ui-accent)]">K</span>线
           </motion.h1>
           <motion.p
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-lg md:text-xl text-[#666666] max-w-2xl mx-auto font-medium leading-relaxed"
+            className="text-lg md:text-xl text-[var(--ui-muted-2)] max-w-2xl mx-auto font-medium leading-relaxed"
           >
             融合子平八字精粹与现代金融量化思维，<br />
             为您绘制生命周期的宏观走势与财富命理。
@@ -120,20 +120,20 @@ const LifeKlinePage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               className="space-y-12"
             >
-              <div className="flex justify-between items-center bg-[#111111] p-4 rounded-2xl border border-[#222222]">
+              <div className="flex justify-between items-center bg-[var(--ui-surface-2)] p-4 rounded-2xl border border-[var(--ui-border)]">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-full bg-[#22C55E]/20 flex items-center justify-center border border-[#22C55E]/30">
-                    <div className="w-2 h-2 bg-[#22C55E] rounded-full animate-pulse" />
+                  <div className="w-10 h-10 rounded-full bg-[var(--ui-success)]/20 flex items-center justify-center border border-[var(--ui-success)]/30">
+                    <div className="w-2 h-2 bg-[var(--ui-success)] rounded-full animate-pulse" />
                   </div>
                   <div>
-                    <span className="text-sm font-bold text-white block">推演成功</span>
-                    <span className="text-[10px] text-[#555555] uppercase tracking-widest">Analysis Completed</span>
+                    <span className="text-sm font-bold text-[var(--ui-text)] block">推演成功</span>
+                    <span className="text-[10px] text-[var(--ui-muted)] uppercase tracking-widest">Analysis Completed</span>
                   </div>
                 </div>
                 <div className="flex gap-3">
                   <button
                     onClick={reset}
-                    className="flex items-center gap-2 px-6 py-3 bg-[#1A1A1A] hover:bg-[#222222] text-[#888888] hover:text-[#FF9900] rounded-2xl border border-[#333333] transition-all text-sm font-bold uppercase tracking-widest"
+                    className="flex items-center gap-2 px-6 py-3 bg-[var(--ui-surface-3)] hover:bg-[var(--ui-surface-2)] text-[var(--ui-muted-2)] hover:text-[var(--ui-accent)] rounded-2xl border border-[var(--ui-border)] transition-all text-sm font-bold uppercase tracking-widest"
                   >
                     <RefreshCcw className="w-4 h-4" />
                     重新排盘
@@ -147,10 +147,10 @@ const LifeKlinePage: React.FC = () => {
               </div>
 
               <div className="text-center pt-8 pb-32">
-                <p className="text-[#222222] text-xs mb-6 uppercase tracking-widest font-black">AI 推演仅供参考 · 不作为核心决策依据</p>
+                <p className="text-[var(--ui-muted)] text-xs mb-6 uppercase tracking-widest font-black">AI 推演仅供参考 · 不作为核心决策依据</p>
                 <button
                   onClick={() => window.print()}
-                  className="inline-flex items-center gap-3 px-10 py-4 bg-[#FF9900] text-black rounded-2xl font-black hover:bg-[#FFB84D] hover:shadow-[0_0_30px_rgba(255,153,0,0.3)] transition-all uppercase tracking-widest"
+                  className="inline-flex items-center gap-3 px-10 py-4 bg-[var(--ui-accent)] text-white rounded-2xl font-black hover:bg-[var(--ui-accent-strong)] hover:shadow-[0_0_30px_rgba(37,94,234,0.25)] transition-all uppercase tracking-widest"
                 >
                   <Download className="w-5 h-5" />
                   导出命理报告

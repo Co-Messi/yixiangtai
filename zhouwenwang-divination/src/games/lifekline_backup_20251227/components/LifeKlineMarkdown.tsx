@@ -23,7 +23,7 @@ const LifeKlineMarkdown: React.FC<LifeKlineMarkdownProps> = ({ content }) => {
         components={{
           // 标题样式 - 使用绿色主题
           h1: ({ children }) => (
-            <h1 className="text-2xl font-bold text-[#22C55E] mb-4 mt-6 first:mt-0 border-b border-[#333333] pb-2">
+            <h1 className="text-2xl font-bold text-[#22C55E] mb-4 mt-6 first:mt-0 border-b border-[var(--ui-border)] pb-2">
               {children}
             </h1>
           ),
@@ -33,7 +33,7 @@ const LifeKlineMarkdown: React.FC<LifeKlineMarkdownProps> = ({ content }) => {
             </h2>
           ),
           h3: ({ children }) => (
-            <h3 className="text-lg font-semibold text-[#34D399] mb-2 mt-4 first:mt-0">
+            <h3 className="text-lg font-semibold text-[var(--ui-success)] mb-2 mt-4 first:mt-0">
               {children}
             </h3>
           ),
@@ -45,24 +45,24 @@ const LifeKlineMarkdown: React.FC<LifeKlineMarkdownProps> = ({ content }) => {
           
           // 段落样式
           p: ({ children }) => (
-            <p className="text-[#CCCCCC] leading-relaxed mb-4 last:mb-0">
+            <p className="text-[var(--ui-muted-2)] leading-relaxed mb-4 last:mb-0">
               {children}
             </p>
           ),
           
           // 列表样式
           ul: ({ children }) => (
-            <ul className="list-none text-[#CCCCCC] mb-4 space-y-3 ml-0">
+            <ul className="list-none text-[var(--ui-muted-2)] mb-4 space-y-3 ml-0">
               {children}
             </ul>
           ),
           ol: ({ children }) => (
-            <ol className="list-decimal list-inside text-[#CCCCCC] mb-4 space-y-3 ml-4">
+            <ol className="list-decimal list-inside text-[var(--ui-muted-2)] mb-4 space-y-3 ml-4">
               {children}
             </ol>
           ),
           li: ({ children }) => (
-            <li className="text-[#CCCCCC] leading-relaxed flex items-start">
+            <li className="text-[var(--ui-muted-2)] leading-relaxed flex items-start">
               <span className="text-[#22C55E] mr-2 mt-1">•</span>
               <span className="flex-1">{children}</span>
             </li>
@@ -75,7 +75,7 @@ const LifeKlineMarkdown: React.FC<LifeKlineMarkdownProps> = ({ content }) => {
             </strong>
           ),
           em: ({ children }) => (
-            <em className="italic text-[#34D399]">
+            <em className="italic text-[var(--ui-success)]">
               {children}
             </em>
           ),
@@ -84,24 +84,24 @@ const LifeKlineMarkdown: React.FC<LifeKlineMarkdownProps> = ({ content }) => {
           code: ({ children, className }) => {
             const isInline = !className;
             return isInline ? (
-              <code className="bg-[#2a2a2a] text-[#22C55E] px-1.5 py-0.5 rounded text-sm font-mono border border-[#444444]">
+              <code className="bg-[var(--ui-surface-3)] text-[#22C55E] px-1.5 py-0.5 rounded text-sm font-mono border border-[var(--ui-muted)]">
                 {children}
               </code>
             ) : (
-              <code className="block bg-[#222222] text-[#CCCCCC] p-4 rounded-lg text-sm font-mono overflow-x-auto border border-[#444444] my-4">
+              <code className="block bg-[var(--ui-surface-2)] text-[var(--ui-muted-2)] p-4 rounded-lg text-sm font-mono overflow-x-auto border border-[var(--ui-muted)] my-4">
                 {children}
               </code>
             );
           },
           pre: ({ children }) => (
-            <pre className="bg-[#222222] text-[#CCCCCC] p-4 rounded-lg text-sm font-mono overflow-x-auto border border-[#444444] my-4">
+            <pre className="bg-[var(--ui-surface-2)] text-[var(--ui-muted-2)] p-4 rounded-lg text-sm font-mono overflow-x-auto border border-[var(--ui-muted)] my-4">
               {children}
             </pre>
           ),
           
           // 引用样式
           blockquote: ({ children }) => (
-            <blockquote className="border-l-4 border-[#22C55E] pl-4 my-4 text-[#CCCCCC] italic bg-[#1a1a1a] py-2 rounded-r-lg">
+            <blockquote className="border-l-4 border-[#22C55E] pl-4 my-4 text-[var(--ui-muted-2)] italic bg-[var(--ui-surface-2)] py-2 rounded-r-lg">
               {children}
             </blockquote>
           ),
@@ -114,18 +114,18 @@ const LifeKlineMarkdown: React.FC<LifeKlineMarkdownProps> = ({ content }) => {
           // 表格样式
           table: ({ children }) => (
             <div className="overflow-x-auto mb-4">
-              <table className="min-w-full border border-[#444444] rounded-lg">
+              <table className="min-w-full border border-[var(--ui-muted)] rounded-lg">
                 {children}
               </table>
             </div>
           ),
           th: ({ children }) => (
-            <th className="border border-[#444444] bg-[#2a2a2a] text-[#22C55E] px-4 py-2 text-left font-semibold">
+            <th className="border border-[var(--ui-muted)] bg-[var(--ui-surface-3)] text-[#22C55E] px-4 py-2 text-left font-semibold">
               {children}
             </th>
           ),
           td: ({ children }) => (
-            <td className="border border-[#444444] text-[#CCCCCC] px-4 py-2">
+            <td className="border border-[var(--ui-muted)] text-[var(--ui-muted-2)] px-4 py-2">
               {children}
             </td>
           ),
@@ -134,7 +134,7 @@ const LifeKlineMarkdown: React.FC<LifeKlineMarkdownProps> = ({ content }) => {
           a: ({ children, href }) => (
             <a 
               href={href} 
-              className="text-[#22C55E] hover:text-[#34D399] underline transition-colors duration-200"
+              className="text-[#22C55E] hover:text-[var(--ui-success)] underline transition-colors duration-200"
               target="_blank"
               rel="noopener noreferrer"
             >

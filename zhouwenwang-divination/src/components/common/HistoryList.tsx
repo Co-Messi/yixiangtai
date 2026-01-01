@@ -131,8 +131,8 @@ export const HistoryList: React.FC<HistoryListProps> = ({
     return (
       <div className={`p-4 ${className}`}>
         <div className="flex items-center justify-center">
-          <RefreshCw className="animate-spin h-5 w-5 text-white mr-2" />
-          <span className="text-white">加载历史记录中...</span>
+          <RefreshCw className="animate-spin h-5 w-5 text-[var(--ui-text)] mr-2" />
+          <span className="text-[var(--ui-text)]">加载历史记录中...</span>
         </div>
       </div>
     );
@@ -167,11 +167,11 @@ export const HistoryList: React.FC<HistoryListProps> = ({
     <div className={`${className}`}>
       {/* 标题和操作栏 */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-white font-medium text-lg">历史记录</h3>
+        <h3 className="text-[var(--ui-text)] font-medium text-lg">历史记录</h3>
         <div className="flex items-center space-x-2">
           <button
             onClick={loadRecords}
-            className="text-[#CCCCCC] hover:text-white transition-colors"
+            className="text-[var(--ui-muted-2)] hover:text-[var(--ui-text)] transition-colors"
             title="刷新"
           >
             <RefreshCw className="h-4 w-4" />
@@ -191,9 +191,9 @@ export const HistoryList: React.FC<HistoryListProps> = ({
       {/* 记录列表 */}
       {records.length === 0 ? (
         <div className="text-center py-8">
-          <div className="text-[#CCCCCC] mb-2">📝</div>
-          <p className="text-[#CCCCCC]">暂无历史记录</p>
-          <p className="text-[#999999] text-sm mt-1">进行占卜后记录会显示在这里</p>
+          <div className="text-[var(--ui-muted-2)] mb-2">📝</div>
+          <p className="text-[var(--ui-muted-2)]">暂无历史记录</p>
+          <p className="text-[var(--ui-muted-2)] text-sm mt-1">进行占卜后记录会显示在这里</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -204,15 +204,15 @@ export const HistoryList: React.FC<HistoryListProps> = ({
             return (
               <div
                 key={record.id}
-                className="bg-[#222222] border border-[#333333] rounded-lg p-4 hover:border-[#555555] transition-colors"
+                className="bg-[var(--ui-surface-2)] border border-[var(--ui-border)] rounded-lg p-4 hover:border-[var(--ui-muted)] transition-colors"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
                     {/* 摘要 */}
-                    <h4 className="text-white font-medium mb-2">{summary}</h4>
+                    <h4 className="text-[var(--ui-text)] font-medium mb-2">{summary}</h4>
                     
                     {/* 元信息 */}
-                    <div className="flex items-center space-x-4 text-sm text-[#CCCCCC]">
+                    <div className="flex items-center space-x-4 text-sm text-[var(--ui-muted-2)]">
                       <div className="flex items-center">
                         <Calendar className="h-3 w-3 mr-1" />
                         {date}
@@ -254,13 +254,13 @@ export const HistoryList: React.FC<HistoryListProps> = ({
 
       {/* 详情模态框 */}
       {showDetails && selectedRecord && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-[#111111] border border-[#333333] rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-[var(--ui-bg)] bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-[var(--ui-surface-2)] border border-[var(--ui-border)] rounded-lg p-6 max-w-4xl w-full mx-4 max-h-[80vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-semibold text-white">占卜记录详情</h3>
+              <h3 className="text-xl font-semibold text-[var(--ui-text)]">占卜记录详情</h3>
               <button
                 onClick={() => setShowDetails(false)}
-                className="text-[#CCCCCC] hover:text-white text-2xl"
+                className="text-[var(--ui-muted-2)] hover:text-[var(--ui-text)] text-2xl"
               >
                 ×
               </button>
@@ -268,42 +268,42 @@ export const HistoryList: React.FC<HistoryListProps> = ({
 
             <div className="space-y-6">
               {/* 基本信息 */}
-              <div className="bg-[#222222] rounded-lg p-4">
-                <h4 className="text-white font-medium mb-3">基本信息</h4>
+              <div className="bg-[var(--ui-surface-2)] rounded-lg p-4">
+                <h4 className="text-[var(--ui-text)] font-medium mb-3">基本信息</h4>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <span className="text-[#CCCCCC]">类型：</span>
-                    <span className="text-white">{selectedRecord.type}</span>
+                    <span className="text-[var(--ui-muted-2)]">类型：</span>
+                    <span className="text-[var(--ui-text)]">{selectedRecord.type}</span>
                   </div>
                   <div>
-                    <span className="text-[#CCCCCC]">大师：</span>
-                    <span className="text-white">{selectedRecord.master?.name || '未知大师'}</span>
+                    <span className="text-[var(--ui-muted-2)]">大师：</span>
+                    <span className="text-[var(--ui-text)]">{selectedRecord.master?.name || '未知大师'}</span>
                   </div>
                   <div>
-                    <span className="text-[#CCCCCC]">时间：</span>
-                    <span className="text-white">
+                    <span className="text-[var(--ui-muted-2)]">时间：</span>
+                    <span className="text-[var(--ui-text)]">
                       {new Date(selectedRecord.timestamp).toLocaleString('zh-CN')}
                     </span>
                   </div>
                   <div>
-                    <span className="text-[#CCCCCC]">ID：</span>
-                    <span className="text-white font-mono text-xs">{selectedRecord.id}</span>
+                    <span className="text-[var(--ui-muted-2)]">ID：</span>
+                    <span className="text-[var(--ui-text)] font-mono text-xs">{selectedRecord.id}</span>
                   </div>
                 </div>
               </div>
 
               {/* 占卜数据 */}
-              <div className="bg-[#222222] rounded-lg p-4">
-                <h4 className="text-white font-medium mb-3">占卜数据</h4>
-                <pre className="text-[#CCCCCC] text-sm bg-[#111111] rounded p-3 overflow-x-auto">
+              <div className="bg-[var(--ui-surface-2)] rounded-lg p-4">
+                <h4 className="text-[var(--ui-text)] font-medium mb-3">占卜数据</h4>
+                <pre className="text-[var(--ui-muted-2)] text-sm bg-[var(--ui-surface-2)] rounded p-3 overflow-x-auto">
                   {JSON.stringify(selectedRecord.data, null, 2)}
                 </pre>
               </div>
 
               {/* AI分析结果 */}
-              <div className="bg-[#222222] rounded-lg p-4">
-                <h4 className="text-white font-medium mb-3">AI分析结果</h4>
-                <div className="text-[#CCCCCC] whitespace-pre-wrap leading-relaxed">
+              <div className="bg-[var(--ui-surface-2)] rounded-lg p-4">
+                <h4 className="text-[var(--ui-text)] font-medium mb-3">AI分析结果</h4>
+                <div className="text-[var(--ui-muted-2)] whitespace-pre-wrap leading-relaxed">
                   {selectedRecord.analysis}
                 </div>
               </div>
@@ -312,7 +312,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({
             <div className="mt-6 text-center">
               <button
                 onClick={() => setShowDetails(false)}
-                className="bg-[#FF9900] text-black px-6 py-2 rounded-lg font-medium hover:bg-[#E68A00] transition-colors"
+                className="bg-[var(--ui-accent)] text-white px-6 py-2 rounded-lg font-medium hover:bg-[var(--ui-accent-strong)] transition-colors"
               >
                 关闭
               </button>

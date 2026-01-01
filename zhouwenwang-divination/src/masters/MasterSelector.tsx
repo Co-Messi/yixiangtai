@@ -95,16 +95,16 @@ export const MasterSelector: React.FC<MasterSelectorProps> = ({
     return (
       <div style={{ padding: '16px' }}>
         <div style={{
-          background: 'rgba(239, 68, 68, 0.2)',
-          border: '1px solid rgba(239, 68, 68, 0.5)',
+          background: 'color-mix(in srgb, var(--ui-danger) 18%, transparent)',
+          border: '1px solid color-mix(in srgb, var(--ui-danger) 50%, transparent)',
           borderRadius: '12px',
           padding: '16px'
         }}>
           <div style={{ display: 'flex', alignItems: 'center' }}>
-            <div style={{ color: '#F87171', marginRight: '12px' }}>⚠️</div>
+            <div style={{ color: 'var(--ui-danger)', marginRight: '12px' }}>⚠️</div>
             <div>
-              <h3 style={{ color: '#F87171', fontWeight: '500', margin: 0 }}>加载失败</h3>
-              <p style={{ color: '#FCA5A5', fontSize: '14px', marginTop: '4px', margin: 0 }}>{error}</p>
+              <h3 style={{ color: 'var(--ui-danger)', fontWeight: '500', margin: 0 }}>加载失败</h3>
+              <p style={{ color: 'var(--ui-danger)', fontSize: '14px', marginTop: '4px', margin: 0 }}>{error}</p>
             </div>
           </div>
         </div>
@@ -141,19 +141,19 @@ export const MasterSelector: React.FC<MasterSelectorProps> = ({
             borderRadius: '10px',
             padding: '12px',
             minHeight: compact ? '70px' : 'auto',
-            border: `2px solid ${isSelected ? colors.primary : '#333333'}`,
+            border: `2px solid ${isSelected ? colors.primary : 'var(--ui-border)'}`,
             background: isSelected 
-              ? 'rgba(255, 153, 0, 0.1)' 
-              : '#111111',
+              ? 'var(--ui-accent-soft)'
+              : 'var(--ui-surface-2)',
             opacity: isDisabled ? 0.5 : 1,
             boxShadow: isSelected 
-              ? '0 8px 25px -8px rgba(255, 153, 0, 0.2)' 
-              : '0 2px 4px rgba(0, 0, 0, 0.1)'
+              ? 'var(--ui-shadow)'
+              : '0 2px 4px rgba(0, 0, 0, 0.08)'
           };
           
           const hoverStyle = !isDisabled ? {
             ...cardStyle,
-            border: `2px solid ${isSelected ? colors.primary : 'rgba(255, 153, 0, 0.5)'}`,
+            border: `2px solid ${isSelected ? colors.primary : 'var(--ui-accent)'}`,
             transform: 'translateY(-2px)',
             boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)'
           } : cardStyle;

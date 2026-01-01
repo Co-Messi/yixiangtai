@@ -86,6 +86,8 @@ export interface Game {
 export interface Settings {
   /** Gemini API密钥 */
   apiKey: string;
+  /** 主题设置 */
+  theme: 'light' | 'dark';
   /** 侧边栏是否折叠 */
   sidebarCollapsed: boolean;
   /** Gemini响应服务器URL（可选，用于代理请求） */

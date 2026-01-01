@@ -233,7 +233,7 @@ const LifeKlinePage: React.FC = () => {
 
   return (
     <motion.div
-      className="min-h-screen bg-black text-white"
+      className="min-h-screen text-[var(--ui-text)]"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -241,10 +241,10 @@ const LifeKlinePage: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 py-12">
         {/* 页面标题 */}
         <motion.div variants={itemVariants} className="text-center mb-2">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#EEEEEE] via-[#CCCCCC] to-[#22C55E] bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[var(--ui-text)] via-[var(--ui-muted-2)] to-[#22C55E] bg-clip-text text-transparent">
             人生K线
           </h1>
-          <p className="text-xl text-[#CCCCCC] max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-[var(--ui-muted-2)] max-w-3xl mx-auto leading-relaxed">
             基于AI大模型驱动，量化人生百岁运势起伏，预判人生高低谷
           </p>
         </motion.div>
@@ -255,14 +255,14 @@ const LifeKlinePage: React.FC = () => {
             {/* 姓名输入 */}
             <div className="flex justify-center mb-4">
               <div className="flex items-center gap-4 w-full max-w-xl">
-                <label className="text-lg font-medium text-white whitespace-nowrap w-24 text-right">
+                <label className="text-lg font-medium text-[var(--ui-text)] whitespace-nowrap w-24 text-right">
                   * 姓名
                 </label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  className="w-48 px-6 py-3 bg-[#222222] border-2 border-[#333333] text-white rounded-xl text-lg font-medium focus:outline-none focus:ring-2 focus:ring-[#22C55E] focus:border-[#22C55E] placeholder:text-[#888888]"
+                  className="w-48 px-6 py-3 bg-[var(--ui-surface-2)] border-2 border-[var(--ui-border)] text-[var(--ui-text)] rounded-xl text-lg font-medium focus:outline-none focus:ring-2 focus:ring-[#22C55E] focus:border-[#22C55E] placeholder:text-[var(--ui-muted-2)]"
                   placeholder="请输入您的姓名"
                   disabled={isAnalyzing}
                 />
@@ -275,7 +275,7 @@ const LifeKlinePage: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {/* 性别 */}
                   <div className="flex items-center gap-4">
-                    <label className="text-lg font-medium text-white whitespace-nowrap w-24 text-right">
+                    <label className="text-lg font-medium text-[var(--ui-text)] whitespace-nowrap w-24 text-right">
                       性别
                     </label>
                     <div className="flex gap-1">
@@ -287,10 +287,10 @@ const LifeKlinePage: React.FC = () => {
                             value={g}
                             checked={gender === g}
                             onChange={() => setGender(g)}
-                            className="w-4 h-4 text-[#22C55E] border-[#333333] focus:ring-[#22C55E]"
+                            className="w-4 h-4 text-[#22C55E] border-[var(--ui-border)] focus:ring-[#22C55E]"
                             disabled={isAnalyzing}
                           />
-                          <span className="ml-2 text-[#CCCCCC] text-lg">{g}</span>
+                          <span className="ml-2 text-[var(--ui-muted-2)] text-lg">{g}</span>
                         </label>
                       ))}
                     </div>
@@ -298,13 +298,13 @@ const LifeKlinePage: React.FC = () => {
 
                   {/* 出生年份 */}
                   <div className="flex items-center gap-4">
-                    <label className="text-lg font-medium text-white whitespace-nowrap w-24 text-right">
+                    <label className="text-lg font-medium text-[var(--ui-text)] whitespace-nowrap w-24 text-right">
                       出生年份
                     </label>
                     <select
                       value={birthYear}
                       onChange={(e) => setBirthYear(Number(e.target.value))}
-                      className="flex-1 px-6 py-3 bg-[#222222] border-2 border-[#333333] text-white rounded-xl text-lg font-medium focus:outline-none focus:ring-2 focus:ring-[#22C55E] focus:border-[#22C55E]"
+                      className="flex-1 px-6 py-3 bg-[var(--ui-surface-2)] border-2 border-[var(--ui-border)] text-[var(--ui-text)] rounded-xl text-lg font-medium focus:outline-none focus:ring-2 focus:ring-[#22C55E] focus:border-[#22C55E]"
                       disabled={isAnalyzing}
                     >
                       {Array.from({ length: 100 }, (_, i) => new Date().getFullYear() - i).map(year => (
@@ -323,8 +323,8 @@ const LifeKlinePage: React.FC = () => {
                 disabled={isAnalyzing || !name.trim()}
                 className={`px-12 py-4 rounded-xl font-bold text-xl transition-all duration-300 shadow-lg flex items-center justify-center ${
                   isAnalyzing || !name.trim()
-                    ? 'bg-[#444444] text-[#888888] cursor-not-allowed'
-                    : 'bg-gradient-to-r from-[#22C55E] to-[#16A34A] text-white hover:from-[#16A34A] hover:to-[#15803D] hover:shadow-xl hover:shadow-[#22C55E]/30'
+                    ? 'bg-[var(--ui-muted)] text-[var(--ui-muted-2)] cursor-not-allowed'
+                    : 'bg-gradient-to-r from-[#22C55E] to-[#16A34A] text-[var(--ui-text)] hover:from-[#16A34A] hover:to-[#15803D] hover:shadow-xl hover:shadow-[#22C55E]/30'
                 }`}
                 whileHover={!isAnalyzing && name.trim() ? { scale: 1.05, y: -2 } : {}}
                 whileTap={!isAnalyzing && name.trim() ? { scale: 0.98 } : {}}
@@ -349,13 +349,13 @@ const LifeKlinePage: React.FC = () => {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-[#1a1a1a] border border-[#333333] rounded-xl p-6"
+              className="bg-[var(--ui-surface-2)] border border-[var(--ui-border)] rounded-xl p-6"
             >
               <div className="flex items-center gap-3 mb-6">
                 <Sparkles className="w-5 h-5 text-[#22C55E]" />
-                <h3 className="text-xl font-bold text-white">AI命理分析</h3>
+                <h3 className="text-xl font-bold text-[var(--ui-text)]">AI命理分析</h3>
               </div>
-              <div className="text-[#CCCCCC] leading-relaxed markdown-wrapper">
+              <div className="text-[var(--ui-muted-2)] leading-relaxed markdown-wrapper">
                 <LifeKlineMarkdown content={aiAnalysis || ''} />
               </div>
             </motion.div>
@@ -372,43 +372,43 @@ const LifeKlinePage: React.FC = () => {
               
               {/* 统计摘要 */}
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-6">
-                <div className="bg-[#1a1a1a] border border-[#333333] p-4 rounded-xl flex items-center space-x-4">
+                <div className="bg-[var(--ui-surface-2)] border border-[var(--ui-border)] p-4 rounded-xl flex items-center space-x-4">
                   <div className="p-3 bg-blue-500/20 text-blue-400 rounded-lg">
                     <TrendingUp className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-xs text-[#888888] mb-1">平均运势分</p>
-                    <p className="text-xl font-bold text-white">{stats.averageScore}</p>
+                    <p className="text-xs text-[var(--ui-muted-2)] mb-1">平均运势分</p>
+                    <p className="text-xl font-bold text-[var(--ui-text)]">{stats.averageScore}</p>
                   </div>
                 </div>
                 
-                <div className="bg-[#1a1a1a] border border-[#333333] p-4 rounded-xl flex items-center space-x-4">
+                <div className="bg-[var(--ui-surface-2)] border border-[var(--ui-border)] p-4 rounded-xl flex items-center space-x-4">
                   <div className="p-3 bg-green-500/20 text-green-400 rounded-lg">
                     <TrendingUp className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-xs text-[#888888] mb-1">人生巅峰</p>
-                    <p className="text-xl font-bold text-white">{stats.bestYear}年</p>
+                    <p className="text-xs text-[var(--ui-muted-2)] mb-1">人生巅峰</p>
+                    <p className="text-xl font-bold text-[var(--ui-text)]">{stats.bestYear}年</p>
                   </div>
                 </div>
 
-                <div className="bg-[#1a1a1a] border border-[#333333] p-4 rounded-xl flex items-center space-x-4">
+                <div className="bg-[var(--ui-surface-2)] border border-[var(--ui-border)] p-4 rounded-xl flex items-center space-x-4">
                   <div className="p-3 bg-red-500/20 text-red-400 rounded-lg">
                     <TrendingUp className="w-5 h-5 transform rotate-180" />
                   </div>
                   <div>
-                    <p className="text-xs text-[#888888] mb-1">人生低谷</p>
-                    <p className="text-xl font-bold text-white">{stats.worstYear}年</p>
+                    <p className="text-xs text-[var(--ui-muted-2)] mb-1">人生低谷</p>
+                    <p className="text-xl font-bold text-[var(--ui-text)]">{stats.worstYear}年</p>
                   </div>
                 </div>
 
-                <div className="bg-[#1a1a1a] border border-[#333333] p-4 rounded-xl flex items-center space-x-4">
+                <div className="bg-[var(--ui-surface-2)] border border-[var(--ui-border)] p-4 rounded-xl flex items-center space-x-4">
                   <div className="p-3 bg-purple-500/20 text-purple-400 rounded-lg">
                     <TrendingUp className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="text-xs text-[#888888] mb-1">波折程度</p>
-                    <p className="text-xl font-bold text-white">
+                    <p className="text-xs text-[var(--ui-muted-2)] mb-1">波折程度</p>
+                    <p className="text-xl font-bold text-[var(--ui-text)]">
                       {stats.volatility > 10 ? '大起大落' : stats.volatility > 5 ? '平稳上升' : '四平八稳'}
                     </p>
                   </div>

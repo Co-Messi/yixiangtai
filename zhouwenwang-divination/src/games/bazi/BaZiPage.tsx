@@ -263,7 +263,7 @@ const BaZiPage = () => {
 
   return (
     <motion.div
-      className="min-h-screen bg-black text-white"
+      className="min-h-screen text-[var(--ui-text)]"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -271,8 +271,8 @@ const BaZiPage = () => {
       <div className="max-w-7xl mx-auto px-4 py-12">
         {/* 页面标题 */}
         <motion.div variants={itemVariants} className="text-center mb-2">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#EEEEEE] via-[#CCCCCC] to-[#FF9900] bg-clip-text text-transparent">八字推命</h1>
-          <p className="text-xl text-[#CCCCCC] max-w-3xl mx-auto leading-relaxed">承古圣贤智慧，析命理玄机，知己知命方能改运</p>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[var(--ui-text)] via-[var(--ui-muted-2)] to-[var(--ui-accent)] bg-clip-text text-transparent">八字推命</h1>
+          <p className="text-xl text-[var(--ui-muted-2)] max-w-3xl mx-auto leading-relaxed">承古圣贤智慧，析命理玄机，知己知命方能改运</p>
         </motion.div>
 
         <div className="space-y-8">
@@ -281,14 +281,14 @@ const BaZiPage = () => {
             {/* 姓名输入 - 排在首位，必填 */}
             <div className="flex justify-center mb-4">
               <div className="flex items-center gap-4 w-full max-w-xl">
-                <label className="text-lg font-medium text-white whitespace-nowrap w-24 text-right">
+                <label className="text-lg font-medium text-[var(--ui-text)] whitespace-nowrap w-24 text-right">
                 * 姓名
                 </label>
                 <input
                   type="text"
                   value={birthInfo.name}
                   onChange={handleNameChange}
-                  className="w-48 px-6 py-3 bg-[#222222] border-2 border-[#333333] text-white rounded-xl text-lg font-medium focus:outline-none focus:ring-2 focus:ring-[#FF9900] focus:border-[#FF9900] placeholder:text-[#888888]"
+                  className="w-48 px-6 py-3 bg-[var(--ui-surface-2)] border-2 border-[var(--ui-border)] text-[var(--ui-text)] rounded-xl text-lg font-medium focus:outline-none focus:ring-2 focus:ring-[var(--ui-accent)] focus:border-[var(--ui-accent)] placeholder:text-[var(--ui-muted-2)]"
                   placeholder="请输入您的姓名"
                   disabled={isGenerating}
                 />
@@ -298,7 +298,7 @@ const BaZiPage = () => {
             {/* 问事输入 - 可选 */}
             <div className="flex justify-center mb-4">
               <div className="flex items-center gap-4 w-full max-w-xl">
-                <label className="text-lg font-medium text-white whitespace-nowrap w-24 text-right">
+                <label className="text-lg font-medium text-[var(--ui-text)] whitespace-nowrap w-24 text-right">
                   问事
                 </label>
                 <input
@@ -306,7 +306,7 @@ const BaZiPage = () => {
                   value={question}
                   onChange={(e) => setQuestion(e.target.value)}
                   placeholder="有具体想问的事情吗？"
-                  className="flex-1 px-6 py-3 bg-[#222222] border-2 border-[#333333] text-white rounded-xl text-lg font-medium focus:outline-none focus:ring-2 focus:ring-[#FF9900] focus:border-[#FF9900] placeholder:text-[#888888]"
+                  className="flex-1 px-6 py-3 bg-[var(--ui-surface-2)] border-2 border-[var(--ui-border)] text-[var(--ui-text)] rounded-xl text-lg font-medium focus:outline-none focus:ring-2 focus:ring-[var(--ui-accent)] focus:border-[var(--ui-accent)] placeholder:text-[var(--ui-muted-2)]"
                   disabled={isGenerating}
                 />
               </div>
@@ -318,7 +318,7 @@ const BaZiPage = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                   {/* 性别 */}
                   <div className="flex items-center gap-4">
-                    <label className="text-lg font-medium text-white whitespace-nowrap w-24 text-right">
+                    <label className="text-lg font-medium text-[var(--ui-text)] whitespace-nowrap w-24 text-right">
                       性别
                     </label>
                     <div className="flex gap-1">
@@ -330,10 +330,10 @@ const BaZiPage = () => {
                             value={gender}
                             checked={birthInfo.gender === gender}
                             onChange={() => handleGenderChange(gender)}
-                            className="w-4 h-4 text-[#FF9900] border-[#333333] focus:ring-[#FF9900]"
+                            className="w-4 h-4 text-[var(--ui-accent)] border-[var(--ui-border)] focus:ring-[var(--ui-accent)]"
                             disabled={isGenerating}
                           />
-                          <span className="ml-2 text-[#CCCCCC] text-lg">{gender}</span>
+                          <span className="ml-2 text-[var(--ui-muted-2)] text-lg">{gender}</span>
                         </label>
                       ))}
                     </div>
@@ -341,7 +341,7 @@ const BaZiPage = () => {
 
                   {/* 出生时间 */}
                   <div className="flex items-center gap-4">
-                    <label className="text-lg font-medium text-white whitespace-nowrap w-24 text-right">
+                    <label className="text-lg font-medium text-[var(--ui-text)] whitespace-nowrap w-24 text-right">
                       出生时间
                     </label>
                     <div className="flex-1">
@@ -349,7 +349,7 @@ const BaZiPage = () => {
                         type="datetime-local"
                         value={formatDateTimeForInput(selectedBirthTime)}
                         onChange={handleBirthTimeChange}
-                        className="w-full bg-black border border-black rounded-lg px-3 py-2 text-white text-base focus:border-[#FF9900] focus:outline-none [&::-webkit-datetime-edit]:text-white [&::-webkit-datetime-edit-text]:text-white [&::-webkit-datetime-edit-month-field]:text-white [&::-webkit-datetime-edit-day-field]:text-white [&::-webkit-datetime-edit-year-field]:text-white [&::-webkit-datetime-edit-hour-field]:text-white [&::-webkit-datetime-edit-minute-field]:text-white [&::-webkit-calendar-picker-indicator]:brightness-0 [&::-webkit-calendar-picker-indicator]:invert"
+                        className="w-full bg-[var(--ui-surface-2)] border border-black rounded-lg px-3 py-2 text-[var(--ui-text)] text-base focus:border-[var(--ui-accent)] focus:outline-none [&::-webkit-datetime-edit]:text-[var(--ui-text)] [&::-webkit-datetime-edit-text]:text-[var(--ui-text)] [&::-webkit-datetime-edit-month-field]:text-[var(--ui-text)] [&::-webkit-datetime-edit-day-field]:text-[var(--ui-text)] [&::-webkit-datetime-edit-year-field]:text-[var(--ui-text)] [&::-webkit-datetime-edit-hour-field]:text-[var(--ui-text)] [&::-webkit-datetime-edit-minute-field]:text-[var(--ui-text)] [&::-webkit-calendar-picker-indicator]:brightness-0 [&::-webkit-calendar-picker-indicator]:invert"
                         style={{
                           colorScheme: 'dark',
                           color: 'white !important',
@@ -361,7 +361,7 @@ const BaZiPage = () => {
                         }}
                         disabled={isGenerating}
                       />
-                      <div className="text-[10px] text-[#777777] font-bold uppercase tracking-widest mt-2">
+                      <div className="text-[10px] text-[var(--ui-muted-2)] font-bold uppercase tracking-widest mt-2">
                         排盘规则：传统子平（23:00后换日）
                       </div>
                     </div>
@@ -377,8 +377,8 @@ const BaZiPage = () => {
                 disabled={isGenerating || !birthInfo.name.trim()}
                 className={`px-12 py-4 rounded-xl font-bold text-xl transition-all duration-300 shadow-lg flex items-center justify-center ${
                   isGenerating || !birthInfo.name.trim()
-                    ? 'bg-[#444444] text-[#888888] cursor-not-allowed'
-                    : 'bg-gradient-to-r from-[#FF9900] to-[#E68A00] text-black hover:from-[#E68A00] hover:to-[#CC7700] hover:shadow-xl hover:shadow-[#FF9900]/30'
+                    ? 'bg-[var(--ui-muted)] text-[var(--ui-muted-2)] cursor-not-allowed'
+                    : 'bg-gradient-to-r from-[var(--ui-accent)] to-[var(--ui-accent-strong)] text-white hover:from-[var(--ui-accent-strong)] hover:to-[var(--ui-accent-strong)] hover:shadow-xl hover:shadow-[0_12px_30px_rgba(37,94,234,0.25)]'
                 }`}
                 whileHover={!isGenerating && birthInfo.name.trim() ? { scale: 1.05, y: -2 } : {}}
                 whileTap={!isGenerating && birthInfo.name.trim() ? { scale: 0.98 } : {}}
@@ -405,11 +405,11 @@ const BaZiPage = () => {
                 transition={{ duration: 0.3 }}
               >
                 <div className="text-center">
-                  <h3 className="text-2xl font-semibold text-white mb-6">八字推演，命理推测</h3>
+                  <h3 className="text-2xl font-semibold text-[var(--ui-text)] mb-6">八字推演，命理推测</h3>
                   
                   {/* 起盘动画区域 */}
                   <div className="flex justify-center">
-                    <div className="bg-black flex items-center justify-center relative overflow-hidden rounded-xl" style={{ width: '560px', height: '315px' }}>
+                    <div className="bg-[var(--ui-surface-2)] flex items-center justify-center relative overflow-hidden rounded-xl" style={{ width: '560px', height: '315px' }}>
                       {/* 实际使用MP4视频 */}
                       <video 
                         autoPlay 
@@ -432,12 +432,12 @@ const BaZiPage = () => {
                         {/* 如果视频加载失败，显示备用动画 */}
                         <div className="relative">
                           <motion.div
-                            className="w-16 h-16 border-4 border-[#FF9900] border-t-transparent rounded-full"
+                            className="w-16 h-16 border-4 border-[var(--ui-accent)] border-t-transparent rounded-full"
                             animate={{ rotate: 360 }}
                             transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
                           />
                           <motion.div
-                            className="absolute inset-4 border-2 border-[#CCCCCC] border-b-transparent rounded-full"
+                            className="absolute inset-4 border-2 border-[var(--ui-muted-2)] border-b-transparent rounded-full"
                             animate={{ rotate: -360 }}
                             transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
                           />
@@ -446,7 +446,7 @@ const BaZiPage = () => {
                             animate={{ scale: [1, 1.2, 1] }}
                             transition={{ duration: 2, repeat: Infinity }}
                           >
-                            <span className="text-[#FF9900] text-2xl font-bold">命</span>
+                            <span className="text-[var(--ui-accent)] text-2xl font-bold">命</span>
                           </motion.div>
                         </div>
                       </video>
@@ -469,8 +469,8 @@ const BaZiPage = () => {
                   {/* 基本信息条 */}
                   <motion.div 
                     style={{
-                      background: '#1a1a1a',
-                      border: '1px solid #333',
+                      background: 'var(--ui-surface-2)',
+                      border: '1px solid var(--ui-border)',
                       padding: '20px 24px',
                       borderRadius: '12px 12px 0 0'
                     }}
@@ -485,19 +485,19 @@ const BaZiPage = () => {
                       textAlign: 'center'
                     }}>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div style={{ color: '#CCCCCC', fontSize: '14px', fontWeight: '500' }}>生肖</div>
-                        <div style={{ color: '#FF9900', fontSize: '16px', fontWeight: '700', whiteSpace: 'nowrap' }}>属{chartData.zodiacAnimal}</div>
+                        <div style={{ color: 'var(--ui-muted-2)', fontSize: '14px', fontWeight: '500' }}>生肖</div>
+                        <div style={{ color: 'var(--ui-accent)', fontSize: '16px', fontWeight: '700', whiteSpace: 'nowrap' }}>属{chartData.zodiacAnimal}</div>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div style={{ color: '#CCCCCC', fontSize: '14px', fontWeight: '500' }}>本命佛</div>
-                        <div style={{ color: '#FBBF24', fontSize: '16px', fontWeight: '600', whiteSpace: 'nowrap' }}>{chartData.guardianBuddha}</div>
+                        <div style={{ color: 'var(--ui-muted-2)', fontSize: '14px', fontWeight: '500' }}>本命佛</div>
+                        <div style={{ color: 'var(--ui-accent)', fontSize: '16px', fontWeight: '600', whiteSpace: 'nowrap' }}>{chartData.guardianBuddha}</div>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div style={{ color: '#CCCCCC', fontSize: '14px', fontWeight: '500' }}>星座</div>
-                        <div style={{ color: '#34D399', fontSize: '16px', fontWeight: '600', whiteSpace: 'nowrap' }}>{chartData.constellation}</div>
+                        <div style={{ color: 'var(--ui-muted-2)', fontSize: '14px', fontWeight: '500' }}>星座</div>
+                        <div style={{ color: 'var(--ui-success)', fontSize: '16px', fontWeight: '600', whiteSpace: 'nowrap' }}>{chartData.constellation}</div>
                       </div>
                       <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <div style={{ color: '#CCCCCC', fontSize: '14px', fontWeight: '500' }}>时辰</div>
+                        <div style={{ color: 'var(--ui-muted-2)', fontSize: '14px', fontWeight: '500' }}>时辰</div>
                         <div style={{ color: 'white', fontSize: '16px', fontWeight: '600', whiteSpace: 'nowrap' }}>{getTimeRangeByHour(chartData.birthTime)}</div>
                       </div>
                     </div>
@@ -505,7 +505,7 @@ const BaZiPage = () => {
 
                   {/* 八字盘主体 - 深色卡片 */}
                   <motion.div 
-                    className="bg-[#1a1a1a] border border-[#333] p-6 flex flex-col"
+                    className="bg-[var(--ui-surface-2)] border border-[var(--ui-border)] p-6 flex flex-col"
                     style={{ 
                       minHeight: '400px',
                       borderRadius: '0 0 16px 16px',
@@ -517,7 +517,7 @@ const BaZiPage = () => {
                   >
                                           {/* 四柱八字 */}
                       <div className="flex-1 overflow-hidden mb-4">
-                        <h4 className="text-lg font-medium text-white mb-4 text-center">四柱八字</h4>
+                        <h4 className="text-lg font-medium text-[var(--ui-text)] mb-4 text-center">四柱八字</h4>
                         <div className="grid grid-cols-4 gap-4 mb-6">
                           {[
                             { name: '年柱', pillar: chartData.fourPillars.year },
@@ -529,10 +529,10 @@ const BaZiPage = () => {
                             const branchColor = getWuxingColor(getGanZhiWuxing(pillar.branch));
                             return (
                               <div key={index} className="text-center">
-                                <div className="text-sm text-[#CCCCCC] mb-2">{name}</div>
+                                <div className="text-sm text-[var(--ui-muted-2)] mb-2">{name}</div>
                                 <div className="space-y-2">
                                   <div 
-                                    className="w-12 h-12 mx-auto rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-lg transition-all duration-300 hover:scale-105"
+                                    className="w-12 h-12 mx-auto rounded-lg flex items-center justify-center text-[var(--ui-text)] font-bold text-lg shadow-lg transition-all duration-300 hover:scale-105"
                                     style={{ 
                                       backgroundColor: `${stemColor}30`,
                                       border: `2px solid ${stemColor}CC`,
@@ -543,7 +543,7 @@ const BaZiPage = () => {
                                     {pillar.stem}
                                   </div>
                                   <div 
-                                    className="w-12 h-12 mx-auto rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-lg transition-all duration-300 hover:scale-105"
+                                    className="w-12 h-12 mx-auto rounded-lg flex items-center justify-center text-[var(--ui-text)] font-bold text-lg shadow-lg transition-all duration-300 hover:scale-105"
                                     style={{ 
                                       backgroundColor: `${branchColor}30`,
                                       border: `2px solid ${branchColor}CC`,
@@ -560,7 +560,7 @@ const BaZiPage = () => {
                         </div>
                         
                         {/* 五行分析 */}
-                        <h4 className="text-lg font-medium text-white mb-6 text-center">五行分析</h4>
+                        <h4 className="text-lg font-medium text-[var(--ui-text)] mb-6 text-center">五行分析</h4>
                         <div className="space-y-4">
                           {Object.entries(chartData.wuxingAnalysis).map(([element, count]) => {
                             const color = getWuxingColor(element);
@@ -593,8 +593,8 @@ const BaZiPage = () => {
                                   <div 
                                     className="h-6 rounded border"
                                     style={{
-                                      backgroundColor: '#0f0f0f',
-                                      borderColor: '#333333'
+                                      backgroundColor: 'var(--ui-surface-2)',
+                                      borderColor: 'var(--ui-border)'
                                     }}
                                   />
                                   
@@ -624,7 +624,7 @@ const BaZiPage = () => {
                                   
                                   {/* 数量和状态标签 */}
                                   <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
-                                    <span className="text-white font-bold text-sm">{count}</span>
+                                    <span className="text-[var(--ui-text)] font-bold text-sm">{count}</span>
                                   </div>
                                 </div>
                                 
@@ -633,9 +633,29 @@ const BaZiPage = () => {
                                   <span 
                                     className="text-xs font-medium px-2 py-1 rounded-full"
                                     style={{
-                                      backgroundColor: count > 2 ? '#ff6b6b20' : count > 1 ? '#ffd93d20' : count === 1 ? '#4ecdc420' : '#66666620',
-                                      color: count > 2 ? '#FF6B6B' : count > 1 ? '#FFD93D' : count === 1 ? '#4ECDC4' : '#666666',
-                                      border: `1px solid ${count > 2 ? '#FF6B6B' : count > 1 ? '#FFD93D' : count === 1 ? '#4ECDC4' : '#666666'}40`
+                                      backgroundColor: count > 2
+                                        ? 'color-mix(in srgb, var(--ui-success) 18%, transparent)'
+                                        : count > 1
+                                          ? 'color-mix(in srgb, var(--ui-accent) 18%, transparent)'
+                                          : count === 1
+                                            ? 'color-mix(in srgb, var(--ui-muted) 18%, transparent)'
+                                            : 'color-mix(in srgb, var(--ui-muted-2) 12%, transparent)',
+                                      color: count > 2
+                                        ? 'var(--ui-success)'
+                                        : count > 1
+                                          ? 'var(--ui-accent)'
+                                          : count === 1
+                                            ? 'var(--ui-muted)'
+                                            : 'var(--ui-muted-2)',
+                                      border: `1px solid ${
+                                        count > 2
+                                          ? 'color-mix(in srgb, var(--ui-success) 40%, transparent)'
+                                          : count > 1
+                                            ? 'color-mix(in srgb, var(--ui-accent) 40%, transparent)'
+                                            : count === 1
+                                              ? 'color-mix(in srgb, var(--ui-muted) 40%, transparent)'
+                                              : 'color-mix(in srgb, var(--ui-muted-2) 35%, transparent)'
+                                      }`
                                     }}
                                   >
                                     {count > 2 ? '旺' : count > 1 ? '平' : count === 1 ? '弱' : '缺'}
@@ -654,11 +674,11 @@ const BaZiPage = () => {
                         disabled={isAnalyzing || !selectedMaster || analysisComplete}
                         className={`w-full px-4 py-3 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg flex items-center justify-center ${
                           isAnalyzing || !selectedMaster || analysisComplete
-                            ? 'bg-[#444444] cursor-not-allowed'
-                            : 'bg-gradient-to-r from-[#FF9900] to-[#E68A00] hover:from-[#E68A00] hover:to-[#CC7700] hover:shadow-xl hover:shadow-[#FF9900]/30'
+                            ? 'bg-[var(--ui-muted)] cursor-not-allowed'
+                            : 'bg-gradient-to-r from-[var(--ui-accent)] to-[var(--ui-accent-strong)] hover:from-[var(--ui-accent-strong)] hover:to-[var(--ui-accent-strong)] hover:shadow-xl hover:shadow-[0_12px_30px_rgba(37,94,234,0.25)]'
                         }`}
                         style={{
-                          color: isAnalyzing || !selectedMaster || analysisComplete ? '#888888' : '#000000'
+                          color: isAnalyzing || !selectedMaster || analysisComplete ? 'var(--ui-muted-2)' : 'var(--ui-text)'
                         }}
                         whileHover={!isAnalyzing && selectedMaster && !analysisComplete ? { scale: 1.02 } : {}}
                         whileTap={!isAnalyzing && selectedMaster && !analysisComplete ? { scale: 0.98 } : {}}
@@ -666,18 +686,18 @@ const BaZiPage = () => {
                         {isAnalyzing ? (
                           <span 
                             className="flex items-center justify-center gap-3"
-                            style={{ color: '#888888' }}
+                            style={{ color: 'var(--ui-muted-2)' }}
                           >
                             <div 
                               className="animate-spin rounded-full h-4 w-4 border-b-2"
-                              style={{ borderColor: '#888888' }}
+                              style={{ borderColor: 'var(--ui-muted-2)' }}
                             ></div>
-                            <span style={{ color: '#888888' }}>
+                            <span style={{ color: 'var(--ui-muted-2)' }}>
                               {aiAnalysis ? `${selectedMaster?.name}正在分析...` : `${selectedMaster?.name}解盘中...`}
                             </span>
                           </span>
                         ) : (
-                          <span style={{ color: isAnalyzing || !selectedMaster || analysisComplete ? '#888888' : '#000000' }}>
+                          <span style={{ color: isAnalyzing || !selectedMaster || analysisComplete ? 'var(--ui-muted-2)' : 'var(--ui-text)' }}>
                             {analysisComplete ? `${selectedMaster?.name}解盘完成` : (question.trim() ? '问事解析' : '命盘解读')}
                           </span>
                         )}
@@ -686,7 +706,7 @@ const BaZiPage = () => {
                       {!selectedMaster && (
                         <motion.button 
                           onClick={() => navigate('/settings')}
-                          className="w-full mt-2 bg-gradient-to-r from-[#FF9900] to-[#E68A00] text-black px-4 py-3 rounded-xl font-bold text-sm hover:from-[#E68A00] hover:to-[#CC7700] transition-all duration-300 shadow-lg hover:shadow-[#FF9900]/30 flex items-center justify-center"
+                          className="w-full mt-2 bg-gradient-to-r from-[var(--ui-accent)] to-[var(--ui-accent-strong)] text-white px-4 py-3 rounded-xl font-bold text-sm hover:from-[var(--ui-accent-strong)] hover:to-[var(--ui-accent-strong)] transition-all duration-300 shadow-lg hover:shadow-[0_12px_30px_rgba(37,94,234,0.25)] flex items-center justify-center"
                           whileHover={{ scale: 1.02 }}
                           whileTap={{ scale: 0.98 }}
                         >

@@ -152,7 +152,7 @@ const ZhouGongPage = () => {
 
   return (
     <motion.div 
-      className="min-h-screen bg-black text-white"
+      className="min-h-screen text-[var(--ui-text)]"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
@@ -163,10 +163,10 @@ const ZhouGongPage = () => {
           className="text-center mb-2"
           variants={itemVariants}
         >
-          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[#EEEEEE] via-[#CCCCCC] to-[#FF9900] bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[var(--ui-text)] via-[var(--ui-muted-2)] to-[var(--ui-accent)] bg-clip-text text-transparent">
             周公解梦
           </h1>
-          <p className="text-xl text-[#CCCCCC] max-w-3xl mx-auto leading-relaxed">
+          <p className="text-xl text-[var(--ui-muted-2)] max-w-3xl mx-auto leading-relaxed">
             承古圣贤智慧，解析梦境奥秘，窥探潜意识深处的神秘信息
           </p>
         </motion.div>
@@ -180,12 +180,12 @@ const ZhouGongPage = () => {
                 value={dreamDescription}
                 onChange={(e) => setDreamDescription(e.target.value)}
                 placeholder="请详细描述您的梦境..."
-                className="w-[400px] h-[100px] px-6 py-3 bg-[#222222] border-2 border-[#333333] rounded-xl !text-white !text-lg !font-bold placeholder:!text-[#888888] focus:border-[#FF9900] focus:outline-none transition-all duration-300 resize-none"
+                className="w-[400px] h-[100px] px-6 py-3 bg-[var(--ui-surface-2)] border-2 border-[var(--ui-border)] rounded-xl !text-[var(--ui-text)] !text-lg !font-bold placeholder:!text-[var(--ui-muted-2)] focus:border-[var(--ui-accent)] focus:outline-none transition-all duration-300 resize-none"
                 style={{ 
                   color: 'white',
                   fontSize: '16px',
                   fontWeight: 'bold',
-                  backgroundColor: '#222222',
+                  backgroundColor: 'var(--ui-border)',
                   borderRadius: '12px'
                 }}
                 disabled={analyzing}
@@ -195,8 +195,8 @@ const ZhouGongPage = () => {
                 disabled={!canStartAnalysis}
                 className={`px-8 py-3 h-[46px] rounded-xl font-bold text-lg transition-all duration-300 shadow-lg whitespace-nowrap flex items-center justify-center ${
                   !canStartAnalysis
-                    ? 'bg-[#444444] text-[#888888] cursor-not-allowed'
-                    : 'bg-gradient-to-r from-[#FF9900] to-[#E68A00] text-black hover:from-[#E68A00] hover:to-[#CC7700] hover:shadow-xl hover:shadow-[#FF9900]/30'
+                    ? 'bg-[var(--ui-muted)] text-[var(--ui-muted-2)] cursor-not-allowed'
+                    : 'bg-gradient-to-r from-[var(--ui-accent)] to-[var(--ui-accent-strong)] text-white hover:from-[var(--ui-accent-strong)] hover:to-[var(--ui-accent-strong)] hover:shadow-xl hover:shadow-[0_12px_30px_rgba(37,94,234,0.25)]'
                 }`}
                 whileHover={canStartAnalysis ? { scale: 1.05, y: -2 } : {}}
                 whileTap={canStartAnalysis ? { scale: 0.98 } : {}}
@@ -214,13 +214,13 @@ const ZhouGongPage = () => {
 
             {/* 快速开始水平布局 - 居中 */}
             <div className="flex justify-center items-center gap-3">
-              <h4 className="text-lg font-medium text-white whitespace-nowrap">快速开始：</h4>
+              <h4 className="text-lg font-medium text-[var(--ui-text)] whitespace-nowrap">快速开始：</h4>
               <div className="flex flex-wrap gap-4">
                 {quickQuestions.map((quickDream, index) => (
                   <motion.span
                     key={index}
                     onClick={() => !analyzing && quickStart(quickDream)}
-                    className={`px-4 py-2 text-[#CCCCCC] text-sm cursor-pointer hover:text-[#FF9900] transition-all duration-300 ${
+                    className={`px-4 py-2 text-[var(--ui-muted-2)] text-sm cursor-pointer hover:text-[var(--ui-accent)] transition-all duration-300 ${
                       analyzing ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                     whileHover={!analyzing ? { scale: 1.05, y: -2 } : {}}
@@ -240,7 +240,7 @@ const ZhouGongPage = () => {
               <div className="flex justify-center mt-4">
                 <motion.button 
                   onClick={() => navigate('/settings')}
-                  className="bg-gradient-to-r from-[#FF9900] to-[#E68A00] text-black px-6 py-3 rounded-xl font-bold text-sm hover:from-[#E68A00] hover:to-[#CC7700] transition-all duration-300 shadow-lg hover:shadow-[#FF9900]/30"
+                  className="bg-gradient-to-r from-[var(--ui-accent)] to-[var(--ui-accent-strong)] text-white px-6 py-3 rounded-xl font-bold text-sm hover:from-[var(--ui-accent-strong)] hover:to-[var(--ui-accent-strong)] transition-all duration-300 shadow-lg hover:shadow-[0_12px_30px_rgba(37,94,234,0.25)]"
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                 >
@@ -260,11 +260,11 @@ const ZhouGongPage = () => {
                 transition={{ duration: 0.3 }}
               >
                 <div className="text-center">
-                  <h3 className="text-2xl font-semibold text-white mb-6">梦境解析，天机显现</h3>
+                  <h3 className="text-2xl font-semibold text-[var(--ui-text)] mb-6">梦境解析，天机显现</h3>
                   
                   {/* 解梦动画区域 */}
                   <div className="flex justify-center">
-                    <div className="bg-black flex items-center justify-center relative overflow-hidden rounded-xl" style={{ width: '560px', height: '315px' }}>
+                    <div className="bg-[var(--ui-surface-2)] flex items-center justify-center relative overflow-hidden rounded-xl" style={{ width: '560px', height: '315px' }}>
                       {/* 使用解梦视频 */}
                       <video 
                         autoPlay 
@@ -294,7 +294,7 @@ const ZhouGongPage = () => {
                         <div className="absolute inset-0 flex items-center justify-center">
                           <div className="relative">
                             <motion.div
-                              className="w-20 h-20 border-4 border-[#FF9900] rounded-full flex items-center justify-center"
+                              className="w-20 h-20 border-4 border-[var(--ui-accent)] rounded-full flex items-center justify-center"
                               animate={{ 
                                 rotate: 360,
                                 scale: [1, 1.1, 1]
@@ -305,7 +305,7 @@ const ZhouGongPage = () => {
                               }}
                             >
                               <motion.div
-                                className="text-[#FF9900] text-3xl font-bold"
+                                className="text-[var(--ui-accent)] text-3xl font-bold"
                                 animate={{ opacity: [0.5, 1, 0.5] }}
                                 transition={{ duration: 1.5, repeat: Infinity }}
                               >
@@ -317,7 +317,7 @@ const ZhouGongPage = () => {
                             {[...Array(8)].map((_, i) => (
                               <motion.div
                                 key={i}
-                                className="absolute w-2 h-2 bg-[#CCCCCC] rounded-full"
+                                className="absolute w-2 h-2 bg-[var(--ui-muted-2)] rounded-full"
                                 style={{
                                   top: '50%',
                                   left: '50%',

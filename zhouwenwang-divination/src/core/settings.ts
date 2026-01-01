@@ -15,6 +15,7 @@ import { getDefaultServerUrl } from '../utils/url';
  */
 export const DEFAULT_SETTINGS: Settings = {
   apiKey: '',
+  theme: 'dark',
   sidebarCollapsed: false,
   serverUrl: getDefaultServerUrl(),
 };
@@ -31,6 +32,10 @@ export function validateSettings(settings: any): settings is Settings {
 
   // 检查必需字段
   if (typeof settings.apiKey !== 'string') {
+    return false;
+  }
+
+  if (settings.theme !== 'light' && settings.theme !== 'dark') {
     return false;
   }
 

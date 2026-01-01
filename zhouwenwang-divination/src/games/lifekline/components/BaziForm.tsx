@@ -143,10 +143,10 @@ const BaziForm: React.FC<BaziFormProps> = ({ onSubmit, isLoading }) => {
 
     return (
 
-        <div className="w-full max-w-2xl mx-auto bg-[#1a1a1a]/80 backdrop-blur-xl p-8 rounded-3xl border border-[#333333] shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+        <div className="w-full max-w-2xl mx-auto bg-[var(--ui-surface-2)]/80 backdrop-blur-xl p-8 rounded-3xl border border-[var(--ui-border)] shadow-[0_0_50px_rgba(0,0,0,0.5)]">
             <div className="text-center mb-10">
-                <h2 className="text-4xl font-bold bg-gradient-to-r from-[#FFFFFF] to-[#888888] bg-clip-text text-transparent mb-3">精准八字排盘</h2>
-                <p className="text-[#666666] text-sm uppercase tracking-[0.2em]">Fate Analysis & Life K-Line</p>
+                <h2 className="text-4xl font-bold bg-gradient-to-r from-[var(--ui-text)] to-[var(--ui-muted-2)] bg-clip-text text-transparent mb-3">精准八字排盘</h2>
+                <p className="text-[var(--ui-muted-2)] text-sm uppercase tracking-[0.2em]">Fate Analysis & Life K-Line</p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-8">
@@ -154,27 +154,27 @@ const BaziForm: React.FC<BaziFormProps> = ({ onSubmit, isLoading }) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                     <div className="space-y-4">
                         <div className="space-y-2">
-                            <label className="block text-sm font-semibold text-[#888888] ml-1">姓名 (可选)</label>
+                            <label className="block text-sm font-semibold text-[var(--ui-muted-2)] ml-1">姓名 (可选)</label>
                             <input
                                 type="text"
                                 name="name"
                                 value={formData.name}
                                 onChange={handleChange}
-                                className="w-full px-6 py-4 bg-[#0f0f0f] border-2 border-[#222222] text-white rounded-2xl focus:border-[#FF9900] outline-none transition-all placeholder:text-[#333333] text-lg"
+                                className="w-full px-6 py-4 bg-[var(--ui-surface-2)] border-2 border-[var(--ui-border)] text-[var(--ui-text)] rounded-2xl focus:border-[var(--ui-accent)] outline-none transition-all placeholder:text-[var(--ui-muted-2)] text-lg"
                                 placeholder="输入姓名以生成报告"
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="block text-sm font-semibold text-[#888888] ml-1">AI 推演服务商</label>
-                            <div className="flex bg-[#0f0f0f] rounded-2xl p-1.5 border-2 border-[#222222] h-[64px]">
+                            <label className="block text-sm font-semibold text-[var(--ui-muted-2)] ml-1">AI 推演服务商</label>
+                            <div className="flex bg-[var(--ui-surface-2)] rounded-2xl p-1.5 border-2 border-[var(--ui-border)] h-[64px]">
                                 {(['gemini', 'openai'] as const).map(p => (
                                     <button
                                         key={p}
                                         type="button"
                                         onClick={() => setFormData({ ...formData, provider: p })}
                                         className={`flex-1 rounded-xl text-xs font-black transition-all duration-300 uppercase tracking-widest ${formData.provider === p
-                                            ? 'bg-white text-black shadow-lg'
-                                            : 'text-[#444444] hover:text-[#888888]'
+                                            ? 'bg-[var(--ui-accent)] text-white shadow-lg'
+                                            : 'text-[var(--ui-muted)] hover:text-[var(--ui-muted-2)]'
                                             }`}
                                     >
                                         {p}
@@ -185,16 +185,16 @@ const BaziForm: React.FC<BaziFormProps> = ({ onSubmit, isLoading }) => {
                         </div>
                     </div>
                     <div className="space-y-2">
-                        <label className="block text-sm font-semibold text-[#888888] ml-1">性别 (决定大运方向)</label>
-                        <div className="flex bg-[#0f0f0f] rounded-2xl p-1.5 border-2 border-[#222222] h-[136px] flex-col gap-1.5">
+                        <label className="block text-sm font-semibold text-[var(--ui-muted-2)] ml-1">性别 (决定大运方向)</label>
+                        <div className="flex bg-[var(--ui-surface-2)] rounded-2xl p-1.5 border-2 border-[var(--ui-border)] h-[136px] flex-col gap-1.5">
                             {(['男', '女'] as const).map(g => (
                                 <button
                                     key={g}
                                     type="button"
                                     onClick={() => setFormData({ ...formData, gender: g })}
                                     className={`flex-1 rounded-xl text-lg font-bold transition-all duration-300 ${formData.gender === g
-                                        ? 'bg-[#FF9900] text-black shadow-[0_0_20px_rgba(255,153,0,0.3)]'
-                                        : 'text-[#444444] hover:text-[#888888]'
+                                        ? 'bg-[var(--ui-accent)] text-white shadow-[0_0_20px_rgba(37,94,234,0.35)]'
+                                        : 'text-[var(--ui-muted)] hover:text-[var(--ui-muted-2)]'
                                         }`}
                                 >
                                     {g === '男' ? '乾造 (男)' : '坤造 (女)'}
@@ -205,17 +205,17 @@ const BaziForm: React.FC<BaziFormProps> = ({ onSubmit, isLoading }) => {
                 </div>
 
                 {/* Four Pillars */}
-                <div className="bg-[#0f0f0f]/50 p-8 rounded-3xl border border-[#222222] space-y-6">
-                    <div className="flex items-center gap-3 text-[#FF9900] text-sm font-black uppercase tracking-widest mb-2">
+                <div className="bg-[var(--ui-surface-2)]/50 p-8 rounded-3xl border border-[var(--ui-border)] space-y-6">
+                    <div className="flex items-center gap-3 text-[var(--ui-accent)] text-sm font-black uppercase tracking-widest mb-2">
                         <Sparkles className="w-5 h-5" />
                         <span>四柱干支 (自动计算)</span>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="md:col-span-2 space-y-3">
-                            <label className="block text-xs font-bold text-[#555555] ml-1 uppercase tracking-widest flex justify-between items-center">
+                            <label className="block text-xs font-bold text-[var(--ui-muted)] ml-1 uppercase tracking-widest flex justify-between items-center">
                                 <span>出生日期及精确时间 (公历)</span>
-                                <span className="text-[10px] text-[#FF9900]/50 font-black">DD / MM / YYYY</span>
+                                <span className="text-[10px] text-[var(--ui-accent)]/50 font-black">DD / MM / YYYY</span>
                             </label>
                             <div className="relative group">
                                 <input
@@ -224,43 +224,42 @@ const BaziForm: React.FC<BaziFormProps> = ({ onSubmit, isLoading }) => {
                                     required
                                     value={formData.birthTime}
                                     onChange={handleChange}
-                                    className="w-full px-6 py-4 bg-[#0f0f0f] border-2 border-[#222222] group-hover:border-[#333333] text-white rounded-2xl focus:border-[#FF9900] outline-none font-bold text-lg transition-all"
-                                    style={{ colorScheme: 'dark' }}
+                                    className="w-full px-6 py-4 bg-[var(--ui-surface-2)] border-2 border-[var(--ui-border)] group-hover:border-[var(--ui-border)] text-[var(--ui-text)] rounded-2xl focus:border-[var(--ui-accent)] outline-none font-bold text-lg transition-all"
                                 />
-                                <Calendar className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-[#333333] group-hover:text-[#FF9900] transition-colors" />
+                                <Calendar className="absolute right-6 top-1/2 -translate-y-1/2 w-5 h-5 text-[var(--ui-muted-2)] group-hover:text-[var(--ui-accent)] transition-colors" />
                             </div>
                             {selectionPreview && (
-                                <div className="flex flex-wrap gap-3 px-4 py-2 bg-[#FF9900]/5 rounded-xl border border-[#FF9900]/10 animate-in fade-in duration-500">
+                                <div className="flex flex-wrap gap-3 px-4 py-2 bg-[var(--ui-accent)]/5 rounded-xl border border-[var(--ui-accent)]/10 animate-in fade-in duration-500">
                                     <div className="flex items-center gap-1.5">
-                                        <span className="text-[10px] font-black text-[#FF9900] uppercase">Year</span>
-                                        <span className="text-sm font-bold text-white">{selectionPreview.year}年</span>
+                                        <span className="text-[10px] font-black text-[var(--ui-accent)] uppercase">Year</span>
+                                        <span className="text-sm font-bold text-[var(--ui-text)]">{selectionPreview.year}年</span>
                                     </div>
-                                    <div className="w-[1px] h-3 bg-[#333333] self-center" />
+                                    <div className="w-[1px] h-3 bg-[var(--ui-border)] self-center" />
                                     <div className="flex items-center gap-1.5">
-                                        <span className="text-[10px] font-black text-[#FF9900] uppercase">Month</span>
-                                        <span className="text-sm font-bold text-white">{selectionPreview.month}月</span>
+                                        <span className="text-[10px] font-black text-[var(--ui-accent)] uppercase">Month</span>
+                                        <span className="text-sm font-bold text-[var(--ui-text)]">{selectionPreview.month}月</span>
                                     </div>
-                                    <div className="w-[1px] h-3 bg-[#333333] self-center" />
+                                    <div className="w-[1px] h-3 bg-[var(--ui-border)] self-center" />
                                     <div className="flex items-center gap-1.5">
-                                        <span className="text-[10px] font-black text-[#FF9900] uppercase">Day</span>
-                                        <span className="text-sm font-bold text-white">{selectionPreview.day}日</span>
+                                        <span className="text-[10px] font-black text-[var(--ui-accent)] uppercase">Day</span>
+                                        <span className="text-sm font-bold text-[var(--ui-text)]">{selectionPreview.day}日</span>
                                     </div>
-                                    <div className="w-[1px] h-3 bg-[#333333] self-center" />
+                                    <div className="w-[1px] h-3 bg-[var(--ui-border)] self-center" />
                                     <div className="flex items-center gap-1.5">
-                                        <span className="text-[10px] font-black text-[#FF9900] uppercase">Time</span>
-                                        <span className="text-sm font-bold text-white">{selectionPreview.hour}:{selectionPreview.minute.toString().padStart(2, '0')}</span>
+                                        <span className="text-[10px] font-black text-[var(--ui-accent)] uppercase">Time</span>
+                                        <span className="text-sm font-bold text-[var(--ui-text)]">{selectionPreview.hour}:{selectionPreview.minute.toString().padStart(2, '0')}</span>
                                     </div>
 
                                 </div>
                             )}
-                            <div className="text-[10px] text-[#777777] font-bold uppercase tracking-widest mt-2">
+                            <div className="text-[10px] text-[var(--ui-muted-2)] font-bold uppercase tracking-widest mt-2">
                                 排盘规则：传统子平（23:00后换日）
                             </div>
                         </div>
 
                         {(['yearPillar', 'monthPillar', 'dayPillar', 'hourPillar'] as const).map(p => (
                             <div key={p} className="space-y-1.5">
-                                <label className="block text-[11px] font-black text-[#666666] uppercase tracking-[0.2em] ml-1 mb-1">
+                                <label className="block text-[11px] font-black text-[var(--ui-muted-2)] uppercase tracking-[0.2em] ml-1 mb-1">
                                     {p === 'yearPillar' ? (
                                         <span className="flex justify-between">
                                             <span>YEAR 年柱</span>
@@ -269,12 +268,12 @@ const BaziForm: React.FC<BaziFormProps> = ({ onSubmit, isLoading }) => {
                                     ) : p === 'monthPillar' ? (
                                         <span className="flex justify-between">
                                             <span>MONTH 月柱</span>
-                                            <span className="text-[9px] opacity-70 text-[#FF9900]">依据节气</span>
+                                            <span className="text-[9px] opacity-70 text-[var(--ui-accent)]">依据节气</span>
                                         </span>
                                     ) : p === 'dayPillar' ? (
                                         <span className="flex justify-between">
                                             <span>DAY 日柱</span>
-                                            <span className="text-[9px] opacity-70 text-[#FF9900]">核心元神</span>
+                                            <span className="text-[9px] opacity-70 text-[var(--ui-accent)]">核心元神</span>
                                         </span>
                                     ) : (
                                         <span className="flex justify-between">
@@ -290,7 +289,7 @@ const BaziForm: React.FC<BaziFormProps> = ({ onSubmit, isLoading }) => {
                                     readOnly
                                     value={formData[p as keyof typeof formData] as string}
                                     placeholder="..."
-                                    className="w-full px-4 py-4 bg-[#0a0a0a] border-2 border-[#1a1a1a] text-[#FF9900] rounded-2xl text-center font-black text-2xl shadow-inner cursor-default"
+                                    className="w-full px-4 py-4 bg-[var(--ui-surface-2)] border-2 border-[var(--ui-border)] text-[var(--ui-accent)] rounded-2xl text-center font-black text-2xl shadow-inner cursor-default"
                                 />
                             </div>
                         ))}
@@ -298,14 +297,14 @@ const BaziForm: React.FC<BaziFormProps> = ({ onSubmit, isLoading }) => {
                 </div>
 
                 {/* Da Yun */}
-                <div className="bg-[#0f0f0f]/50 p-8 rounded-3xl border border-[#222222] space-y-6">
-                    <div className="flex items-center gap-3 text-[#FF9900] text-sm font-black uppercase tracking-widest mb-2">
+                <div className="bg-[var(--ui-surface-2)]/50 p-8 rounded-3xl border border-[var(--ui-border)] space-y-6">
+                    <div className="flex items-center gap-3 text-[var(--ui-accent)] text-sm font-black uppercase tracking-widest mb-2">
                         <TrendingUp className="w-5 h-5" />
                         <span>大运推演 (智能估算)</span>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div className="space-y-1.5">
-                            <label className="block text-[10px] font-black text-[#444444] uppercase tracking-widest ml-1">起运年龄</label>
+                            <label className="block text-[10px] font-black text-[var(--ui-muted)] uppercase tracking-widest ml-1">起运年龄</label>
                             <input
                                 type="number"
                                 name="startAge"
@@ -314,11 +313,11 @@ const BaziForm: React.FC<BaziFormProps> = ({ onSubmit, isLoading }) => {
                                 max="11"
                                 value={formData.startAge}
                                 onChange={handleChange}
-                                className="w-full px-6 py-4 bg-[#0a0a0a] border-2 border-[#1a1a1a] text-white rounded-2xl focus:border-[#FF9900] outline-none text-center font-black text-xl"
+                                className="w-full px-6 py-4 bg-[var(--ui-surface-2)] border-2 border-[var(--ui-border)] text-[var(--ui-text)] rounded-2xl focus:border-[var(--ui-accent)] outline-none text-center font-black text-xl"
                             />
                         </div>
                         <div className="space-y-1.5">
-                            <label className="block text-[10px] font-black text-[#444444] uppercase tracking-widest ml-1">首步大运</label>
+                            <label className="block text-[10px] font-black text-[var(--ui-muted)] uppercase tracking-widest ml-1">首步大运</label>
                             <input
                                 type="text"
                                 name="firstDaYun"
@@ -326,20 +325,20 @@ const BaziForm: React.FC<BaziFormProps> = ({ onSubmit, isLoading }) => {
                                 value={formData.firstDaYun}
                                 onChange={handleChange}
                                 placeholder="..."
-                                className="w-full px-6 py-4 bg-[#0a0a0a] border-2 border-[#1a1a1a] text-[#FF9900] rounded-2xl text-center font-black text-2xl"
+                                className="w-full px-6 py-4 bg-[var(--ui-surface-2)] border-2 border-[var(--ui-border)] text-[var(--ui-accent)] rounded-2xl text-center font-black text-2xl"
                             />
                         </div>
                     </div>
                     <div className="pt-2 flex flex-col gap-2">
-                        <div className="bg-[#1a1a1a] py-2 px-4 rounded-full border border-[#222222] inline-block w-fit">
-                            <p className="text-[10px] text-[#555555] font-bold uppercase tracking-wider">
-                                阴阳顺逆：<span className="text-[#FF9900]">{daYunDirectionInfo}</span>
+                        <div className="bg-[var(--ui-surface-2)] py-2 px-4 rounded-full border border-[var(--ui-border)] inline-block w-fit">
+                            <p className="text-[10px] text-[var(--ui-muted)] font-bold uppercase tracking-wider">
+                                阴阳顺逆：<span className="text-[var(--ui-accent)]">{daYunDirectionInfo}</span>
                             </p>
                         </div>
                         {formData.luckStartDate && (
-                            <div className="bg-[#FF9900]/10 py-2 px-4 rounded-full border border-[#FF9900]/20 inline-block w-fit">
-                                <p className="text-[10px] text-[#FF9900] font-black uppercase tracking-wider">
-                                    起运日期：<span className="text-white">{formData.luckStartDate} (约{formData.startAge}岁)</span>
+                            <div className="bg-[var(--ui-accent)]/10 py-2 px-4 rounded-full border border-[var(--ui-accent)]/20 inline-block w-fit">
+                                <p className="text-[10px] text-[var(--ui-accent)] font-black uppercase tracking-wider">
+                                    起运日期：<span className="text-[var(--ui-text)]">{formData.luckStartDate} (约{formData.startAge}岁)</span>
                                 </p>
                             </div>
                         )}
@@ -350,8 +349,8 @@ const BaziForm: React.FC<BaziFormProps> = ({ onSubmit, isLoading }) => {
                     type="submit"
                     disabled={isLoading}
                     className={`w-full py-5 rounded-2xl font-black text-xl transition-all duration-500 flex items-center justify-center gap-4 shadow-2xl relative overflow-hidden group ${isLoading
-                        ? 'bg-[#222222] text-[#444444] cursor-not-allowed'
-                        : 'bg-gradient-to-r from-[#FF9900] to-[#FF6B00] text-black hover:shadow-[0_0_30px_rgba(255,153,0,0.4)] hover:scale-[1.01] active:scale-[0.99]'
+                        ? 'bg-[var(--ui-surface-2)] text-[var(--ui-muted)] cursor-not-allowed'
+                        : 'bg-gradient-to-r from-[var(--ui-accent)] to-[var(--ui-accent-strong)] text-white hover:shadow-[0_0_30px_rgba(37,94,234,0.35)] hover:scale-[1.01] active:scale-[0.99]'
                         }`}
                 >
                     {isLoading ? (
@@ -361,7 +360,7 @@ const BaziForm: React.FC<BaziFormProps> = ({ onSubmit, isLoading }) => {
                         </>
                     ) : (
                         <>
-                            <div className="absolute inset-0 bg-white/10 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
+                            <div className="absolute inset-0 bg-[var(--ui-surface)]/40 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 skew-x-12" />
                             <Sparkles className="h-6 w-6" />
                             <span>推演百年命理K线</span>
                         </>

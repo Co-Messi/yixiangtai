@@ -21,8 +21,8 @@ const QinShiPage = lazy(() => import('../../games/qinshi/QinShiPage'));
 const LoadingSpinner = () => (
   <div className="flex items-center justify-center min-h-screen">
     <div className="flex flex-col items-center space-y-4">
-      <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
-      <p className="text-white text-sm">加载中...</p>
+      <div className="w-8 h-8 border-4 border-[var(--ui-accent)] border-t-transparent rounded-full animate-spin"></div>
+      <p className="text-[var(--ui-muted)] text-sm">加载中...</p>
     </div>
   </div>
 );
@@ -60,12 +60,12 @@ const MainContent: React.FC<MainContentProps> = ({ isCollapsed }) => {
   
   return (
     <motion.div 
-      className="flex-1 bg-black min-h-screen"
+      className="flex-1 bg-transparent min-h-screen"
       layout
     >
       {/* 内容容器 - 在内容栏中居中，大屏幕时限制最大宽度 */}
       <div className="w-full min-h-screen flex justify-center">
-        <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8 xl:px-12">
+        <div className="w-full max-w-6xl px-8">
           <div className="min-h-screen">
             <Suspense fallback={<LoadingSpinner />}>
               <AnimatePresence mode="wait">

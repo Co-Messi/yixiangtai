@@ -2,7 +2,8 @@ import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import MainContent from './MainContent';
-import { MarqueeNotification, GitHubLink, MobileDetector } from '../common';
+import TopBar from './TopBar';
+import { MarqueeNotification, MobileDetector } from '../common';
 import { useSettings, useMaster, useUI, useStore } from '../../core/store';
 import { fetchMasters, getDefaultMaster } from '../../masters/service';
 import { getDefaultServerUrl } from '../../utils/url';
@@ -18,6 +19,12 @@ const Layout: React.FC = () => {
   useEffect(() => {
     clearError();
   }, [location.pathname, clearError]);
+
+  useEffect(() => {
+    const root = document.documentElement;
+    root.classList.remove('theme-light', 'theme-dark');
+    root.classList.add(settings.theme === 'light' ? 'theme-light' : 'theme-dark');
+  }, [settings.theme]);
 
   // 初始化设置 - 确保默认serverUrl被保存
   useEffect(() => {
@@ -78,21 +85,21 @@ const Layout: React.FC = () => {
   }, []); // 只在组件挂载时执行一次
 
   return (
-    <div className="bg-black min-h-screen">
+    <div className="app-shell min-h-screen text-[var(--ui-text)]">
       {/* 移动端检测组件 - 最高优先级 */}
       <MobileDetector />
       
       {/* 跑马灯通知 - 全局覆盖 */}
       <MarqueeNotification apiBaseUrl={settings.serverUrl} />
       
-      {/* GitHub 链接 - 固定在右上角 */}
-      <GitHubLink />
+      <TopBar isCollapsed={settings.sidebarCollapsed} />
       
       <Sidebar />
       <div 
         className="transition-all duration-300 ease-in-out"
         style={{ 
-          marginLeft: settings.sidebarCollapsed ? '80px' : '256px'
+          marginLeft: settings.sidebarCollapsed ? '72px' : '200px',
+          paddingTop: '96px'
         }}
       >
         <MainContent isCollapsed={settings.sidebarCollapsed} />

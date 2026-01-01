@@ -86,7 +86,7 @@ const MobileDetector: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/90 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+          className="fixed inset-0 bg-[var(--ui-bg)]/90 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
           style={{ touchAction: 'none' }}
         >
           <motion.div
@@ -94,12 +94,12 @@ const MobileDetector: React.FC = () => {
             animate={{ scale: 1, opacity: 1, y: 0 }}
             exit={{ scale: 0.9, opacity: 0, y: 20 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="bg-[#111111] border border-[#333333] rounded-2xl p-6 max-w-md w-full text-center relative shadow-2xl"
+            className="bg-[var(--ui-surface-2)] border border-[var(--ui-border)] rounded-2xl p-6 max-w-md w-full text-center relative shadow-2xl"
           >
             {/* 关闭按钮 */}
             <button
               onClick={handleClose}
-              className="absolute top-4 right-4 text-[#CCCCCC] hover:text-white transition-colors p-1 rounded-full hover:bg-[#333333]"
+              className="absolute top-4 right-4 text-[var(--ui-muted-2)] hover:text-[var(--ui-text)] transition-colors p-1 rounded-full hover:bg-[var(--ui-border)]"
               aria-label="关闭"
             >
               <X size={18} />
@@ -108,18 +108,18 @@ const MobileDetector: React.FC = () => {
             {/* 图标 */}
             <div className="flex justify-center mb-4">
               <motion.div 
-                className="bg-[#FF9900]/10 p-4 rounded-full"
+                className="bg-[var(--ui-accent)]/10 p-4 rounded-full"
                 initial={{ scale: 0, rotate: -180 }}
                 animate={{ scale: 1, rotate: 0 }}
                 transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
               >
-                <Monitor className="w-12 h-12 text-[#FF9900]" />
+                <Monitor className="w-12 h-12 text-[var(--ui-accent)]" />
               </motion.div>
             </div>
 
             {/* 标题 */}
             <motion.h2 
-              className="text-xl font-bold text-white mb-3"
+              className="text-xl font-bold text-[var(--ui-text)] mb-3"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
@@ -129,14 +129,14 @@ const MobileDetector: React.FC = () => {
 
             {/* 描述 */}
             <motion.p 
-              className="text-[#CCCCCC] mb-6 leading-relaxed text-sm"
+              className="text-[var(--ui-muted-2)] mb-6 leading-relaxed text-sm"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
               为了获得最佳的占卜体验，建议您在电脑或平板浏览器中访问。
               <br />
-              <span className="text-[#888888]">手机端部分功能可能受限</span>
+              <span className="text-[var(--ui-muted-2)]">手机端部分功能可能受限</span>
             </motion.p>
 
             {/* 按钮组 */}
@@ -148,12 +148,12 @@ const MobileDetector: React.FC = () => {
             >
               <button
                 onClick={handleContinue}
-                className="w-full bg-[#FF9900] hover:bg-[#E68A00] text-black font-medium py-3 px-4 rounded-xl transition-all duration-200 text-sm hover:scale-[1.02] active:scale-[0.98]"
+                className="w-full bg-[var(--ui-accent)] hover:bg-[var(--ui-accent-strong)] text-white font-medium py-3 px-4 rounded-xl transition-all duration-200 text-sm hover:scale-[1.02] active:scale-[0.98]"
               >
                 继续使用手机版
               </button>
               
-              <div className="flex items-center justify-center gap-2 text-xs text-[#888888]">
+              <div className="flex items-center justify-center gap-2 text-xs text-[var(--ui-muted-2)]">
                 <Smartphone size={14} />
                 <span>移动设备已检测</span>
               </div>
@@ -161,14 +161,14 @@ const MobileDetector: React.FC = () => {
 
             {/* URL复制区域 */}
             <motion.div 
-              className="mt-4 p-3 bg-[#222222] border border-[#333333] rounded-lg"
+              className="mt-4 p-3 bg-[var(--ui-surface-2)] border border-[var(--ui-border)] rounded-lg"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6 }}
             >
-              <p className="text-xs text-[#CCCCCC] mb-2">分享到电脑：</p>
+              <p className="text-xs text-[var(--ui-muted-2)] mb-2">分享到电脑：</p>
               <div className="flex items-center gap-2">
-                <code className="text-[#FF9900] text-xs break-all flex-1 text-left">
+                <code className="text-[var(--ui-accent)] text-xs break-all flex-1 text-left">
                   {window.location.href}
                 </code>
                 <button
@@ -176,7 +176,7 @@ const MobileDetector: React.FC = () => {
                   className={`p-2 rounded transition-all duration-200 ${
                     copied 
                       ? 'text-green-400 bg-green-400/10 scale-110' 
-                      : 'text-[#CCCCCC] hover:text-white hover:bg-[#333333] hover:scale-105'
+                      : 'text-[var(--ui-muted-2)] hover:text-[var(--ui-text)] hover:bg-[var(--ui-border)] hover:scale-105'
                   }`}
                   title={copied ? '已复制' : '复制链接'}
                 >
@@ -187,7 +187,7 @@ const MobileDetector: React.FC = () => {
 
             {/* 温馨提示 */}
             <motion.div 
-              className="mt-3 text-xs text-[#666666]"
+              className="mt-3 text-xs text-[var(--ui-muted-2)]"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.7 }}
@@ -199,7 +199,7 @@ const MobileDetector: React.FC = () => {
             {import.meta.env.DEV && (
               <button
                 onClick={resetPreference}
-                className="mt-2 text-xs text-[#666666] hover:text-[#888888] underline"
+                className="mt-2 text-xs text-[var(--ui-muted-2)] hover:text-[var(--ui-muted-2)] underline"
                 title="重置偏好设置（开发模式）"
               >
                 重置偏好
