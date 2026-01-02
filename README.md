@@ -1,4 +1,4 @@
-# 周文王占卜系统 🔮
+# 易象台 🔮
 
 一个现代化的中华传统占卜系统，融合古代智慧与现代AI技术，为用户提供专业的六爻、奇门遁甲、八字推命、手相分析、周公解梦等占卜服务。
 
@@ -17,14 +17,14 @@
 <table>
   <tr>
     <td align="center">
-      <img src="zhouwenwang-divination/public/img/home.png" alt="主页界面" width="400"/>
+      <img src="yixiangtai/public/img/home.png" alt="主页界面" width="400"/>
       <br/>
       <b>🏠 主页界面</b>
       <br/>
       <sub>简洁优雅的主页设计，提供多种占卜方式选择</sub>
     </td>
     <td align="center">
-      <img src="zhouwenwang-divination/public/img/liuyao.png" alt="六爻占卜界面" width="400"/>
+      <img src="yixiangtai/public/img/liuyao.png" alt="六爻占卜界面" width="400"/>
       <br/>
       <b>🔮 六爻占卜</b>
       <br/>
@@ -33,14 +33,14 @@
   </tr>
   <tr>
     <td align="center">
-      <img src="zhouwenwang-divination/public/img/qimen.png" alt="奇门遁甲界面" width="400"/>
+      <img src="yixiangtai/public/img/qimen.png" alt="奇门遁甲界面" width="400"/>
       <br/>
       <b>⭐ 奇门遁甲</b>
       <br/>
       <sub>专业奇门遁甲分析，提供时局预测和策略建议</sub>
     </td>
     <td align="center">
-      <img src="zhouwenwang-divination/public/img/palmistry.png" alt="手相分析界面" width="400"/>
+      <img src="yixiangtai/public/img/palmistry.png" alt="手相分析界面" width="400"/>
       <br/>
       <b>✋ 手相分析</b>
       <br/>
@@ -49,14 +49,14 @@
   </tr>
   <tr>
     <td align="center">
-      <img src="zhouwenwang-divination/public/img/k1.png" alt="人生K线图界面1" width="400"/>
+      <img src="yixiangtai/public/img/k1.png" alt="人生K线图界面1" width="400"/>
       <br/>
       <b>📊 人生K线图 - 运势分析</b>
       <br/>
       <sub>基于八字命理的100年人生运势可视化分析，量化评分系统</sub>
     </td>
     <td align="center">
-      <img src="zhouwenwang-divination/public/img/k2.png" alt="人生K线图界面2" width="400"/>
+      <img src="yixiangtai/public/img/k2.png" alt="人生K线图界面2" width="400"/>
       <br/>
       <b>📊 人生K线图 - 详细解读</b>
       <br/>
@@ -106,7 +106,7 @@
 
 ```bash
 git clone <repository-url>
-cd zhouwenwang-divination
+cd yixiangtai
 ```
 
 ### 2. 检查 Node.js 版本
@@ -216,7 +216,7 @@ npm run dist
 ```
 
 生成文件：
-- `release/周文王占卜 Setup 0.0.0.exe` - Windows 安装包
+- `release/易象台 Setup 0.0.0.exe` - Windows 安装包
 - `release/win-unpacked/` - 免安装版本
 
 #### macOS 打包
@@ -226,14 +226,14 @@ npm run dist
 ```bash
 # 在 macOS 系统上执行
 git clone <repository-url>
-cd zhouwenwang-divination
+cd yixiangtai
 npm install
 npm run dist-mac
 ```
 
 生成文件：
-- `release/周文王占卜-0.0.0.dmg` - macOS 安装包
-- `release/周文王占卜-0.0.0-mac.zip` - ZIP 压缩包
+- `release/易象台-0.0.0.dmg` - macOS 安装包
+- `release/易象台-0.0.0-mac.zip` - ZIP 压缩包
 
 支持架构：
 - Intel Mac (x64)
@@ -246,7 +246,7 @@ npm run dist-linux
 ```
 
 生成文件：
-- `release/周文王占卜-0.0.0.AppImage` - Linux 应用
+- `release/易象台-0.0.0.AppImage` - Linux 应用
 
 ### 清理构建缓存
 
@@ -259,7 +259,7 @@ npm run dist-clean
 ## 🏗️ 项目结构
 
 ```
-zhouwenwang-divination/
+yixiangtai/
 ├── backend/               # 后端API代理服务
 │   ├── server.js         # Express服务器
 │   ├── env.example       # 环境变量示例
