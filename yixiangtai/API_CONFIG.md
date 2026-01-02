@@ -1,78 +1,63 @@
 # API 密钥配置指南
 
-本应用支持两种方式配置 Gemini API 密钥：
+本应用使用 Google Gemini API。为保证安全，**请不要把密钥写进源码或提交到 Git**。
 
-## 方式一：配置文件预配置（推荐）
+## 推荐方式：使用环境变量（.env）
 
-您可以直接在配置文件中设置 API 密钥，这样就无需在设置页面每次输入。
+1. 复制示例文件：
 
-### 配置步骤
+```bash
+cp .env.example .env
+```
 
-1. 打开 `src/masters/config.ts` 文件
-2. 找到 `API_CONFIG` 配置项：
+2. 编辑 `.env`，填入你的密钥：
 
-   ```typescript
-   export const API_CONFIG = {
-     // Gemini API密钥 - 可以在这里预配置，留空则需要用户在设置中配置
-     GEMINI_API_KEY: 'AIzaSyC5NZsAvPXVWZV-Iz9DzEDIxZF5nwbC0C4', // 在这里填入您的Gemini API密钥
-   };
-   ```
+```bash
+VITE_GEMINI_API_KEY=YOUR_GEMINI_API_KEY
+```
 
-3. 将您的 Gemini API 密钥填入 `GEMINI_API_KEY` 字段：
+`.env` 已被 `.gitignore` 忽略，不会提交到仓库。
 
-   ```typescript
-   export const API_CONFIG = {
-     GEMINI_API_KEY: 'AIzaSyC5NZsAvPXVWZV-Iz9DzEDIxZF5nwbC0C4', 
-   };
-   ```
+## 方式二：应用设置页面配置
 
-4. 保存文件
+1. 启动应用
+2. 进入设置页面 → “API 配置”
+3. 输入密钥并保存
 
-### 优势
+密钥会保存在本地存储中，清除浏览器数据会丢失。
 
-- ✅ 一次配置，永久使用
-- ✅ 无需在设置页面重复输入
-- ✅ 团队项目可以统一配置
-- ✅ 更安全，不会意外清除
+## 方式三：后端代理服务（适合公开部署）
 
-## 方式二：设置页面配置
+后端会在服务器侧保存密钥，避免暴露在前端。
 
-如果您不想在代码中保存 API 密钥，可以在应用的设置页面配置：
-
-1. 打开应用设置页面
-2. 在 "API配置" 标签页中输入您的 Gemini API 密钥
-3. 点击保存
-
-### 注意事项
-
-- ⚠️ 如果配置文件中已经设置了 API 密钥，将优先使用配置文件中的密钥
-- ⚠️ 设置页面的配置会保存在浏览器本地存储中，清除浏览器数据时会丢失
+```bash
+cd backend
+npm install
+cp env.example .env
+# 编辑 .env，设置 GEMINI_API_KEY=你的密钥
+npm start
+```
 
 ## 获取 Gemini API 密钥
 
-1. 访问 [Google AI Studio](https://makersuite.google.com/app/apikey)
-2. 登录您的 Google 账号
+1. 访问 https://makersuite.google.com/app/apikey
+2. 登录 Google 账号
 3. 创建新的 API 密钥
-4. 复制生成的 API 密钥（通常以 `AIza` 开头）
 
 ## 安全提醒
 
-- 🔒 请妥善保管您的 API 密钥，不要分享给他人
-- 🔒 如果密钥泄露，请立即在 Google AI Studio 中删除并重新生成
-- 🔒 在公开的代码仓库中，请确保不要提交包含真实 API 密钥的文件
+- 不要把真实密钥写进源码、文档或截图
+- 如果密钥泄露，请立即作废并重新生成
+- 公开发布前请再次确认 `.env` 未被提交
 
 ## 故障排除
 
-### 问题：显示 "请先在配置文件或设置中配置有效的Gemini API密钥"
+### 提示密钥格式不正确
 
-- 检查 API 密钥格式是否正确（应以 `AIza` 开头）
-- 验证 API 密钥是否有效且未过期
-- 确保网络连接正常
+- Gemini API Key 通常以 `AIza` 开头
+- 请确认复制完整且未包含空格
 
-### 问题：API 调用失败
+### API 调用失败
 
-- 检查 API 密钥是否正确
-- 确认 Google AI Studio 中的 API 密钥状态
-- 检查是否超出了 API 调用限制
-
-如有其他问题，请查看应用日志或联系技术支持。
+- 检查密钥是否有效
+- 确认网络连接与配额限制
