@@ -26,6 +26,7 @@ dist-ssr
 release/
 dist/
 build/
+!build/icon.icns
 **/release/
 **/win-unpacked/
 
