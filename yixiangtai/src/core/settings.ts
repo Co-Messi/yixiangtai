@@ -86,10 +86,11 @@ export function loadSettings(): StorageResult<Settings> {
     }
 
     // 合并默认设置，确保所有字段都存在
-    const { openaiApiKey: _legacyOpenaiKey, ...rest } = result.data as Record<string, unknown>;
+    const sanitizedSettings = result.data as Settings & { openaiApiKey?: unknown };
+    const { openaiApiKey: _legacyOpenaiKey, ...rest } = sanitizedSettings;
     const mergedSettings: Settings = {
       ...DEFAULT_SETTINGS,
-      ...(rest as Settings)
+      ...rest
     };
 
     return {

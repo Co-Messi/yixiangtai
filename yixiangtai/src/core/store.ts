@@ -144,9 +144,9 @@ export const useAppStore = create<AppStore>()(
       updateSettings: async (newSettings: Partial<Settings>): Promise<StorageResult<void>> => {
         try {
           // 使用 get() 获取当前状态，避免潜在的状态不一致
-          const currentSettings = get().settings as Record<string, unknown>;
+          const currentSettings = get().settings as Settings & { openaiApiKey?: unknown };
           const { openaiApiKey: _legacyOpenaiKey, ...sanitizedCurrent } = currentSettings;
-          const updatedSettings = { ...(sanitizedCurrent as Settings), ...newSettings };
+          const updatedSettings: Settings = { ...sanitizedCurrent, ...newSettings };
 
           // 保存到localStorage
           const result = saveSettings(updatedSettings);

@@ -59,8 +59,22 @@ const getPalaceMeta = (position: number) => {
   return NINE_PALACES.find((palace) => palace.position === position);
 };
 
-const normalizeGate = (gate: string) => (gate === '无门' ? '' : gate);
-const normalizeDeity = (deity: string) => (deity === '无神' ? '' : deity);
+const formatValue = (value: unknown) => {
+  if (Array.isArray(value)) {
+    return value.join('');
+  }
+  return value ? String(value) : '';
+};
+
+const normalizeGate = (gate: unknown) => {
+  const value = formatValue(gate);
+  return value === '无门' ? '' : value;
+};
+
+const normalizeDeity = (deity: unknown) => {
+  const value = formatValue(deity);
+  return value === '无神' ? '' : value;
+};
 
 /**
  * 生成九宫数据
@@ -74,9 +88,9 @@ function generatePalaces(chart: QimenChart): PalaceData[] {
       position: palace.position,
       name: meta?.name ?? `${palace.position}宫`,
       direction: meta?.direction ?? '',
-      earthStem: palace.earthlyStem,
-      heavenStem: palace.heavenlyStem,
-      star: palace.star,
+      earthStem: formatValue(palace.earthlyStem),
+      heavenStem: formatValue(palace.heavenlyStem),
+      star: formatValue(palace.star),
       door: normalizeGate(palace.gate),
       deity: normalizeDeity(palace.deity),
       isCenter: palace.position === 5

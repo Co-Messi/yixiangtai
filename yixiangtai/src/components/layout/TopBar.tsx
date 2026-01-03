@@ -11,14 +11,15 @@ const TopBar: React.FC<TopBarProps> = ({ isCollapsed }) => {
   const games = getAllGames();
   const gameMatch = games.find(game => game.path === location.pathname);
   const sectionTitle = location.pathname === '/' ? '首页' : (gameMatch?.name || '功能');
+  const dragStyle: React.CSSProperties & { WebkitAppRegion?: 'drag' | 'no-drag' } = {
+    left: isCollapsed ? 72 : 200,
+    WebkitAppRegion: 'drag'
+  };
 
   return (
     <div
       className="fixed top-0 right-0 z-30"
-      style={{
-        left: isCollapsed ? 72 : 200,
-        WebkitAppRegion: 'drag'
-      }}
+      style={dragStyle}
     >
       <div className="mx-6 mt-4">
         <div className="surface-light rounded-2xl px-6 py-3 flex items-center justify-between">
