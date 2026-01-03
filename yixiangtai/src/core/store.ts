@@ -50,10 +50,38 @@ interface GameSlice {
   clearHistory: () => void;
 }
 
+type AnalysisStatus = 'idle' | 'running' | 'completed' | 'error' | 'stopped';
+
+interface AnalysisSessionState {
+  status: AnalysisStatus;
+  text: string;
+  error: string | null;
+  startedAt: number | null;
+  completedAt: number | null;
+  controller: AbortController | null;
+}
+
+interface DivinationSessionState {
+  data: any | null;
+  analysis: AnalysisSessionState;
+}
+
+/**
+ * 占卜会话状态切片（用于后台生成与中断）
+ */
+interface DivinationSessionSlice {
+  divinationSessions: Record<string, DivinationSessionState>;
+  setSessionData: (gameId: string, data: any | null) => void;
+  setSessionAnalysis: (gameId: string, analysis: Partial<AnalysisSessionState>) => void;
+  resetSession: (gameId: string) => void;
+  stopSession: (gameId: string) => void;
+}
+
+
 /**
  * 完整的应用状态类型
  */
-type AppStore = SettingsSlice & UISlice & MasterSlice & GameSlice;
+type AppStore = SettingsSlice & UISlice & MasterSlice & GameSlice & DivinationSessionSlice;
 
 /**
  * 默认设置
@@ -74,6 +102,19 @@ const defaultMaster: Master = {
   description: "周朝奠基人，精通易经，开创八卦理论，被誉为易学之祖",
   prompt: "你是周文王，古代圣贤，精通易经占卜。你深谙八卦变化之理，能够通过卦象洞察天机，解读人生吉凶。在回答时要体现你的深厚易学功底，语言古朴典雅，充满智慧。请根据提供的占卜信息，给出详细而准确的解读，包含具体的指导建议。"
 };
+
+const createEmptySession = (): DivinationSessionState => ({
+  data: null,
+  analysis: {
+    status: 'idle',
+    text: '',
+    error: null,
+    startedAt: null,
+    completedAt: null,
+    controller: null
+  }
+});
+
 
 /**
  * 全局应用状态管理
@@ -160,6 +201,66 @@ export const useAppStore = create<AppStore>()(
           gameHistory: [record, ...state.gameHistory].slice(0, 100) // 保留最近100条记录
         })),
       clearHistory: () => set({ gameHistory: [] }),
+
+      // 占卜会话状态
+      divinationSessions: {},
+      setSessionData: (gameId: string, data: any | null) =>
+        set((state) => ({
+          divinationSessions: {
+            ...state.divinationSessions,
+            [gameId]: {
+              ...(state.divinationSessions[gameId] ?? createEmptySession()),
+              data
+            }
+          }
+        })),
+      setSessionAnalysis: (gameId: string, analysis: Partial<AnalysisSessionState>) =>
+        set((state) => {
+          const session = state.divinationSessions[gameId] ?? createEmptySession();
+          return {
+            divinationSessions: {
+              ...state.divinationSessions,
+              [gameId]: {
+                ...session,
+                analysis: {
+                  ...session.analysis,
+                  ...analysis
+                }
+              }
+            }
+          };
+        }),
+      resetSession: (gameId: string) =>
+        set((state) => ({
+          divinationSessions: {
+            ...state.divinationSessions,
+            [gameId]: createEmptySession()
+          }
+        })),
+      stopSession: (gameId: string) => {
+        const session = get().divinationSessions[gameId];
+        if (session?.analysis.controller) {
+          session.analysis.controller.abort();
+        }
+        set((state) => {
+          const current = state.divinationSessions[gameId] ?? createEmptySession();
+          return {
+            divinationSessions: {
+              ...state.divinationSessions,
+              [gameId]: {
+                ...current,
+                analysis: {
+                  ...current.analysis,
+                  status: 'stopped',
+                  controller: null,
+                  completedAt: Date.now()
+                }
+              }
+            }
+          };
+        });
+      },
+
     }),
     {
       name: 'yixiangtai-app-store', // 本地存储的键名
@@ -259,6 +360,25 @@ export const useGame = () => {
     setCurrentGame,
     addToHistory,
     clearHistory,
+  };
+};
+
+/**
+ * 获取占卜会话状态的便捷钩子
+ */
+export const useDivinationSession = (gameId: string) => {
+  const session = useAppStore((state) => state.divinationSessions[gameId]);
+  const setSessionData = useAppStore((state) => state.setSessionData);
+  const setSessionAnalysis = useAppStore((state) => state.setSessionAnalysis);
+  const resetSession = useAppStore((state) => state.resetSession);
+  const stopSession = useAppStore((state) => state.stopSession);
+
+  return {
+    session,
+    setSessionData,
+    setSessionAnalysis,
+    resetSession,
+    stopSession,
   };
 };
 

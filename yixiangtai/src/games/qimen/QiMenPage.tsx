@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { RefreshCw, Sparkles, Clock } from 'lucide-react';
@@ -9,12 +9,12 @@ import {
   isGoodStar,
   type QiMenChartData 
 } from './logic';
-import { getAIAnalysisStream } from '../../masters/service';
+import { getAIAnalysisStream, isAbortError } from '../../masters/service';
 import { addRecord } from '../../core/history';
-import { useMaster, useUI } from '../../core/store';
+import { useDivinationSession, useMaster, useUI } from '../../core/store';
 import { StreamingMarkdown, ErrorToast, useAutoScroll } from '../../components/common';
+import DivinationAnimation from '../../components/DivinationAnimation';
 import { getRandomQuestions } from '../../core/quickQuestions';
-import { getVideoPath } from '../../utils/resources';
 import type { DivinationRecord } from '../../types';
 
 // 时间处理工具函数
@@ -47,16 +47,48 @@ const QiMenPage = () => {
   const [question, setQuestion] = useState<string>('');
   const [hasPerformedDivination, setHasPerformedDivination] = useState(false);
   const [quickQuestions, setQuickQuestions] = useState<string[]>([]);
+  const animationDurationMs = 1800;
+  const animationTimeoutRef = useRef<number | null>(null);
 
   const { selectedMaster } = useMaster();
   const { error, setError } = useUI();
   const navigate = useNavigate();
+  const { session, setSessionData, setSessionAnalysis, resetSession, stopSession } = useDivinationSession('qimen');
   
   // 使用通用的自动滚动Hook
   const { contentRef: analysisRef } = useAutoScroll({
     isAnalyzing: isAnalyzing,
     content: aiAnalysis
   });
+
+  useEffect(() => {
+    if (!session) {
+      return;
+    }
+
+    if (session.data !== chartData) {
+      setChartData(session.data);
+    }
+
+    if (session.analysis.text !== aiAnalysis) {
+      setAIAnalysis(session.analysis.text);
+    }
+
+    const nextAnalyzing = session.analysis.status === 'running';
+    if (nextAnalyzing !== isAnalyzing) {
+      setIsAnalyzing(nextAnalyzing);
+    }
+
+    const nextComplete = session.analysis.status === 'completed';
+    if (nextComplete !== analysisComplete) {
+      setAnalysisComplete(nextComplete);
+    }
+
+    const nextHasPerformed = !!session.data;
+    if (nextHasPerformed !== hasPerformedDivination) {
+      setHasPerformedDivination(nextHasPerformed);
+    }
+  }, [session, chartData, aiAnalysis, isAnalyzing, analysisComplete, hasPerformedDivination]);
 
   // 自动清除错误提示
   useEffect(() => {
@@ -67,6 +99,17 @@ const QiMenPage = () => {
       return () => clearTimeout(timer);
     }
   }, [error, setError]);
+
+  useEffect(() => {
+    if (animationTimeoutRef.current) {
+      window.clearTimeout(animationTimeoutRef.current);
+    }
+    return () => {
+      if (animationTimeoutRef.current) {
+        window.clearTimeout(animationTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // 初始化随机问题
   useEffect(() => {
@@ -110,8 +153,8 @@ const QiMenPage = () => {
     }, 200);
   };
 
-  // 视频播放完成的回调
-  const handleVideoEnded = () => {
+  // 动画完成的回调
+  const completeGeneration = () => {
     generateChart();
     setIsGenerating(false);
     setHasPerformedDivination(true);
@@ -130,14 +173,15 @@ const QiMenPage = () => {
     setIsAnalyzing(false);
     setAnalysisComplete(false);
     setHasPerformedDivination(false);
-    
-    // 备用超时机制，防止视频加载失败（最长等待8秒）
-    setTimeout(() => {
-      if (isGenerating) {
-        console.log('视频超时，使用备用机制完成起盘');
-        handleVideoEnded();
-      }
-    }, 8000);
+    stopSession('qimen');
+    resetSession('qimen');
+    if (animationTimeoutRef.current) {
+      window.clearTimeout(animationTimeoutRef.current);
+    }
+    animationTimeoutRef.current = window.setTimeout(() => {
+      completeGeneration();
+      animationTimeoutRef.current = null;
+    }, animationDurationMs);
   };
 
   // 执行起盘
@@ -150,6 +194,7 @@ const QiMenPage = () => {
       const targetTime = useCurrentTime ? getBeijingTime() : selectedTime;
       const chart = generateQiMenChart(targetTime);
       setChartData(chart);
+      setSessionData('qimen', chart);
       setAIAnalysis(''); // 清除之前的分析
       
 
@@ -179,6 +224,8 @@ const QiMenPage = () => {
     setHasPerformedDivination(false);
     setAIAnalysis('');
     setAnalysisComplete(false);
+    stopSession('qimen');
+    resetSession('qimen');
   };
 
   // 处理使用当前时间的变化
@@ -192,6 +239,18 @@ const QiMenPage = () => {
     setHasPerformedDivination(false);
     setAIAnalysis('');
     setAnalysisComplete(false);
+    stopSession('qimen');
+    resetSession('qimen');
+  };
+
+  const resetChart = () => {
+    stopSession('qimen');
+    resetSession('qimen');
+    setChartData(null);
+    setAIAnalysis('');
+    setIsAnalyzing(false);
+    setAnalysisComplete(false);
+    setHasPerformedDivination(false);
   };
 
   // 获取AI分析（流式处理）
@@ -210,6 +269,17 @@ const QiMenPage = () => {
       setError('请先在设置中选择一位大师');
       return;
     }
+
+    const controller = new AbortController();
+
+    setSessionAnalysis('qimen', {
+      status: 'running',
+      text: '',
+      error: null,
+      startedAt: Date.now(),
+      completedAt: null,
+      controller
+    });
 
     setIsAnalyzing(true);
     setAnalysisComplete(false);
@@ -234,18 +304,23 @@ const QiMenPage = () => {
 
       // 使用流式分析，实时更新结果
       const analysisResult = await getAIAnalysisStream(
-        analysisData, 
-        selectedMaster, 
+        analysisData,
+        selectedMaster,
         'qimen',
         undefined,
         (streamText) => {
-          // 流式更新回调
-          setAIAnalysis(streamText);
-        }
+          setSessionAnalysis('qimen', { text: streamText });
+        },
+        controller.signal
       );
 
       // 分析完成
       setAnalysisComplete(true);
+      setSessionAnalysis('qimen', {
+        status: 'completed',
+        completedAt: Date.now(),
+        controller: null
+      });
 
       // 保存到历史记录
       const record: DivinationRecord = {
@@ -265,8 +340,24 @@ const QiMenPage = () => {
       console.log('奇门遁甲AI分析完成，结果已保存到历史记录');
 
     } catch (error) {
+      if (isAbortError(error)) {
+        setSessionAnalysis('qimen', {
+          status: 'stopped',
+          completedAt: Date.now(),
+          controller: null
+        });
+        return;
+      }
+
       console.error('AI分析失败:', error);
-      setError(error instanceof Error ? error.message : '分析过程中发生错误');
+      const message = error instanceof Error ? error.message : '分析过程中发生错误';
+      setSessionAnalysis('qimen', {
+        status: 'error',
+        error: message,
+        completedAt: Date.now(),
+        controller: null
+      });
+      setError(message);
       setAnalysisComplete(false);
     } finally {
       setIsAnalyzing(false);
@@ -677,46 +768,7 @@ const QiMenPage = () => {
                   {/* 起盘动画区域 */}
                   <div className="flex justify-center">
                     <div className="bg-[var(--ui-surface-2)] flex items-center justify-center relative overflow-hidden rounded-xl" style={{ width: '560px', height: '315px' }}>
-                      {/* 实际使用MP4视频 */}
-                      <video 
-                        autoPlay 
-                        muted 
-                        playsInline
-                        preload="metadata"
-                        className="w-full h-full object-cover rounded-xl"
-                        style={{ width: '560px', height: '315px' }}
-                        onEnded={handleVideoEnded}
-                        onError={(e) => {
-                          console.log('奇门视频加载失败，显示备用动画');
-                          const video = e.target as HTMLVideoElement;
-                          video.style.display = 'none';
-                        }}
-                        onCanPlayThrough={() => {
-                          console.log('奇门视频可以播放');
-                        }}
-                      >
-                        <source src={getVideoPath("qimen.mp4")} type="video/mp4" />
-                        {/* 如果视频加载失败，显示备用动画 */}
-                        <div className="relative">
-                          <motion.div
-                            className="w-16 h-16 border-4 border-[var(--ui-accent)] border-t-transparent rounded-full"
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                          />
-                          <motion.div
-                            className="absolute inset-4 border-2 border-[var(--ui-muted-2)] border-b-transparent rounded-full"
-                            animate={{ rotate: -360 }}
-                            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                          />
-                          <motion.div
-                            className="absolute inset-8 w-16 h-16 flex items-center justify-center"
-                            animate={{ scale: [1, 1.2, 1] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                          >
-                            <span className="text-[var(--ui-accent)] text-2xl font-bold">遁</span>
-                          </motion.div>
-                        </div>
-                      </video>
+                      <DivinationAnimation symbol="遁" label="奇门" />
                     </div>
                   </div>
                 </div>
@@ -828,7 +880,30 @@ const QiMenPage = () => {
                           </span>
                         )}
                       </motion.button>
-                      
+
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {chartData && !isAnalyzing && (
+                          <motion.button
+                            onClick={resetChart}
+                            className="flex-1 px-4 py-2 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-2)] text-[var(--ui-text)] text-sm font-semibold hover:bg-[var(--ui-surface-3)] transition-all flex items-center justify-center"
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            重新生成
+                          </motion.button>
+                        )}
+                        {isAnalyzing && (
+                          <motion.button
+                            onClick={() => stopSession('qimen')}
+                            className="flex-1 px-4 py-2 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-2)] text-[var(--ui-danger)] text-sm font-semibold hover:bg-[var(--ui-surface-3)] transition-all flex items-center justify-center"
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            停止生成
+                          </motion.button>
+                        )}
+                      </div>
+
                       {!selectedMaster && (
                         <motion.button 
                           onClick={() => navigate('/settings')}

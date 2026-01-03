@@ -324,11 +324,11 @@ export function formatBaZiChart(chartData: BaZiChartData): string {
  */
 export function getWuxingColor(wuxing: string): string {
   const colors = {
-    '金': 'var(--ui-accent-strong)',
-    '木': 'var(--ui-success)',
-    '水': 'var(--ui-accent)',
-    '火': 'var(--ui-danger)',
-    '土': 'var(--ui-muted)'
+    '金': '#f5c542',
+    '木': '#34d399',
+    '水': '#60a5fa',
+    '火': '#f87171',
+    '土': '#d97706'
   };
   return colors[wuxing as keyof typeof colors] || 'var(--ui-muted-2)';
 }

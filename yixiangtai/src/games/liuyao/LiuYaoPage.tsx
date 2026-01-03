@@ -3,12 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Clock } from 'lucide-react';
 import { generateHexagram, HEXAGRAM_NAMES, type LiuYaoResult } from './logic';
-import { getAIAnalysisStream } from '../../masters/service';
-import { useMaster, useUI } from '../../core/store';
+import { getAIAnalysisStream, isAbortError } from '../../masters/service';
+import { useDivinationSession, useMaster, useUI } from '../../core/store';
 import { addRecord } from '../../core/history';
 import { StreamingMarkdown, ErrorToast, useAutoScroll } from '../../components/common';
+import DivinationAnimation from '../../components/DivinationAnimation';
 import { getRandomQuestions } from '../../core/quickQuestions';
-import { getVideoPath } from '../../utils/resources';
 import type { DivinationRecord } from '../../types';
 
 const LiuYaoPage = () => {
@@ -19,19 +19,43 @@ const LiuYaoPage = () => {
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [isDivining, setIsDivining] = useState(false);
   const [quickQuestions, setQuickQuestions] = useState<string[]>([]);
-  const [videoLoaded, setVideoLoaded] = useState(true); // 视频加载状态
   const [selectedTime, setSelectedTime] = useState<Date>(new Date());
   const [useCurrentTime, setUseCurrentTime] = useState(true);
 
   const { selectedMaster } = useMaster();
   const { error, setError } = useUI();
   const navigate = useNavigate();
+  const { session, setSessionData, setSessionAnalysis, resetSession, stopSession } = useDivinationSession('liuyao');
   
   // 使用通用的自动滚动Hook
   const { contentRef: analysisRef } = useAutoScroll({
     isAnalyzing: analyzing,
     content: analysis
   });
+
+  useEffect(() => {
+    if (!session) {
+      return;
+    }
+
+    if (session.data !== result) {
+      setResult(session.data);
+    }
+
+    if (session.analysis.text !== analysis) {
+      setAnalysis(session.analysis.text);
+    }
+
+    const nextAnalyzing = session.analysis.status === 'running';
+    if (nextAnalyzing !== analyzing) {
+      setAnalyzing(nextAnalyzing);
+    }
+
+    const nextComplete = session.analysis.status === 'completed';
+    if (nextComplete !== analysisComplete) {
+      setAnalysisComplete(nextComplete);
+    }
+  }, [session, result, analysis, analyzing, analysisComplete]);
 
   // 自动清除错误提示
   useEffect(() => {
@@ -133,17 +157,19 @@ const LiuYaoPage = () => {
     }
 
     setIsDivining(true);
-    setVideoLoaded(true); // 重置视频状态
     setResult(null);
     setAnalysis('');
     setAnalyzing(false);
     setAnalysisComplete(false);
+    stopSession('liuyao');
+    resetSession('liuyao');
     
     // 模拟摇卦动画时间
     setTimeout(() => {
       const targetTime = useCurrentTime ? new Date() : selectedTime;
       const hexagramResult = generateHexagram(targetTime);
       setResult(hexagramResult);
+      setSessionData('liuyao', hexagramResult);
       setIsDivining(false);
     }, 3000); // 3秒动画时间
   };
@@ -168,6 +194,16 @@ const LiuYaoPage = () => {
     setAnalysisComplete(false);
     
     setResult(testResult);
+    setSessionData('liuyao', testResult);
+  };
+
+  const resetDivination = () => {
+    stopSession('liuyao');
+    resetSession('liuyao');
+    setResult(null);
+    setAnalysis('');
+    setAnalyzing(false);
+    setAnalysisComplete(false);
   };
 
   /**
@@ -188,6 +224,17 @@ const LiuYaoPage = () => {
       setError('请先在设置中选择一位大师');
       return;
     }
+
+    const controller = new AbortController();
+
+    setSessionAnalysis('liuyao', {
+      status: 'running',
+      text: '',
+      error: null,
+      startedAt: Date.now(),
+      completedAt: null,
+      controller
+    });
 
     setAnalyzing(true);
     setAnalysisComplete(false);
@@ -226,18 +273,23 @@ const LiuYaoPage = () => {
 
       // 使用流式分析，实时更新结果
       const analysisResult = await getAIAnalysisStream(
-        divinationData, 
-        selectedMaster, 
+        divinationData,
+        selectedMaster,
         'liuyao',
         undefined,
         (streamText) => {
-          // 流式更新回调
-          setAnalysis(streamText);
-        }
+          setSessionAnalysis('liuyao', { text: streamText });
+        },
+        controller.signal
       );
 
       // 分析完成
       setAnalysisComplete(true);
+      setSessionAnalysis('liuyao', {
+        status: 'completed',
+        completedAt: Date.now(),
+        controller: null
+      });
 
       // 保存到历史记录
       const record: DivinationRecord = {
@@ -255,8 +307,24 @@ const LiuYaoPage = () => {
       await addRecord(record);
 
     } catch (error) {
+      if (isAbortError(error)) {
+        setSessionAnalysis('liuyao', {
+          status: 'stopped',
+          completedAt: Date.now(),
+          controller: null
+        });
+        return;
+      }
+
       console.error('AI分析失败:', error);
-      setError(error instanceof Error ? error.message : '分析过程中发生错误');
+      const message = error instanceof Error ? error.message : '分析过程中发生错误';
+      setSessionAnalysis('liuyao', {
+        status: 'error',
+        error: message,
+        completedAt: Date.now(),
+        controller: null
+      });
+      setError(message);
       setAnalysisComplete(false);
     } finally {
       setAnalyzing(false);
@@ -411,58 +479,7 @@ const LiuYaoPage = () => {
                   {/* 摇卦动画区域 */}
                   <div className="flex justify-center">
                     <div className="bg-[var(--ui-surface-2)] flex items-center justify-center relative overflow-hidden rounded-xl" style={{ width: '560px', height: '315px' }}>
-                      {/* 实际使用MP4视频 */}
-                      <video 
-                        autoPlay 
-                        muted 
-                        loop 
-                        playsInline
-                        preload="metadata"
-                        className="w-full h-full object-cover rounded-xl"
-                        style={{ 
-                          width: '560px', 
-                          height: '315px',
-                          display: videoLoaded ? 'block' : 'none'
-                        }}
-                        onError={(e) => {
-                          console.log('视频加载失败，显示备用动画');
-                          setVideoLoaded(false);
-                        }}
-                        onCanPlayThrough={() => {
-                          console.log('视频可以播放');
-                          setVideoLoaded(true);
-                        }}
-                        onLoadStart={() => {
-                          console.log('视频开始加载');
-                        }}
-                      >
-                        <source src={getVideoPath("liuyao.mp4")} type="video/mp4" />
-                      </video>
-                      
-                      {/* 备用动画 - 只在视频加载失败时显示 */}
-                      {!videoLoaded && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="relative">
-                            <motion.div
-                              className="w-16 h-16 border-4 border-[var(--ui-accent)] border-t-transparent rounded-full"
-                              animate={{ rotate: 360 }}
-                              transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                            />
-                            <motion.div
-                              className="absolute inset-4 border-2 border-[var(--ui-muted-2)] border-b-transparent rounded-full"
-                              animate={{ rotate: -360 }}
-                              transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                            />
-                            <motion.div
-                              className="absolute inset-8 w-16 h-16 flex items-center justify-center"
-                              animate={{ scale: [1, 1.2, 1] }}
-                              transition={{ duration: 2, repeat: Infinity }}
-                            >
-                              <span className="text-[var(--ui-accent)] text-2xl font-bold">卦</span>
-                            </motion.div>
-                          </div>
-                        </div>
-                      )}
+                      <DivinationAnimation symbol="卦" label="六爻" />
                     </div>
                   </div>
                 </div>
@@ -714,7 +731,30 @@ const LiuYaoPage = () => {
                           </span>
                         )}
                       </motion.button>
-                      
+
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {result && !analyzing && (
+                          <motion.button
+                            onClick={resetDivination}
+                            className="flex-1 px-4 py-2 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-2)] text-[var(--ui-text)] text-sm font-semibold hover:bg-[var(--ui-surface-3)] transition-all flex items-center justify-center"
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            重新生成
+                          </motion.button>
+                        )}
+                        {analyzing && (
+                          <motion.button
+                            onClick={() => stopSession('liuyao')}
+                            className="flex-1 px-4 py-2 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-2)] text-[var(--ui-danger)] text-sm font-semibold hover:bg-[var(--ui-surface-3)] transition-all flex items-center justify-center"
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            停止生成
+                          </motion.button>
+                        )}
+                      </div>
+
                       {!selectedMaster && (
                         <motion.button 
                           onClick={() => navigate('/settings')}

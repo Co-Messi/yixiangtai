@@ -1,6 +1,5 @@
 import { BrowserRouter, HashRouter } from 'react-router-dom';
 import { Layout } from './components/layout';
-import ElectronInfo from './components/ElectronInfo';
 import { isElectron } from './utils/electron';
 import './App.css';
 
@@ -11,7 +10,6 @@ function App() {
   return (
     <Router>
       <Layout />
-      <ElectronInfo />
     </Router>
   );
 }

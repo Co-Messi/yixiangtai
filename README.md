@@ -40,27 +40,27 @@
       <sub>专业奇门遁甲分析，提供时局预测和策略建议</sub>
     </td>
     <td align="center">
-      <img src="yixiangtai/public/img/palmistry.png" alt="手相分析界面" width="400"/>
+      <img src="yixiangtai/public/img/bazi.png" alt="八字推命界面" width="400"/>
       <br/>
-      <b>✋ 手相分析</b>
+      <b>🧭 八字推命</b>
       <br/>
-      <sub>AI 驱动的手相识别分析，深度解读手纹命理</sub>
+      <sub>自动排盘与五行分析，洞察命理走势</sub>
     </td>
   </tr>
   <tr>
     <td align="center">
-      <img src="yixiangtai/public/img/k1.png" alt="人生K线图界面1" width="400"/>
+      <img src="yixiangtai/public/img/zhougong.png" alt="周公解梦界面" width="400"/>
       <br/>
-      <b>📊 人生K线图 - 运势分析</b>
+      <b>🌙 周公解梦</b>
       <br/>
-      <sub>基于八字命理的 100 年人生运势可视化分析</sub>
+      <sub>梦境解析与象征解读，提炼潜意识信息</sub>
     </td>
     <td align="center">
-      <img src="yixiangtai/public/img/k2.png" alt="人生K线图界面2" width="400"/>
+      <img src="yixiangtai/public/img/kline.png" alt="人生K线图界面" width="400"/>
       <br/>
-      <b>📊 人生K线图 - 详细解读</b>
+      <b>📊 人生K线图</b>
       <br/>
-      <sub>AI 智能分析，提供早年、中年、晚年等阶段解读</sub>
+      <sub>基于八字命理的 100 年运势可视化分析</sub>
     </td>
   </tr>
 </table>
@@ -193,13 +193,10 @@ npm run dist-linux
 
 构建产物输出到 `yixiangtai/release/`。
 
-## 🎬 摇卦动画设置
+## 🎞️ 动效说明
 
-六爻占卜页面支持自定义摇卦动画：
-
-1. 准备一段 MP4 视频，命名为 `divination-animation.mp4`
-2. 放置在 `yixiangtai/public/` 目录
-3. 建议视频长度 3-5 秒，正方形比例
+六爻、奇门等页面已内置 Canvas 动画，无需再放置 MP4 文件。
+如需定制动效，可修改 `yixiangtai/src/components/DivinationAnimation.tsx` 与相关样式。
 
 ## 🔒 公开发布前检查
 
@@ -207,9 +204,65 @@ npm run dist-linux
 - 请使用 `.env.example` 作为模板，不要把真实密钥写进源码或文档
 - 如果曾经提交过密钥，请立即作废并重新生成
 
+
+## 💖 赞助与支持
+
+这个项目凝聚了大量时间与心力，如果它对你有帮助，欢迎用一杯咖啡的方式支持我继续打磨易象台。感谢你的认可与鼓励！
+
+Receive Crypto
+
+<table>
+  <tr>
+    <td align="center">
+      <img src="yixiangtai/public/img/crypto/btc.jpg" alt="BTC" width="180"/>
+      <br/>
+      <b>BTC</b>
+      <br/>
+      <code>bc1qy5favxelvddx6vn83ggpwe2zzjnefxmxrcj2ev</code>
+    </td>
+    <td align="center">
+      <img src="yixiangtai/public/img/crypto/eth.jpg" alt="ETH" width="180"/>
+      <br/>
+      <b>ETH</b>
+      <br/>
+      <code>0xEC0cAC8f158035136a4338a05Cdc94F5b88aFa1b</code>
+    </td>
+    <td align="center">
+      <img src="yixiangtai/public/img/crypto/bnb.jpg" alt="BNB" width="180"/>
+      <br/>
+      <b>BNB</b>
+      <br/>
+      <code>0xEC0cAC8f158035136a4338a05Cdc94F5b88aFa1b</code>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <img src="yixiangtai/public/img/crypto/xrp.jpg" alt="XRP" width="180"/>
+      <br/>
+      <b>XRP</b>
+      <br/>
+      <code>rhPsmMQwPipXA1oLKQzBoJanB1CqRd4Suc</code>
+    </td>
+    <td align="center">
+      <img src="yixiangtai/public/img/crypto/ltc.jpg" alt="Litecoin" width="180"/>
+      <br/>
+      <b>Litecoin</b>
+      <br/>
+      <code>LNc12ZhzUWGbCgVVVYyV5K9qQ637YLxpk5</code>
+    </td>
+    <td align="center">
+      <img src="yixiangtai/public/img/crypto/shib.jpg" alt="Shiba Inu" width="180"/>
+      <br/>
+      <b>Shiba Inu</b>
+      <br/>
+      <code>0xEC0cAC8f158035136a4338a05Cdc94F5b88aFa1b</code>
+    </td>
+  </tr>
+</table>
+
 ## 📄 许可证
 
-MIT License
+Apache License 2.0
 
 ---
 

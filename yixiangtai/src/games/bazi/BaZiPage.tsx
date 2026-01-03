@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { RefreshCw, Sparkles } from 'lucide-react';
@@ -11,11 +11,11 @@ import {
   type BaZiChartData,
   type BirthInfo
 } from './logic';
-import { getAIAnalysisStream } from '../../masters/service';
+import { getAIAnalysisStream, isAbortError } from '../../masters/service';
 import { addRecord } from '../../core/history';
-import { useMaster, useUI } from '../../core/store';
+import { useDivinationSession, useMaster, useUI } from '../../core/store';
 import { StreamingMarkdown, ErrorToast, useAutoScroll } from '../../components/common';
-import { getVideoPath } from '../../utils/resources';
+import DivinationAnimation from '../../components/DivinationAnimation';
 import type { DivinationRecord } from '../../types';
 
 const BaZiPage = () => {
@@ -42,16 +42,48 @@ const BaZiPage = () => {
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [question, setQuestion] = useState<string>(''); // 改为问事，可选
   const [hasPerformedDivination, setHasPerformedDivination] = useState(false);
+  const animationDurationMs = 1800;
+  const animationTimeoutRef = useRef<number | null>(null);
 
   const { selectedMaster } = useMaster();
   const { error, setError } = useUI();
   const navigate = useNavigate();
+  const { session, setSessionData, setSessionAnalysis, resetSession, stopSession } = useDivinationSession('bazi');
   
   // 使用通用的自动滚动Hook
   const { contentRef: analysisRef } = useAutoScroll({
     isAnalyzing: isAnalyzing,
     content: aiAnalysis
   });
+
+  useEffect(() => {
+    if (!session) {
+      return;
+    }
+
+    if (session.data !== chartData) {
+      setChartData(session.data);
+    }
+
+    if (session.analysis.text !== aiAnalysis) {
+      setAIAnalysis(session.analysis.text);
+    }
+
+    const nextAnalyzing = session.analysis.status === 'running';
+    if (nextAnalyzing !== isAnalyzing) {
+      setIsAnalyzing(nextAnalyzing);
+    }
+
+    const nextComplete = session.analysis.status === 'completed';
+    if (nextComplete !== analysisComplete) {
+      setAnalysisComplete(nextComplete);
+    }
+
+    const nextHasChart = !!session.data;
+    if (nextHasChart !== hasPerformedDivination) {
+      setHasPerformedDivination(nextHasChart);
+    }
+  }, [session, chartData, aiAnalysis, isAnalyzing, analysisComplete, hasPerformedDivination]);
 
   // 自动清除错误提示
   useEffect(() => {
@@ -62,6 +94,17 @@ const BaZiPage = () => {
       return () => clearTimeout(timer);
     }
   }, [error, setError]);
+
+  useEffect(() => {
+    if (animationTimeoutRef.current) {
+      window.clearTimeout(animationTimeoutRef.current);
+    }
+    return () => {
+      if (animationTimeoutRef.current) {
+        window.clearTimeout(animationTimeoutRef.current);
+      }
+    };
+  }, []);
 
   // 动画变体
   const containerVariants = {
@@ -112,10 +155,24 @@ const BaZiPage = () => {
     setHasPerformedDivination(false);
     setAIAnalysis('');
     setAnalysisComplete(false);
+    stopSession('bazi');
+    resetSession('bazi');
   };
 
-  // 视频播放完成的回调
-  const handleVideoEnded = () => {
+  const resetChart = () => {
+    stopSession('bazi');
+    resetSession('bazi');
+    setChartData(null);
+    setAIAnalysis('');
+    setIsAnalyzing(false);
+    setAnalysisComplete(false);
+    setHasPerformedDivination(false);
+    stopSession('bazi');
+    resetSession('bazi');
+  };
+
+  // 动画完成的回调
+  const completeGeneration = () => {
     generateChart();
     setIsGenerating(false);
     setHasPerformedDivination(true);
@@ -134,14 +191,13 @@ const BaZiPage = () => {
     setIsAnalyzing(false);
     setAnalysisComplete(false);
     setHasPerformedDivination(false);
-    
-    // 备用超时机制，防止视频加载失败（最长等待8秒）
-    setTimeout(() => {
-      if (isGenerating) {
-        console.log('视频超时，使用备用机制完成起盘');
-        handleVideoEnded();
-      }
-    }, 8000);
+    if (animationTimeoutRef.current) {
+      window.clearTimeout(animationTimeoutRef.current);
+    }
+    animationTimeoutRef.current = window.setTimeout(() => {
+      completeGeneration();
+      animationTimeoutRef.current = null;
+    }, animationDurationMs);
   };
 
   const generateChart = () => {
@@ -156,6 +212,7 @@ const BaZiPage = () => {
       
       const chart = generateBaZiChart(finalBirthInfo);
       setChartData(chart);
+      setSessionData('bazi', chart);
       setAIAnalysis(''); // 清除之前的分析
       
       console.log('八字推命起盘成功:', {
@@ -190,6 +247,16 @@ const BaZiPage = () => {
       return;
     }
 
+    const controller = new AbortController();
+
+    setSessionAnalysis('bazi', {
+      status: 'running',
+      text: '',
+      error: null,
+      startedAt: Date.now(),
+      completedAt: null,
+      controller
+    });
     setIsAnalyzing(true);
     setAnalysisComplete(false);
     setError(null);
@@ -221,18 +288,23 @@ const BaZiPage = () => {
 
       // 使用流式分析，实时更新结果
       const analysisResult = await getAIAnalysisStream(
-        analysisData, 
-        selectedMaster, 
+        analysisData,
+        selectedMaster,
         'bazi',
         userInfoForAI, // 传递问事信息
         (streamText) => {
-          // 流式更新回调
-          setAIAnalysis(streamText);
-        }
+          setSessionAnalysis('bazi', { text: streamText });
+        },
+        controller.signal
       );
 
       // 分析完成
       setAnalysisComplete(true);
+      setSessionAnalysis('bazi', {
+        status: 'completed',
+        completedAt: Date.now(),
+        controller: null
+      });
 
       // 保存到历史记录
       const record: DivinationRecord = {
@@ -253,8 +325,24 @@ const BaZiPage = () => {
       console.log('八字推命AI分析完成，结果已保存到历史记录');
       
     } catch (error) {
+      if (isAbortError(error)) {
+        setSessionAnalysis('bazi', {
+          status: 'stopped',
+          completedAt: Date.now(),
+          controller: null
+        });
+        return;
+      }
+
       console.error('AI分析失败:', error);
-      setError(error instanceof Error ? error.message : '分析过程中发生错误');
+      const message = error instanceof Error ? error.message : '分析过程中发生错误';
+      setSessionAnalysis('bazi', {
+        status: 'error',
+        error: message,
+        completedAt: Date.now(),
+        controller: null
+      });
+      setError(message);
       setAnalysisComplete(false);
     } finally {
       setIsAnalyzing(false);
@@ -410,46 +498,7 @@ const BaZiPage = () => {
                   {/* 起盘动画区域 */}
                   <div className="flex justify-center">
                     <div className="bg-[var(--ui-surface-2)] flex items-center justify-center relative overflow-hidden rounded-xl" style={{ width: '560px', height: '315px' }}>
-                      {/* 实际使用MP4视频 */}
-                      <video 
-                        autoPlay 
-                        muted 
-                        playsInline
-                        preload="metadata"
-                        className="w-full h-full object-cover rounded-xl"
-                        style={{ width: '560px', height: '315px' }}
-                        onEnded={handleVideoEnded}
-                        onError={(e) => {
-                          console.log('八字视频加载失败，显示备用动画');
-                          const video = e.target as HTMLVideoElement;
-                          video.style.display = 'none';
-                        }}
-                        onCanPlayThrough={() => {
-                          console.log('八字视频可以播放');
-                        }}
-                      >
-                        <source src={getVideoPath('bazi.mp4')} type="video/mp4" />
-                        {/* 如果视频加载失败，显示备用动画 */}
-                        <div className="relative">
-                          <motion.div
-                            className="w-16 h-16 border-4 border-[var(--ui-accent)] border-t-transparent rounded-full"
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-                          />
-                          <motion.div
-                            className="absolute inset-4 border-2 border-[var(--ui-muted-2)] border-b-transparent rounded-full"
-                            animate={{ rotate: -360 }}
-                            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                          />
-                          <motion.div
-                            className="absolute inset-8 w-16 h-16 flex items-center justify-center"
-                            animate={{ scale: [1, 1.2, 1] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                          >
-                            <span className="text-[var(--ui-accent)] text-2xl font-bold">命</span>
-                          </motion.div>
-                        </div>
-                      </video>
+                      <DivinationAnimation symbol="命" label="八字" />
                     </div>
                   </div>
                 </div>
@@ -534,10 +583,11 @@ const BaZiPage = () => {
                                   <div 
                                     className="w-12 h-12 mx-auto rounded-lg flex items-center justify-center text-[var(--ui-text)] font-bold text-lg shadow-lg transition-all duration-300 hover:scale-105"
                                     style={{ 
-                                      backgroundColor: `${stemColor}30`,
-                                      border: `2px solid ${stemColor}CC`,
-                                      boxShadow: `0 0 8px ${stemColor}60`,
-                                      textShadow: `0 0 4px ${stemColor}AA`
+                                      backgroundColor: `color-mix(in srgb, ${stemColor} 18%, transparent)`,
+                                      border: `1px solid color-mix(in srgb, ${stemColor} 70%, transparent)`,
+                                      boxShadow: `0 0 10px color-mix(in srgb, ${stemColor} 45%, transparent)`,
+                                      textShadow: `0 0 6px color-mix(in srgb, ${stemColor} 70%, transparent)`,
+                                      color: stemColor
                                     }}
                                   >
                                     {pillar.stem}
@@ -545,10 +595,11 @@ const BaZiPage = () => {
                                   <div 
                                     className="w-12 h-12 mx-auto rounded-lg flex items-center justify-center text-[var(--ui-text)] font-bold text-lg shadow-lg transition-all duration-300 hover:scale-105"
                                     style={{ 
-                                      backgroundColor: `${branchColor}30`,
-                                      border: `2px solid ${branchColor}CC`,
-                                      boxShadow: `0 0 8px ${branchColor}60`,
-                                      textShadow: `0 0 4px ${branchColor}AA`
+                                      backgroundColor: `color-mix(in srgb, ${branchColor} 18%, transparent)`,
+                                      border: `1px solid color-mix(in srgb, ${branchColor} 70%, transparent)`,
+                                      boxShadow: `0 0 10px color-mix(in srgb, ${branchColor} 45%, transparent)`,
+                                      textShadow: `0 0 6px color-mix(in srgb, ${branchColor} 70%, transparent)`,
+                                      color: branchColor
                                     }}
                                   >
                                     {pillar.branch}
@@ -566,6 +617,13 @@ const BaZiPage = () => {
                             const color = getWuxingColor(element);
                             const maxCount = Math.max(...Object.values(chartData.wuxingAnalysis));
                             const fillPercentage = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                            const statusColor = count > 2
+                              ? 'var(--ui-success)'
+                              : count > 1
+                                ? '#60a5fa'
+                                : count === 1
+                                  ? '#f59e0b'
+                                  : '#ef4444';
                             
                             return (
                               <div key={element} className="flex items-center gap-2">
@@ -576,11 +634,11 @@ const BaZiPage = () => {
                                     style={{ 
                                       color: color,
                                       textShadow: `
-                                        0 0 8px ${color}80,
-                                        0 0 12px ${color}60,
+                                        0 0 8px color-mix(in srgb, ${color} 55%, transparent),
+                                        0 0 12px color-mix(in srgb, ${color} 35%, transparent),
                                         1px 1px 2px rgba(0,0,0,0.8)
                                       `,
-                                      filter: `drop-shadow(0 0 4px ${color}60)`
+                                      filter: `drop-shadow(0 0 4px color-mix(in srgb, ${color} 55%, transparent))`
                                     }}
                                   >
                                     {element}
@@ -603,13 +661,13 @@ const BaZiPage = () => {
                                     className="absolute top-0 left-0 h-6 rounded transition-all duration-1200 ease-out overflow-hidden"
                                     style={{
                                       width: `${fillPercentage}%`,
-                                      background: `linear-gradient(90deg, ${color}FF, ${color}CC, ${color}AA)`,
+                                      background: `linear-gradient(90deg, color-mix(in srgb, ${color} 92%, transparent), color-mix(in srgb, ${color} 78%, transparent), color-mix(in srgb, ${color} 62%, transparent))`,
                                       boxShadow: `
-                                        0 0 8px ${color}80,
+                                        0 0 10px color-mix(in srgb, ${color} 55%, transparent),
                                         inset 0 2px 4px rgba(255,255,255,0.1),
                                         inset 0 -2px 4px rgba(0,0,0,0.2)
                                       `,
-                                      border: `1px solid ${color}AA`
+                                      border: `1px solid color-mix(in srgb, ${color} 55%, transparent)`
                                     }}
                                   >
                                     {/* 能量条内部闪光效果 */}
@@ -633,29 +691,9 @@ const BaZiPage = () => {
                                   <span 
                                     className="text-xs font-medium px-2 py-1 rounded-full"
                                     style={{
-                                      backgroundColor: count > 2
-                                        ? 'color-mix(in srgb, var(--ui-success) 18%, transparent)'
-                                        : count > 1
-                                          ? 'color-mix(in srgb, var(--ui-accent) 18%, transparent)'
-                                          : count === 1
-                                            ? 'color-mix(in srgb, var(--ui-muted) 18%, transparent)'
-                                            : 'color-mix(in srgb, var(--ui-muted-2) 12%, transparent)',
-                                      color: count > 2
-                                        ? 'var(--ui-success)'
-                                        : count > 1
-                                          ? 'var(--ui-accent)'
-                                          : count === 1
-                                            ? 'var(--ui-muted)'
-                                            : 'var(--ui-muted-2)',
-                                      border: `1px solid ${
-                                        count > 2
-                                          ? 'color-mix(in srgb, var(--ui-success) 40%, transparent)'
-                                          : count > 1
-                                            ? 'color-mix(in srgb, var(--ui-accent) 40%, transparent)'
-                                            : count === 1
-                                              ? 'color-mix(in srgb, var(--ui-muted) 40%, transparent)'
-                                              : 'color-mix(in srgb, var(--ui-muted-2) 35%, transparent)'
-                                      }`
+                                      backgroundColor: `color-mix(in srgb, ${statusColor} 18%, transparent)`,
+                                      color: statusColor,
+                                      border: `1px solid color-mix(in srgb, ${statusColor} 45%, transparent)`
                                     }}
                                   >
                                     {count > 2 ? '旺' : count > 1 ? '平' : count === 1 ? '弱' : '缺'}
@@ -702,7 +740,31 @@ const BaZiPage = () => {
                           </span>
                         )}
                       </motion.button>
-                      
+
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {chartData && !isAnalyzing && (
+                          <motion.button
+                            onClick={resetChart}
+                            className="flex-1 px-4 py-2 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-2)] text-[var(--ui-text)] text-sm font-semibold hover:bg-[var(--ui-surface-3)] transition-all flex items-center justify-center gap-2"
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            <RefreshCw className="w-4 h-4" />
+                            重新生成
+                          </motion.button>
+                        )}
+                        {isAnalyzing && (
+                          <motion.button
+                            onClick={() => stopSession('bazi')}
+                            className="flex-1 px-4 py-2 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-2)] text-[var(--ui-danger)] text-sm font-semibold hover:bg-[var(--ui-surface-3)] transition-all flex items-center justify-center"
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            停止生成
+                          </motion.button>
+                        )}
+                      </div>
+
                       {!selectedMaster && (
                         <motion.button 
                           onClick={() => navigate('/settings')}

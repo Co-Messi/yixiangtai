@@ -5,7 +5,8 @@ import BaziForm from './components/BaziForm';
 import NewLifeKLineChart from './components/NewLifeKLineChart';
 import NewAnalysisResult from './components/NewAnalysisResult';
 import { generateLifeAnalysis } from './service';
-import { useUI } from '../../core/store';
+import { isAbortError } from '../../masters/service';
+import { useDivinationSession, useUI } from '../../core/store';
 import { ErrorToast } from '../../components/common';
 import { addRecord } from '../../core/history';
 import { useMaster } from '../../core/store';
@@ -15,6 +16,7 @@ const LifeKlinePage: React.FC = () => {
   const [result, setResult] = useState<any>(null);
   const { error, setError } = useUI();
   const { selectedMaster } = useMaster();
+  const { session, setSessionData, setSessionAnalysis, resetSession, stopSession } = useDivinationSession('lifekline');
 
   useEffect(() => {
     if (error) {
@@ -23,12 +25,46 @@ const LifeKlinePage: React.FC = () => {
     }
   }, [error, setError]);
 
+  useEffect(() => {
+    if (!session) {
+      return;
+    }
+
+    if (session.data !== result) {
+      setResult(session.data);
+    }
+
+    const nextAnalyzing = session.analysis.status === 'running';
+    if (nextAnalyzing !== isAnalyzing) {
+      setIsAnalyzing(nextAnalyzing);
+    }
+  }, [session, result, isAnalyzing]);
+
   const handleFormSubmit = async (formData: any) => {
+    stopSession('lifekline');
+    resetSession('lifekline');
+
+    const controller = new AbortController();
+    setSessionAnalysis('lifekline', {
+      status: 'running',
+      text: '',
+      error: null,
+      startedAt: Date.now(),
+      completedAt: null,
+      controller
+    });
+
     setIsAnalyzing(true);
     setError(null);
     try {
-      const analysisResult = await generateLifeAnalysis(formData);
+      const analysisResult = await generateLifeAnalysis(formData, controller.signal);
       setResult(analysisResult);
+      setSessionData('lifekline', analysisResult);
+      setSessionAnalysis('lifekline', {
+        status: 'completed',
+        completedAt: Date.now(),
+        controller: null
+      });
 
       // Save to history
       addRecord({
@@ -44,14 +80,32 @@ const LifeKlinePage: React.FC = () => {
         analysis: JSON.stringify(analysisResult)
       });
     } catch (err: any) {
-      setError(err.message || "推演失败，请检查 API 配置或网络");
+      if (isAbortError(err)) {
+        setSessionAnalysis('lifekline', {
+          status: 'stopped',
+          completedAt: Date.now(),
+          controller: null
+        });
+        return;
+      }
+      const message = err?.message || '推演失败，请检查 API 配置或网络';
+      setSessionAnalysis('lifekline', {
+        status: 'error',
+        error: message,
+        completedAt: Date.now(),
+        controller: null
+      });
+      setError(message);
     } finally {
       setIsAnalyzing(false);
     }
   };
 
   const reset = () => {
+    stopSession('lifekline');
+    resetSession('lifekline');
     setResult(null);
+    setIsAnalyzing(false);
   };
 
   const containerVariants = {
@@ -88,6 +142,17 @@ const LifeKlinePage: React.FC = () => {
           </motion.p>
         </div>
 
+        {isAnalyzing && !result && (
+          <div className="flex justify-center mb-6">
+            <button
+              onClick={() => stopSession('lifekline')}
+              className="px-5 py-2 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-2)] text-[var(--ui-danger)] text-sm font-semibold hover:bg-[var(--ui-surface-3)] transition-all"
+            >
+              停止生成
+            </button>
+          </div>
+        )}
+
         <AnimatePresence mode="wait">
           {!result ? (
             <motion.div
@@ -106,7 +171,7 @@ const LifeKlinePage: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               className="space-y-12"
             >
-              <div className="flex justify-between items-center bg-[var(--ui-surface)] p-4 rounded-2xl border border-[var(--ui-border)]">
+              <div className="flex justify-between items-center bg-[var(--ui-surface-2)] p-4 rounded-2xl border border-[var(--ui-border)]">
                 <div className="flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full bg-[var(--ui-success)]/20 flex items-center justify-center border border-[var(--ui-success)]/30">
                     <div className="w-2 h-2 bg-[var(--ui-success)] rounded-full animate-pulse" />
@@ -122,7 +187,7 @@ const LifeKlinePage: React.FC = () => {
                     className="flex items-center gap-2 px-5 py-2.5 bg-[var(--ui-surface-2)] hover:bg-[var(--ui-surface-3)] text-[var(--ui-muted-2)] hover:text-[var(--ui-text)] rounded-2xl border border-[var(--ui-border)] transition-all text-sm font-semibold"
                   >
                     <RefreshCcw className="w-4 h-4" />
-                    重新排盘
+                    重新生成
                   </button>
                 </div>
               </div>

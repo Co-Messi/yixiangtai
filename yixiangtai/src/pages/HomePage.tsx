@@ -3,7 +3,7 @@
  * 展示欢迎信息、占卜游戏卡片和AI大师介绍
  */
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useUI, useMaster } from '../core/store';
 import { motion } from 'framer-motion';
@@ -18,6 +18,7 @@ const HomePage: React.FC = () => {
   const { selectedMaster, setSelectedMaster, availableMasters, setAvailableMasters } = useMaster();
   const games = getAllGames();
   const [loading, setLoading] = useState(true);
+  const masterSectionRef = useRef<HTMLDivElement | null>(null);
 
   // 图标映射函数
   const getIconComponent = (iconName?: string) => {
@@ -76,6 +77,15 @@ const HomePage: React.FC = () => {
     setSelectedMaster(master);
   };
 
+  const handleViewMaster = () => {
+    const target = masterSectionRef.current;
+    if (!target) {
+      return;
+    }
+    const top = target.getBoundingClientRect().top + window.scrollY - 120;
+    window.scrollTo({ top, behavior: 'smooth' });
+  };
+
   // 动画变体
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -114,45 +124,98 @@ const HomePage: React.FC = () => {
     >
       <div className="max-w-6xl mx-auto px-8 pb-16">
         <motion.div className="grid grid-cols-12 gap-8 items-start" variants={itemVariants}>
-          <motion.section className="col-span-7 surface-light rounded-[24px] p-10" variants={itemVariants}>
-            <div className="text-xs text-[var(--ui-muted-2)] font-medium">
-              yixiangtai
-            </div>
-            <h1 className="mt-3 text-4xl md:text-5xl font-semibold text-ink">
-              易象台
-            </h1>
-            <p className="mt-4 text-base text-[var(--ui-muted)] leading-relaxed">
-              传承千年的古典智慧，融合现代AI技术，为您提供准确的占卜分析与人生指导。
-            </p>
-            <div className="mt-8 flex items-center gap-4">
-              <motion.button
-                onClick={() => handleGameClick('/liuyao')}
-                className="bg-[var(--ui-accent)] text-white px-8 py-3 rounded-xl font-semibold text-base hover:bg-[var(--ui-accent-strong)] transition-all duration-300"
-                whileHover={{ scale: 1.03, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <span className="flex items-center gap-3">
-                  <Sparkles className="w-5 h-5" />
-                  立即起卦
-                </span>
-              </motion.button>
-              <button className="px-6 py-3 rounded-xl border border-[var(--ui-border)] text-[var(--ui-text)] hover:border-[var(--ui-accent)] transition-colors">
-                查看大师
-              </button>
-            </div>
-            <div className="mt-10 hairline" />
-            <div className="mt-6 grid grid-cols-3 gap-4 text-xs text-[var(--ui-muted)]">
-              <div className="flex items-center gap-2">
-                <Shield className="w-4 h-4 text-[var(--ui-accent)]" />
-                本地隐私保护
+          <motion.section className="col-span-7 space-y-6" variants={itemVariants}>
+            <div className="surface-light rounded-[24px] p-10">
+              <div className="text-xs text-[var(--ui-muted-2)] font-medium">
+                yixiangtai
               </div>
-              <div className="flex items-center gap-2">
-                <Brain className="w-4 h-4 text-[var(--ui-accent)]" />
-                AI智能分析
+              <h1 className="mt-3 text-4xl md:text-5xl font-semibold text-ink">
+                易象台
+              </h1>
+              <p className="mt-4 text-base text-[var(--ui-muted)] leading-relaxed">
+                传承千年的古典智慧，融合现代AI技术，为您提供准确的占卜分析与人生指导。
+              </p>
+              <div className="mt-8 flex items-center gap-4">
+                <motion.button
+                  onClick={() => handleGameClick('/liuyao')}
+                  className="bg-[var(--ui-accent)] text-white px-8 py-3 rounded-xl font-semibold text-base hover:bg-[var(--ui-accent-strong)] transition-all duration-300"
+                  whileHover={{ scale: 1.03, y: -2 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <span className="flex items-center gap-3">
+                    <Sparkles className="w-5 h-5" />
+                    立即起卦
+                  </span>
+                </motion.button>
+                <button
+                  onClick={handleViewMaster}
+                  className="px-6 py-3 rounded-xl border border-[var(--ui-border)] text-[var(--ui-text)] hover:border-[var(--ui-accent)] transition-colors"
+                >
+                  查看大师
+                </button>
               </div>
-              <div className="flex items-center gap-2">
-                <Star className="w-4 h-4 text-[var(--ui-accent)]" />
-                传统易学智慧
+              <div className="mt-10 hairline" />
+              <div className="mt-6 grid grid-cols-3 gap-4 text-xs text-[var(--ui-muted)]">
+                <div className="flex items-center gap-2">
+                  <Shield className="w-4 h-4 text-[var(--ui-accent)]" />
+                  本地隐私保护
+                </div>
+                <div className="flex items-center gap-2">
+                  <Brain className="w-4 h-4 text-[var(--ui-accent)]" />
+                  AI智能分析
+                </div>
+                <div className="flex items-center gap-2">
+                  <Star className="w-4 h-4 text-[var(--ui-accent)]" />
+                  传统易学智慧
+                </div>
+              </div>
+            </div>
+
+            <div className="surface-light rounded-[24px] p-8">
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-[var(--ui-accent-soft)] flex items-center justify-center text-[var(--ui-accent)]">
+                    <BookOpen className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-semibold text-[var(--ui-text)]">起卦指南</h2>
+                    <p className="text-xs text-[var(--ui-muted-2)]">三步完成 · 快速入门</p>
+                  </div>
+                </div>
+                <span className="text-xs text-[var(--ui-muted-2)]">今日启示</span>
+              </div>
+
+              <div className="space-y-4">
+                {[
+                  { title: '选择大师', desc: '先在右侧挑选偏好的解读风格' },
+                  { title: '填写信息', desc: '按提示输入必要的占卜资料' },
+                  { title: '查看解读', desc: '结合大师建议做出更好的判断' }
+                ].map((item, index) => (
+                  <div key={item.title} className="flex items-start gap-4">
+                    <div className="w-8 h-8 rounded-full border border-[var(--ui-border)] bg-[var(--ui-surface-2)] flex items-center justify-center text-sm font-semibold text-[var(--ui-text)]">
+                      {index + 1}
+                    </div>
+                    <div>
+                      <div className="text-sm font-semibold text-[var(--ui-text)]">{item.title}</div>
+                      <div className="text-xs text-[var(--ui-muted-2)]">{item.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="mt-6 flex items-center justify-between gap-3 rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface-2)] px-4 py-3">
+                <div>
+                  <div className="text-xs text-[var(--ui-muted-2)]">当前大师</div>
+                  <div className="text-sm font-semibold text-[var(--ui-text)]">
+                    {selectedMaster ? selectedMaster.name : '未选择'}
+                  </div>
+                </div>
+                <button
+                  onClick={handleViewMaster}
+                  className="text-xs font-semibold text-[var(--ui-accent)] hover:text-[var(--ui-accent-strong)]"
+                >
+                  去选择
+                </button>
               </div>
             </div>
           </motion.section>
@@ -188,7 +251,7 @@ const HomePage: React.FC = () => {
               </div>
             </div>
 
-            <div className="surface-light rounded-3xl p-6">
+            <div ref={masterSectionRef} className="surface-light rounded-3xl p-6">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-lg font-semibold text-[var(--ui-text)]">大师选择</h2>
                 <span className="text-xs text-[var(--ui-muted-2)]">实时切换</span>

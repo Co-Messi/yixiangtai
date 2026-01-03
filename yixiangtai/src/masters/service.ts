@@ -22,6 +22,60 @@ import { getGamePrompt, isGameTypeSupported } from './prompts';
 // 🚀 流式响应控制开关 - 在这里修改即可控制全局行为
 const ENABLE_STREAMING = false; // true: 使用SSE流式API, false: 使用标准API+前端模拟流式效果
 
+function createAbortError() {
+  if (typeof DOMException !== 'undefined') {
+    return new DOMException('Aborted', 'AbortError');
+  }
+  const error = new Error('Aborted');
+  error.name = 'AbortError';
+  return error;
+}
+
+function throwIfAborted(signal?: AbortSignal) {
+  if (signal?.aborted) {
+    throw createAbortError();
+  }
+}
+
+function sleep(ms: number, signal?: AbortSignal): Promise<void> {
+  if (!signal) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  return new Promise((resolve, reject) => {
+    if (signal.aborted) {
+      reject(createAbortError());
+      return;
+    }
+
+    const timeout = setTimeout(() => {
+      signal.removeEventListener('abort', onAbort);
+      resolve();
+    }, ms);
+
+    const onAbort = () => {
+      clearTimeout(timeout);
+      reject(createAbortError());
+    };
+
+    signal.addEventListener('abort', onAbort, { once: true });
+  });
+}
+
+export function isAbortError(error: unknown): boolean {
+  if (!error) return false;
+  if (typeof DOMException !== 'undefined' && error instanceof DOMException && error.name === 'AbortError') {
+    return true;
+  }
+  if (error instanceof Error && error.name === 'AbortError') {
+    return true;
+  }
+  if (typeof error === 'object' && error && 'code' in error) {
+    return (error as { code?: string }).code === 'ERR_CANCELED';
+  }
+  return false;
+}
+
 
 /**
  * 从public目录加载大师配置数据
@@ -283,7 +337,8 @@ async function checkServerHealth(serverUrl: string): Promise<boolean> {
  */
 async function getServerStandardAnalysis(
   serverUrl: string,
-  prompt: string
+  prompt: string,
+  signal?: AbortSignal
 ): Promise<string> {
   const response = await fetch(`${serverUrl.replace(/\/$/, '')}/api/gemini/generate`, {
     method: 'POST',
@@ -301,7 +356,8 @@ async function getServerStandardAnalysis(
         topP: 1,
         maxOutputTokens: 4096,
       }
-    })
+    }),
+    signal
   });
 
   if (!response.ok) {
@@ -340,14 +396,15 @@ async function getServerAnalysis(
   serverUrl: string,
   prompt: string,
   enableStreaming: boolean,
-  onUpdate?: (text: string) => void
+  onUpdate?: (text: string) => void,
+  signal?: AbortSignal
 ): Promise<string> {
   if (enableStreaming) {
     // 使用流式API
-    return await getServerStreamAnalysis(serverUrl, prompt, onUpdate);
+    return await getServerStreamAnalysis(serverUrl, prompt, onUpdate, signal);
   } else {
     // 使用标准API
-    const result = await getServerStandardAnalysis(serverUrl, prompt);
+    const result = await getServerStandardAnalysis(serverUrl, prompt, signal);
 
     // 如果有更新回调，模拟流式显示效果
     if (onUpdate && result) {
@@ -358,13 +415,14 @@ async function getServerAnalysis(
       let currentText = '';
 
       for (let i = 0; i < words.length; i += chunkSize) {
+        throwIfAborted(signal);
         const chunk = words.slice(i, i + chunkSize).join('');
         currentText += chunk;
         onUpdate(currentText);
 
         // 添加延迟以模拟流式效果
         if (i + chunkSize < words.length) {
-          await new Promise(resolve => setTimeout(resolve, delay));
+          await sleep(delay, signal);
         }
       }
 
@@ -386,7 +444,8 @@ async function getServerAnalysis(
 async function getServerStreamAnalysis(
   serverUrl: string,
   prompt: string,
-  onUpdate?: (text: string) => void
+  onUpdate?: (text: string) => void,
+  signal?: AbortSignal
 ): Promise<string> {
   const response = await fetch(`${serverUrl.replace(/\/$/, '')}/api/gemini/stream`, {
     method: 'POST',
@@ -396,7 +455,8 @@ async function getServerStreamAnalysis(
     body: JSON.stringify({
       prompt: prompt,
       maxTokens: 4096
-    })
+    }),
+    signal
   });
 
   if (!response.ok) {
@@ -415,6 +475,7 @@ async function getServerStreamAnalysis(
 
   try {
     while (true) {
+      throwIfAborted(signal);
       const { done, value } = await reader.read();
 
       if (done) break;
@@ -491,7 +552,8 @@ export async function getAIAnalysisStream(
   master: Master,
   gameType?: string,
   userInfo?: any,
-  onUpdate?: (text: string) => void
+  onUpdate?: (text: string) => void,
+  signal?: AbortSignal
 ): Promise<string> {
   try {
     // 1. 获取设置
@@ -517,7 +579,7 @@ export async function getAIAnalysisStream(
 
         if (isServerHealthy) {
           console.log(`使用${enableStreaming ? '流式' : '标准'}后端服务器API...`);
-          return await getServerAnalysis(serverUrl, prompt, enableStreaming, onUpdate);
+          return await getServerAnalysis(serverUrl, prompt, enableStreaming, onUpdate, signal);
         } else {
           console.warn('后端服务器健康检查失败，降级到直接API调用');
         }
@@ -564,7 +626,7 @@ export async function getAIAnalysisStream(
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(requestBody),
-        signal: AbortSignal.timeout(30000) // 30秒超时
+        signal: signal ?? AbortSignal.timeout(30000) // 30秒超时
       });
 
       if (!response.ok) {
@@ -582,6 +644,7 @@ export async function getAIAnalysisStream(
 
       try {
         while (true) {
+          throwIfAborted(signal);
           const { done, value } = await reader.read();
 
           if (done) break;
@@ -633,7 +696,7 @@ export async function getAIAnalysisStream(
       console.warn('流式API失败，降级到标准API:', streamError);
 
       // 6. 最终降级到标准API，但模拟流式效果
-      const result = await getAIAnalysis(divinationData, master, gameType, userInfo);
+      const result = await getAIAnalysis(divinationData, master, gameType, userInfo, signal);
 
       // 模拟打字机效果
       if (onUpdate && result) {
@@ -641,12 +704,13 @@ export async function getAIAnalysisStream(
         let currentText = '';
 
         for (let i = 0; i < words.length; i++) {
+          throwIfAborted(signal);
           currentText += words[i];
           onUpdate(currentText);
 
           // 控制速度，每几个字符暂停一下
           if (i % 3 === 0) {
-            await new Promise(resolve => setTimeout(resolve, 50));
+            await sleep(50, signal);
           }
         }
       }
@@ -678,7 +742,8 @@ export async function getAIAnalysis(
   divinationData: any,
   master: Master,
   gameType?: string,
-  userInfo?: any
+  userInfo?: any,
+  signal?: AbortSignal
 ): Promise<string> {
   try {
     // 1. 获取设置
@@ -699,7 +764,7 @@ export async function getAIAnalysis(
           // 构建提示词
           const prompt = buildPrompt(master, divinationData, gameType, userInfo);
           // 对于非流式分析，强制使用标准API
-          return await getServerAnalysis(serverUrl, prompt, false);
+          return await getServerAnalysis(serverUrl, prompt, false, undefined, signal);
         } else {
           console.warn('后端服务器健康检查失败，降级到直接API调用');
         }
@@ -750,7 +815,8 @@ export async function getAIAnalysis(
       headers: {
         'Content-Type': 'application/json'
       },
-      timeout: GEMINI_CONFIG.REQUEST_CONFIG.TIMEOUT
+      timeout: GEMINI_CONFIG.REQUEST_CONFIG.TIMEOUT,
+      signal
     });
 
     // 8. 解析响应
@@ -844,7 +910,8 @@ export async function getPalmistryAnalysis(
   imageBase64: string,
   mimeType: string,
   master: Master,
-  userInfo?: any
+  userInfo?: any,
+  signal?: AbortSignal
 ): Promise<string> {
   try {
     // 1. 获取API密钥（优先使用配置中的密钥）
@@ -904,7 +971,8 @@ export async function getPalmistryAnalysis(
       headers: {
         'Content-Type': 'application/json'
       },
-      timeout: GEMINI_CONFIG.REQUEST_CONFIG.VISION_TIMEOUT
+      timeout: GEMINI_CONFIG.REQUEST_CONFIG.VISION_TIMEOUT,
+      signal
     });
 
     // 7. 解析响应
@@ -987,7 +1055,8 @@ async function getServerVisionStreamAnalysis(
   imageBase64: string,
   mimeType: string,
   prompt: string,
-  onUpdate?: (text: string) => void
+  onUpdate?: (text: string) => void,
+  signal?: AbortSignal
 ): Promise<string> {
   const requestBody = {
     contents: [
@@ -1012,7 +1081,8 @@ async function getServerVisionStreamAnalysis(
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(requestBody)
+    body: JSON.stringify(requestBody),
+    signal
   });
 
   if (!response.ok) {
@@ -1029,6 +1099,7 @@ async function getServerVisionStreamAnalysis(
 
   try {
     while (true) {
+      throwIfAborted(signal);
       const { done, value } = await reader.read();
 
       if (done) break;
@@ -1114,7 +1185,8 @@ async function getServerVisionStandardAnalysis(
   serverUrl: string,
   imageBase64: string,
   mimeType: string,
-  prompt: string
+  prompt: string,
+  signal?: AbortSignal
 ): Promise<string> {
   const requestBody = {
     contents: [
@@ -1145,7 +1217,8 @@ async function getServerVisionStandardAnalysis(
     headers: {
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(requestBody)
+    body: JSON.stringify(requestBody),
+    signal
   });
 
   if (!response.ok) {
@@ -1188,14 +1261,15 @@ async function getServerVisionAnalysis(
   mimeType: string,
   prompt: string,
   enableStreaming: boolean,
-  onUpdate?: (text: string) => void
+  onUpdate?: (text: string) => void,
+  signal?: AbortSignal
 ): Promise<string> {
   if (enableStreaming) {
     // 使用流式API
-    return await getServerVisionStreamAnalysis(serverUrl, imageBase64, mimeType, prompt, onUpdate);
+    return await getServerVisionStreamAnalysis(serverUrl, imageBase64, mimeType, prompt, onUpdate, signal);
   } else {
     // 使用标准API
-    const result = await getServerVisionStandardAnalysis(serverUrl, imageBase64, mimeType, prompt);
+    const result = await getServerVisionStandardAnalysis(serverUrl, imageBase64, mimeType, prompt, signal);
 
     // 如果有更新回调，模拟流式显示效果
     if (onUpdate && result) {
@@ -1212,7 +1286,7 @@ async function getServerVisionAnalysis(
 
         // 添加延迟以模拟流式效果
         if (i + chunkSize < words.length) {
-          await new Promise(resolve => setTimeout(resolve, delay));
+          await sleep(delay, signal);
         }
       }
 
@@ -1238,7 +1312,8 @@ export async function getPalmistryAnalysisStream(
   mimeType: string,
   master: Master,
   onUpdate?: (text: string) => void,
-  userInfo?: any
+  userInfo?: any,
+  signal?: AbortSignal
 ): Promise<string> {
   try {
     console.log('开始手相分析...');
@@ -1263,7 +1338,7 @@ export async function getPalmistryAnalysisStream(
 
         if (isServerHealthy) {
           console.log(`后端服务器健康检查通过，使用服务器视觉${enableStreaming ? '流式' : '标准'}API...`);
-          return await getServerVisionAnalysis(serverUrl, imageBase64, mimeType, prompt, enableStreaming, onUpdate);
+          return await getServerVisionAnalysis(serverUrl, imageBase64, mimeType, prompt, enableStreaming, onUpdate, signal);
         } else {
           console.warn('后端服务器健康检查失败，降级到直接API调用');
         }
@@ -1285,7 +1360,7 @@ export async function getPalmistryAnalysisStream(
     }
 
     // 使用普通的手相分析API
-    const fullAnalysis = await getPalmistryAnalysis(imageBase64, mimeType, master, userInfo);
+    const fullAnalysis = await getPalmistryAnalysis(imageBase64, mimeType, master, userInfo, signal);
 
     // 如果有更新回调，模拟流式显示效果
     if (onUpdate && fullAnalysis) {
@@ -1296,13 +1371,14 @@ export async function getPalmistryAnalysisStream(
       let currentText = '';
 
       for (let i = 0; i < words.length; i += chunkSize) {
+        throwIfAborted(signal);
         const chunk = words.slice(i, i + chunkSize).join('');
         currentText += chunk;
         onUpdate(currentText);
 
         // 添加延迟以模拟流式效果
         if (i + chunkSize < words.length) {
-          await new Promise(resolve => setTimeout(resolve, delay));
+          await sleep(delay, signal);
         }
       }
 

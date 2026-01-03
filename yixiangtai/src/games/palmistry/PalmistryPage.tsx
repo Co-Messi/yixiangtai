@@ -5,11 +5,11 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { convertImageToBase64, getPalmistryAnalysisStream } from '../../masters/service';
-import { useMaster, useUI } from '../../core/store';
+import { convertImageToBase64, getPalmistryAnalysisStream, isAbortError } from '../../masters/service';
+import { useDivinationSession, useMaster, useUI } from '../../core/store';
 import { addRecord } from '../../core/history';
 import { StreamingMarkdown, ErrorToast, useAutoScroll } from '../../components/common';
-import { getVideoPath } from '../../utils/resources';
+import DivinationAnimation from '../../components/DivinationAnimation';
 import type { DivinationRecord } from '../../types';
 
 interface ImageData {
@@ -37,6 +37,7 @@ const PalmistryPage: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { selectedMaster } = useMaster();
+  const { session, setSessionData, setSessionAnalysis, resetSession, stopSession } = useDivinationSession('palmistry');
   const { error, setError } = useUI();
   
   // 使用通用的自动滚动Hook
@@ -54,6 +55,35 @@ const PalmistryPage: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [error, setError]);
+
+  useEffect(() => {
+    if (!session) {
+      return;
+    }
+
+    if (session.data && session.data !== imageData) {
+      setImageData(session.data as ImageData);
+    }
+
+    if (session.analysis.text !== analysisResult) {
+      setAnalysisResult(session.analysis.text);
+    }
+
+    const nextAnalyzing = session.analysis.status === 'running';
+    if (nextAnalyzing !== isAnalyzing) {
+      setIsAnalyzing(nextAnalyzing);
+    }
+
+    const nextComplete = session.analysis.status === 'completed';
+    if (nextComplete !== analysisComplete) {
+      setAnalysisComplete(nextComplete);
+    }
+
+    const nextShowLoading = nextAnalyzing && !session.analysis.text;
+    if (nextShowLoading !== showLoadingAnimation) {
+      setShowLoadingAnimation(nextShowLoading);
+    }
+  }, [session, imageData, analysisResult, isAnalyzing, analysisComplete, showLoadingAnimation]);
 
   // 动画变体
   const containerVariants = {
@@ -99,17 +129,22 @@ const PalmistryPage: React.FC = () => {
       // 创建预览URL
       const preview = URL.createObjectURL(file);
 
-      setImageData({
+      const nextImageData = {
         file,
         base64,
         mimeType,
         preview
-      });
+      };
+
+      setImageData(nextImageData);
+      setSessionData('palmistry', nextImageData);
 
       // 重置分析结果
       setAnalysisResult(null);
       setAnalysisComplete(false);
       setShowLoadingAnimation(false);
+      stopSession('palmistry');
+      resetSession('palmistry');
 
     } catch (err) {
       console.error('文件处理失败:', err);
@@ -131,6 +166,8 @@ const PalmistryPage: React.FC = () => {
       setAnalysisResult(null);
       setAnalysisComplete(false);
       setShowLoadingAnimation(false);
+      stopSession('palmistry');
+      resetSession('palmistry');
       
       handleFileSelect(files[0]);
     }
@@ -206,6 +243,20 @@ const PalmistryPage: React.FC = () => {
       return;
     }
 
+    stopSession('palmistry');
+    resetSession('palmistry');
+
+    const controller = new AbortController();
+    setSessionAnalysis('palmistry', {
+      status: 'running',
+      text: '',
+      error: null,
+      startedAt: Date.now(),
+      completedAt: null,
+      controller
+    });
+    setSessionData('palmistry', imageData);
+
     try {
       setIsAnalyzing(true);
       setError(null);
@@ -226,16 +277,21 @@ const PalmistryPage: React.FC = () => {
         imageData.mimeType,
         selectedMaster,
         (streamText: string) => {
-          // 流式更新回调 - 当开始有内容返回时，隐藏动画显示结果
           if (streamText && streamText.trim()) {
-            setShowLoadingAnimation(false);
-            setAnalysisResult(streamText);
+            setSessionAnalysis('palmistry', { text: streamText });
           }
-        }
+        },
+        undefined,
+        controller.signal
       );
 
       // 分析完成
       setAnalysisComplete(true);
+      setSessionAnalysis('palmistry', {
+        status: 'completed',
+        completedAt: Date.now(),
+        controller: null
+      });
 
       // 保存到历史记录
       if (analysisText) {
@@ -243,12 +299,37 @@ const PalmistryPage: React.FC = () => {
       }
 
     } catch (err) {
+      if (isAbortError(err)) {
+        setSessionAnalysis('palmistry', {
+          status: 'stopped',
+          completedAt: Date.now(),
+          controller: null
+        });
+        return;
+      }
+
       console.error('分析失败:', err);
-      setError(err instanceof Error ? err.message : '分析失败，请重试');
+      const message = err instanceof Error ? err.message : '分析失败，请重试';
+      setSessionAnalysis('palmistry', {
+        status: 'error',
+        error: message,
+        completedAt: Date.now(),
+        controller: null
+      });
+      setError(message);
+      setAnalysisComplete(false);
     } finally {
       setIsAnalyzing(false);
       setShowLoadingAnimation(false);
     }
+  };
+
+  const resetAnalysis = () => {
+    stopSession('palmistry');
+    resetSession('palmistry');
+    setAnalysisResult('');
+    setAnalysisComplete(false);
+    setShowLoadingAnimation(false);
   };
 
   const canStartAnalysis = imageData && selectedMaster && !isAnalyzing && !analysisComplete;
@@ -398,7 +479,30 @@ const PalmistryPage: React.FC = () => {
                     </span>
                   )}
                 </motion.button>
-                
+
+                <div className="mt-3 flex justify-center gap-3">
+                  {analysisResult && !isAnalyzing && (
+                    <motion.button
+                      onClick={resetAnalysis}
+                      className="px-5 py-2 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-2)] text-[var(--ui-text)] text-sm font-semibold hover:bg-[var(--ui-surface-3)] transition-all"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      重新生成
+                    </motion.button>
+                  )}
+                  {isAnalyzing && (
+                    <motion.button
+                      onClick={() => stopSession('palmistry')}
+                      className="px-5 py-2 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-2)] text-[var(--ui-danger)] text-sm font-semibold hover:bg-[var(--ui-surface-3)] transition-all"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      停止生成
+                    </motion.button>
+                  )}
+                </div>
+
                 {!selectedMaster && imageData && (
                   <motion.p 
                     className="text-[var(--ui-muted)] text-sm mt-4"
@@ -481,46 +585,7 @@ const PalmistryPage: React.FC = () => {
                   {/* 分析动画区域 */}
                   <div className="flex justify-center">
                     <div className="bg-[var(--ui-surface-2)] flex items-center justify-center relative overflow-hidden rounded-xl" style={{ width: '560px', height: '315px' }}>
-                      {/* 使用MP4视频作为加载动画 */}
-                      <video 
-                        autoPlay 
-                        muted 
-                        loop 
-                        playsInline
-                        preload="metadata"
-                        className="w-full h-full object-cover rounded-xl"
-                        style={{ width: '560px', height: '315px' }}
-                        onError={(e) => {
-                          console.log('手相视频加载失败，显示备用动画');
-                          const video = e.target as HTMLVideoElement;
-                          video.style.display = 'none';
-                        }}
-                        onCanPlayThrough={() => {
-                          console.log('手相视频可以播放');
-                        }}
-                      >
-                        <source src={getVideoPath("palmistry.mp4")} type="video/mp4" />
-                        {/* 如果视频加载失败，显示备用动画 */}
-                        <div className="relative">
-                          <motion.div
-                            className="w-16 h-16 border-4 border-[var(--ui-accent)] border-t-transparent rounded-full"
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                          />
-                          <motion.div
-                            className="absolute inset-4 border-2 border-[var(--ui-muted-2)] border-b-transparent rounded-full"
-                            animate={{ rotate: -360 }}
-                            transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
-                          />
-                          <motion.div
-                            className="absolute inset-8 w-16 h-16 flex items-center justify-center"
-                            animate={{ scale: [1, 1.2, 1] }}
-                            transition={{ duration: 2, repeat: Infinity }}
-                          >
-                            <span className="text-[var(--ui-accent)] text-2xl font-bold">相</span>
-                          </motion.div>
-                        </div>
-                      </video>
+                      <DivinationAnimation symbol="相" label="手相" />
                     </div>
                   </div>
                 </div>

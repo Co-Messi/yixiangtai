@@ -8,11 +8,11 @@ interface NewAnalysisResultProps {
 }
 
 const getScoreColors = (normalizedScore: number) => {
-    if (normalizedScore >= 9) return { bar: 'bg-[var(--ui-success)]', text: 'text-[var(--ui-success)]' };
-    if (normalizedScore >= 7) return { bar: 'bg-[var(--ui-accent)]', text: 'text-[var(--ui-accent)]' };
-    if (normalizedScore >= 5) return { bar: 'bg-[var(--ui-accent-strong)]', text: 'text-[var(--ui-accent-strong)]' };
-    if (normalizedScore >= 3) return { bar: 'bg-[var(--ui-muted)]', text: 'text-[var(--ui-muted)]' };
-    return { bar: 'bg-[var(--ui-danger)]', text: 'text-[var(--ui-danger)]' };
+    if (normalizedScore >= 9) return { bar: 'bg-emerald-500', text: 'text-emerald-400', glow: 'shadow-[0_0_12px_rgba(16,185,129,0.35)]' };
+    if (normalizedScore >= 7) return { bar: 'bg-lime-500', text: 'text-lime-400', glow: 'shadow-[0_0_12px_rgba(132,204,22,0.32)]' };
+    if (normalizedScore >= 5) return { bar: 'bg-amber-400', text: 'text-amber-300', glow: 'shadow-[0_0_10px_rgba(251,191,36,0.28)]' };
+    if (normalizedScore >= 3) return { bar: 'bg-orange-400', text: 'text-orange-300', glow: 'shadow-[0_0_10px_rgba(251,146,60,0.25)]' };
+    return { bar: 'bg-red-500/80', text: 'text-red-400', glow: 'shadow-[0_0_10px_rgba(239,68,68,0.25)]' };
 };
 
 const ScoreBar = ({ score }: { score: number }) => {
@@ -23,7 +23,7 @@ const ScoreBar = ({ score }: { score: number }) => {
         <div className="flex items-center gap-3 mt-3">
             <div className="flex-1 h-2 bg-[var(--ui-surface-3)]/40 rounded-full overflow-hidden border border-[var(--ui-border)]">
                 <div
-                    className={`h-full ${colors.bar} transition-all duration-1000 ease-out shadow-[0_0_12px_rgba(37,94,234,0.2)]`}
+                    className={`h-full ${colors.bar} ${colors.glow} transition-all duration-1000 ease-out`}
                     style={{ width: `${normalizedScore * 10}%` }}
                 />
             </div>
@@ -36,7 +36,7 @@ const ScoreBar = ({ score }: { score: number }) => {
 
 const Card = ({ title, icon: Icon, content, score, colorClass, extraBadges }: any) => {
     return (
-        <div className="bg-[var(--ui-surface)] p-6 rounded-3xl border border-[var(--ui-border)] flex flex-col h-full">
+        <div className="bg-[var(--ui-surface-2)] p-6 rounded-3xl border border-[var(--ui-border)] flex flex-col h-full">
             <div className={`flex items-center justify-between mb-5 ${colorClass}`}>
                 <div className="flex items-center gap-3">
                     <div className="p-2 rounded-xl bg-[var(--ui-surface-3)]/70 border border-[var(--ui-border)]">
@@ -71,7 +71,7 @@ const NewAnalysisResult: React.FC<NewAnalysisResultProps> = ({ analysis }) => {
     return (
         <div className="w-full space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-1000">
             {/* Bazi Pillars */}
-            <div className="flex justify-center gap-6 md:gap-16 bg-[var(--ui-surface)] p-10 rounded-3xl border border-[var(--ui-border)]">
+            <div className="flex justify-center gap-6 md:gap-16 bg-[var(--ui-surface-2)] p-10 rounded-3xl border border-[var(--ui-border)]">
                 {analysis.bazi.map((pillar, index) => {
                     const labels = ['年柱', '月柱', '日柱', '时柱'];
                     return (
@@ -86,7 +86,7 @@ const NewAnalysisResult: React.FC<NewAnalysisResultProps> = ({ analysis }) => {
             </div>
 
             {/* Summary */}
-            <div className="bg-[var(--ui-surface)] p-10 rounded-3xl border border-[var(--ui-border)]">
+            <div className="bg-[var(--ui-surface-2)] p-10 rounded-3xl border border-[var(--ui-border)]">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-8 mb-6">
                     <h3 className="flex items-center gap-3 font-semibold text-2xl text-[var(--ui-text)] tracking-tight">
                         <div className="p-2 rounded-xl bg-[var(--ui-accent-soft)] border border-[var(--ui-border)]">
@@ -98,7 +98,7 @@ const NewAnalysisResult: React.FC<NewAnalysisResultProps> = ({ analysis }) => {
                         <ScoreBar score={analysis.summaryScore} />
                     </div>
                 </div>
-                <div className="text-[var(--ui-muted)] leading-relaxed whitespace-pre-wrap text-base bg-[var(--ui-surface-2)] p-6 rounded-2xl border border-[var(--ui-border)]">
+                <div className="text-[var(--ui-muted)] leading-relaxed whitespace-pre-wrap text-base bg-[var(--ui-surface-3)] p-6 rounded-2xl border border-[var(--ui-border)]">
                     <LifeKlineMarkdown content={analysis.summary} />
                 </div>
             </div>
@@ -172,23 +172,23 @@ const NewAnalysisResult: React.FC<NewAnalysisResultProps> = ({ analysis }) => {
                             <ul className="space-y-2 text-[11px]">
                                 <li className="flex justify-between items-center border-b border-[var(--ui-border)] pb-2">
                                     <span className="text-[var(--ui-muted)]">0-2分</span>
-                                    <span className="text-[var(--ui-danger)] font-black">极度波动</span>
+                                    <span className="text-red-400 font-black">极度波动</span>
                                 </li>
                                 <li className="flex justify-between items-center border-b border-[var(--ui-border)] pb-2">
                                     <span className="text-[var(--ui-muted)]">3-4分</span>
-                                    <span className="text-[var(--ui-muted)] font-black">时运不齐</span>
+                                    <span className="text-orange-300 font-black">时运不齐</span>
                                 </li>
                                 <li className="flex justify-between items-center border-b border-[var(--ui-border)] pb-2">
                                     <span className="text-[var(--ui-muted)]">5-6分</span>
-                                    <span className="text-[var(--ui-accent-strong)] font-black">中平守势</span>
+                                    <span className="text-amber-300 font-black">中平守势</span>
                                 </li>
                                 <li className="flex justify-between items-center border-b border-[var(--ui-border)] pb-2">
                                     <span className="text-[var(--ui-muted)]">7-8分</span>
-                                    <span className="text-[var(--ui-accent)] font-black">小有斩获</span>
+                                    <span className="text-lime-400 font-black">小有斩获</span>
                                 </li>
                                 <li className="flex justify-between items-center">
                                     <span className="text-[var(--ui-muted)]">9-10分</span>
-                                    <span className="text-[var(--ui-success)] font-black">天命所归</span>
+                                    <span className="text-emerald-400 font-black">天命所归</span>
                                 </li>
                             </ul>
                             <p className="text-[10px] text-[var(--ui-muted)] leading-relaxed border-t border-[var(--ui-border)] pt-3 text-justify">

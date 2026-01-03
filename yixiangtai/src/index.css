@@ -68,6 +68,9 @@ html.theme-dark {
 
 html.theme-light {
   color-scheme: light;
+  --ui-text: #1b2430;
+  --ui-muted: #4f5d72;
+  --ui-muted-2: #6c7f98;
 }
 
 html.theme-dark {
@@ -432,4 +435,203 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 
 .animation-delay-500 {
   animation-delay: 0.5s;
+}
+
+/* Divination animation canvas */
+.divination-animation {
+  --anim-accent: var(--ui-accent);
+  --anim-accent-strong: var(--ui-accent-strong);
+  --anim-accent-soft: color-mix(in srgb, var(--anim-accent) 28%, transparent);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 120% at 10% 12%, color-mix(in srgb, var(--anim-accent) 18%, transparent) 0%, transparent 55%),
+    radial-gradient(140% 120% at 85% 82%, color-mix(in srgb, var(--anim-accent-strong) 20%, transparent) 0%, transparent 60%),
+    linear-gradient(140deg, color-mix(in srgb, var(--ui-surface-2) 92%, transparent), color-mix(in srgb, var(--ui-surface-3) 92%, transparent));
+  border: 1px solid color-mix(in srgb, var(--ui-border) 70%, transparent);
+}
+
+.divination-animation__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--ui-border) 25%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--ui-border) 25%, transparent) 1px, transparent 1px);
+  background-size: 46px 46px;
+  opacity: 0.18;
+  animation: divination-drift 18s linear infinite;
+}
+
+.divination-animation__sweep {
+  position: absolute;
+  inset: -40%;
+  background: linear-gradient(120deg, transparent 35%, color-mix(in srgb, var(--anim-accent) 22%, transparent) 50%, transparent 65%);
+  opacity: 0.6;
+  transform: translateX(-30%) rotate(6deg);
+  animation: divination-sweep 7s ease-in-out infinite;
+}
+
+.divination-animation__ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--anim-accent) 45%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--anim-accent) 25%, transparent);
+  opacity: 0.7;
+}
+
+.divination-animation__ring--outer {
+  width: 230px;
+  height: 230px;
+  animation: divination-spin 14s linear infinite;
+}
+
+.divination-animation__ring--inner {
+  width: 150px;
+  height: 150px;
+  border-color: color-mix(in srgb, var(--anim-accent-strong) 55%, transparent);
+  animation: divination-spin-reverse 10s linear infinite;
+}
+
+.divination-animation__pulse {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--anim-accent) 32%, transparent) 0%, transparent 70%);
+  animation: divination-pulse 3s ease-in-out infinite;
+}
+
+.divination-animation__core {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  z-index: 2;
+}
+
+.divination-animation__glyph {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--anim-accent);
+  letter-spacing: 6px;
+  text-shadow:
+    0 0 12px color-mix(in srgb, var(--anim-accent) 60%, transparent),
+    0 0 30px color-mix(in srgb, var(--anim-accent) 35%, transparent);
+  animation: divination-glyph 2.6s ease-in-out infinite;
+}
+
+.divination-animation__label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ui-muted-2);
+}
+
+.divination-animation__label-part {
+  min-width: 16px;
+  text-align: center;
+  line-height: 1;
+  letter-spacing: 0.2em;
+}
+
+.divination-animation__sparkle {
+  position: absolute;
+  left: var(--sparkle-x);
+  top: var(--sparkle-y);
+  width: var(--sparkle-size);
+  height: var(--sparkle-size);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--anim-accent) 70%, white 30%);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--anim-accent) 45%, transparent);
+  opacity: 0.75;
+  animation: divination-float var(--sparkle-duration) ease-in-out infinite;
+  animation-delay: var(--sparkle-delay);
+}
+
+@keyframes divination-spin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes divination-spin-reverse {
+  from {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+}
+
+@keyframes divination-pulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(0.96);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.08);
+    opacity: 1;
+  }
+}
+
+@keyframes divination-glyph {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+@keyframes divination-sweep {
+  0% {
+    transform: translateX(-35%) rotate(6deg);
+  }
+  50% {
+    transform: translateX(20%) rotate(6deg);
+  }
+  100% {
+    transform: translateX(-35%) rotate(6deg);
+  }
+}
+
+@keyframes divination-float {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+}
+
+@keyframes divination-drift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 46px 46px;
+  }
 }

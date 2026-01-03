@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { getAIAnalysisStream } from '../../masters/service';
-import { useMaster, useUI } from '../../core/store';
+import { getAIAnalysisStream, isAbortError } from '../../masters/service';
+import { useDivinationSession, useMaster, useUI } from '../../core/store';
 import { addRecord } from '../../core/history';
 import { StreamingMarkdown, ErrorToast, useAutoScroll } from '../../components/common';
+import DivinationAnimation from '../../components/DivinationAnimation';
 import { getRandomQuestions } from '../../core/quickQuestions';
-import { getVideoPath } from '../../utils/resources';
 import type { DivinationRecord } from '../../types';
 
 const ZhouGongPage = () => {
@@ -16,17 +16,46 @@ const ZhouGongPage = () => {
   const [analysisComplete, setAnalysisComplete] = useState(false);
   const [showLoadingAnimation, setShowLoadingAnimation] = useState(false);
   const [quickQuestions, setQuickQuestions] = useState<string[]>([]);
-  const [videoLoaded, setVideoLoaded] = useState(true);
 
   const { selectedMaster } = useMaster();
   const { error, setError } = useUI();
   const navigate = useNavigate();
+  const { session, setSessionData, setSessionAnalysis, resetSession, stopSession } = useDivinationSession('zhougong');
   
   // 使用通用的自动滚动Hook
   const { contentRef: analysisRef } = useAutoScroll({
     isAnalyzing: analyzing,
     content: analysis
   });
+
+  useEffect(() => {
+    if (!session) {
+      return;
+    }
+
+    if (session.data && session.data !== dreamDescription) {
+      setDreamDescription(session.data as string);
+    }
+
+    if (session.analysis.text !== analysis) {
+      setAnalysis(session.analysis.text);
+    }
+
+    const nextAnalyzing = session.analysis.status === 'running';
+    if (nextAnalyzing !== analyzing) {
+      setAnalyzing(nextAnalyzing);
+    }
+
+    const nextComplete = session.analysis.status === 'completed';
+    if (nextComplete !== analysisComplete) {
+      setAnalysisComplete(nextComplete);
+    }
+
+    const nextShowLoading = nextAnalyzing && !session.analysis.text;
+    if (nextShowLoading !== showLoadingAnimation) {
+      setShowLoadingAnimation(nextShowLoading);
+    }
+  }, [session, dreamDescription, analysis, analyzing, analysisComplete, showLoadingAnimation]);
 
   // 自动清除错误提示
   useEffect(() => {
@@ -75,6 +104,16 @@ const ZhouGongPage = () => {
     }, 200);
   };
 
+  const resetDream = () => {
+    stopSession('zhougong');
+    resetSession('zhougong');
+    setDreamDescription('');
+    setAnalysis('');
+    setAnalyzing(false);
+    setAnalysisComplete(false);
+    setShowLoadingAnimation(false);
+  };
+
   /**
    * 执行梦境分析 - 直接调用大模型
    */
@@ -91,13 +130,26 @@ const ZhouGongPage = () => {
       return;
     }
 
+    stopSession('zhougong');
+    resetSession('zhougong');
+
+    const controller = new AbortController();
+    setSessionAnalysis('zhougong', {
+      status: 'running',
+      text: '',
+      error: null,
+      startedAt: Date.now(),
+      completedAt: null,
+      controller
+    });
+    setSessionData('zhougong', dreamToAnalyze.trim());
+
     try {
       setAnalyzing(true);
       setError(null);
       setAnalysis('');
       setAnalysisComplete(false);
       setShowLoadingAnimation(true);
-      setVideoLoaded(true);
 
       // 构建解梦数据
       const divinationData = {
@@ -108,20 +160,24 @@ const ZhouGongPage = () => {
 
       // 使用流式分析，实时更新结果
       const analysisResult = await getAIAnalysisStream(
-        divinationData, 
-        selectedMaster, 
+        divinationData,
+        selectedMaster,
         'zhougong',
         undefined,
         (streamText) => {
-          // 流式更新回调 - 当开始有内容返回时，隐藏动画显示结果
           if (streamText && streamText.trim()) {
-            setShowLoadingAnimation(false);
-            setAnalysis(streamText);
+            setSessionAnalysis('zhougong', { text: streamText });
           }
-        }
+        },
+        controller.signal
       );
 
       setAnalysisComplete(true);
+      setSessionAnalysis('zhougong', {
+        status: 'completed',
+        completedAt: Date.now(),
+        controller: null
+      });
 
       // 保存到历史记录
       const record: DivinationRecord = {
@@ -139,8 +195,24 @@ const ZhouGongPage = () => {
       await addRecord(record);
 
     } catch (error) {
+      if (isAbortError(error)) {
+        setSessionAnalysis('zhougong', {
+          status: 'stopped',
+          completedAt: Date.now(),
+          controller: null
+        });
+        return;
+      }
+
       console.error('AI分析失败:', error);
-      setError(error instanceof Error ? error.message : '分析过程中发生错误');
+      const message = error instanceof Error ? error.message : '分析过程中发生错误';
+      setSessionAnalysis('zhougong', {
+        status: 'error',
+        error: message,
+        completedAt: Date.now(),
+        controller: null
+      });
+      setError(message);
       setAnalysisComplete(false);
     } finally {
       setAnalyzing(false);
@@ -212,6 +284,29 @@ const ZhouGongPage = () => {
               </motion.button>
             </div>
 
+            <div className="flex justify-center gap-3 mb-6">
+              {analysis && !analyzing && (
+                <motion.button
+                  onClick={resetDream}
+                  className="px-5 py-2 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-2)] text-[var(--ui-text)] text-sm font-semibold hover:bg-[var(--ui-surface-3)] transition-all"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  重新生成
+                </motion.button>
+              )}
+              {analyzing && (
+                <motion.button
+                  onClick={() => stopSession('zhougong')}
+                  className="px-5 py-2 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-2)] text-[var(--ui-danger)] text-sm font-semibold hover:bg-[var(--ui-surface-3)] transition-all"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  停止生成
+                </motion.button>
+              )}
+            </div>
+
             {/* 快速开始水平布局 - 居中 */}
             <div className="flex justify-center items-center gap-3">
               <h4 className="text-lg font-medium text-[var(--ui-text)] whitespace-nowrap">快速开始：</h4>
@@ -265,77 +360,7 @@ const ZhouGongPage = () => {
                   {/* 解梦动画区域 */}
                   <div className="flex justify-center">
                     <div className="bg-[var(--ui-surface-2)] flex items-center justify-center relative overflow-hidden rounded-xl" style={{ width: '560px', height: '315px' }}>
-                      {/* 使用解梦视频 */}
-                      <video 
-                        autoPlay 
-                        muted 
-                        loop 
-                        playsInline
-                        preload="metadata"
-                        className="w-full h-full object-cover rounded-xl"
-                        style={{ 
-                          width: '560px', 
-                          height: '315px',
-                          display: videoLoaded ? 'block' : 'none'
-                        }}
-                        onError={(e) => {
-                          console.log('视频加载失败，显示备用动画');
-                          setVideoLoaded(false);
-                        }}
-                        onCanPlayThrough={() => {
-                          setVideoLoaded(true);
-                        }}
-                      >
-                        <source src={getVideoPath("zhougong.mp4")} type="video/mp4" />
-                      </video>
-                      
-                      {/* 备用动画 */}
-                      {!videoLoaded && (
-                        <div className="absolute inset-0 flex items-center justify-center">
-                          <div className="relative">
-                            <motion.div
-                              className="w-20 h-20 border-4 border-[var(--ui-accent)] rounded-full flex items-center justify-center"
-                              animate={{ 
-                                rotate: 360,
-                                scale: [1, 1.1, 1]
-                              }}
-                              transition={{ 
-                                rotate: { duration: 3, repeat: Infinity, ease: "linear" },
-                                scale: { duration: 2, repeat: Infinity }
-                              }}
-                            >
-                              <motion.div
-                                className="text-[var(--ui-accent)] text-3xl font-bold"
-                                animate={{ opacity: [0.5, 1, 0.5] }}
-                                transition={{ duration: 1.5, repeat: Infinity }}
-                              >
-                                梦
-                              </motion.div>
-                            </motion.div>
-                            
-                            {/* 环绕的小星星 */}
-                            {[...Array(8)].map((_, i) => (
-                              <motion.div
-                                key={i}
-                                className="absolute w-2 h-2 bg-[var(--ui-muted-2)] rounded-full"
-                                style={{
-                                  top: '50%',
-                                  left: '50%',
-                                  transformOrigin: `${40 * Math.cos(i * Math.PI / 4)}px ${40 * Math.sin(i * Math.PI / 4)}px`
-                                }}
-                                animate={{ 
-                                  rotate: 360,
-                                  scale: [0.5, 1, 0.5]
-                                }}
-                                transition={{ 
-                                  rotate: { duration: 4, repeat: Infinity, ease: "linear" },
-                                  scale: { duration: 2, repeat: Infinity, delay: i * 0.2 }
-                                }}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                      <DivinationAnimation symbol="梦" label="解梦" />
                     </div>
                   </div>
                 </div>

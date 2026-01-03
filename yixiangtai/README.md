@@ -79,13 +79,10 @@ npm run dist-linux
 └── build/            # 图标与构建资源
 ```
 
-## 🎬 摇卦动画设置
+## 🎞️ 动效说明
 
-六爻占卜页面支持自定义摇卦动画：
-
-1. 准备一段 MP4 视频，命名为 `divination-animation.mp4`
-2. 放置在 `public/` 目录
-3. 建议视频长度 3-5 秒，正方形比例
+六爻、奇门等页面已内置 Canvas 动画，无需再放置 MP4 文件。
+如需定制动效，可修改 `src/components/DivinationAnimation.tsx` 与相关样式。
 
 ## 🔒 安全提示
 

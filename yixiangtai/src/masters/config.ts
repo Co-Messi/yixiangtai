@@ -23,7 +23,7 @@ export const GEMINI_CONFIG = {
     // 视觉模型 - 用于图像分析（手相等）
     VISION: 'gemini-3-flash-preview',
     // 备用模型（如果主模型不可用）
-    FALLBACK: 'gemini-1.5-flash'
+    FALLBACK: 'gemini-3-flash-preview'
   },
 
   // API 端点配置

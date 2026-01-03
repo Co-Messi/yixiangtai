@@ -3,9 +3,46 @@ import { getActiveApiKey, buildGeminiApiUrl, GEMINI_CONFIG } from '../../masters
 import { useAppStore } from '../../core/store';
 import axios from 'axios';
 import { jsonrepair } from 'jsonrepair';
+import { GANZHI_CYCLE } from '../../utils/ganzhiUtils';
 import type { LifeKLineResult } from './types';
 
-export const generateLifeAnalysis = async (input: any): Promise<LifeKLineResult> => {
+
+const normalizePillar = (value: string) => value.trim();
+
+const validateLifeKlineInput = (input: any) => {
+    const requiredFields = ['birthTime', 'yearPillar', 'monthPillar', 'dayPillar', 'hourPillar', 'startAge', 'firstDaYun'];
+    requiredFields.forEach((field) => {
+        if (!input[field] || String(input[field]).trim().length === 0) {
+            throw new Error(`缺少必要参数：${field}`);
+        }
+    });
+
+    const pillars = [
+        normalizePillar(input.yearPillar),
+        normalizePillar(input.monthPillar),
+        normalizePillar(input.dayPillar),
+        normalizePillar(input.hourPillar)
+    ];
+
+    pillars.forEach((pillar, index) => {
+        if (!GANZHI_CYCLE.includes(pillar as any)) {
+            const labels = ['年柱', '月柱', '日柱', '时柱'];
+            throw new Error(`${labels[index]}格式不正确：${pillar}`);
+        }
+    });
+
+    const firstDaYun = normalizePillar(input.firstDaYun);
+    if (!GANZHI_CYCLE.includes(firstDaYun as any)) {
+        throw new Error(`首步大运格式不正确：${firstDaYun}`);
+    }
+
+    const startAge = Number(input.startAge);
+    if (!Number.isFinite(startAge) || startAge < 1 || startAge > 20) {
+        throw new Error(`起运年龄不合理：${input.startAge}`);
+    }
+};
+
+export const generateLifeAnalysis = async (input: any, signal?: AbortSignal): Promise<LifeKLineResult> => {
     const state = useAppStore.getState();
     const apiKey = getActiveApiKey(state.settings.apiKey);
 
@@ -16,6 +53,7 @@ export const generateLifeAnalysis = async (input: any): Promise<LifeKLineResult>
     if (/[^\x00-\x7F]/.test(cleanApiKey)) {
         throw new Error('API Key 包含非法字符（如中文或全角符号），请检查输入是否正确。');
     }
+    validateLifeKlineInput(input);
 
     const genderStr = input.gender === '男' ? '男 (乾造)' : '女 (坤造)';
     const yearStem = input.yearPillar.trim().charAt(0);
@@ -36,6 +74,10 @@ export const generateLifeAnalysis = async (input: any): Promise<LifeKLineResult>
         ? "例如：第一步是【戊申】，第二步则是【己酉】（顺排）"
         : "例如：第一步是【戊申】，第二步则是【丁未】（逆排）";
 
+    const birthDate = new Date(input.birthTime);
+    const birthYear = Number.isFinite(birthDate.getTime()) ? birthDate.getFullYear() : Number(input.birthYear || 0);
+    const requestId = Date.now();
+
     const userPrompt = `
     ${nightModeStr}
     请根据以下**已经排好的**八字四柱和**指定的大运信息**进行分析。
@@ -43,7 +85,9 @@ export const generateLifeAnalysis = async (input: any): Promise<LifeKLineResult>
     【基本信息】
     性别：${genderStr}
     姓名：${input.name || "未提供"}
-    出生年份：${input.birthYear}年 (阳历)
+    出生日期时间：${input.birthTime} (阳历)
+    出生年份：${birthYear}年 (阳历)
+    请求编号：${requestId}
     
     【八字四柱】
     年柱：${input.yearPillar} (天干属性：${yearStemPolarity === 'YANG' ? '阳' : '阴'})
@@ -403,6 +447,9 @@ export const generateLifeAnalysis = async (input: any): Promise<LifeKLineResult>
             maxOutputTokens: 8192,
             responseMimeType: "application/json"
         }
+    }, {
+        headers: { 'Cache-Control': 'no-store' },
+        signal
     });
     content = response.data.candidates[0].content.parts[0].text;
 
