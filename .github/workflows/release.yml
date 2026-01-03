@@ -1,0 +1,155 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Release tag (e.g. v1.0.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+env:
+  RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+
+jobs:
+  build-mac:
+    runs-on: macos-latest
+    defaults:
+      run:
+        working-directory: yixiangtai
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: yixiangtai/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build macOS universal
+        run: npm run dist-mac
+
+      - name: Upload macOS artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac
+          path: |
+            yixiangtai/release/*.dmg
+            yixiangtai/release/*.blockmap
+
+  build-win:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: yixiangtai
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: yixiangtai/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Windows x64
+        run: npm run dist-win
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: win
+          path: |
+            yixiangtai/release/*.exe
+            yixiangtai/release/*.blockmap
+            yixiangtai/release/*.yml
+
+  build-linux:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: yixiangtai
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.RELEASE_TAG }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: yixiangtai/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Linux AppImage
+        run: npm run dist-linux
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: |
+            yixiangtai/release/*.AppImage
+            yixiangtai/release/*.blockmap
+
+  release:
+    runs-on: ubuntu-latest
+    needs:
+      - build-mac
+      - build-win
+      - build-linux
+    steps:
+      - name: Download macOS artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: mac
+          path: dist/mac
+
+      - name: Download Windows artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: win
+          path: dist/win
+
+      - name: Download Linux artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: linux
+          path: dist/linux
+
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: yixiangtai ${{ env.RELEASE_TAG }}
+          tag_name: ${{ env.RELEASE_TAG }}
+          body: |
+            这是易象台的首个正式发布版本，整合六爻、奇门、八字、解梦与人生K线等核心模块，桌面端即可完成起盘与解读流程。
+            AI 解读与多位大师风格在同一体验中自然衔接，既保留传统术数表达，又提供更清晰易读的结论与建议。
+            本次提供 macOS Universal、Windows x64 与 Linux AppImage 安装包，方便不同设备直接下载安装体验。
+          files: |
+            dist/mac/*
+            dist/win/*
+            dist/linux/*
