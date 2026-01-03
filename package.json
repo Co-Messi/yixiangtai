@@ -1,0 +1,6 @@
+{
+  "license": "Apache-2.0",
+  "dependencies": {
+    "recharts": "^3.5.1"
+  }
+}

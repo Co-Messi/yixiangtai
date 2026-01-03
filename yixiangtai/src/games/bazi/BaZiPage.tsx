@@ -1,0 +1,822 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
+import { RefreshCw, Sparkles } from 'lucide-react';
+import { 
+  generateBaZiChart, 
+  formatBaZiChart, 
+  getWuxingColor,
+  getGanZhiWuxing,
+  getTimeRangeByHour,
+  type BaZiChartData,
+  type BirthInfo
+} from './logic';
+import { getAIAnalysisStream, isAbortError } from '../../masters/service';
+import { addRecord } from '../../core/history';
+import { useDivinationSession, useMaster, useUI } from '../../core/store';
+import { StreamingMarkdown, ErrorToast, useAutoScroll } from '../../components/common';
+import DivinationAnimation from '../../components/DivinationAnimation';
+import type { DivinationRecord } from '../../types';
+
+const BaZiPage = () => {
+  const [chartData, setChartData] = useState<BaZiChartData | null>(null);
+  const [birthInfo, setBirthInfo] = useState<BirthInfo>({
+    name: '',
+    gender: '男',
+    birthDate: new Date(),
+    isLunar: false, // 固定为阳历
+    birthTime: 12
+  });
+  const [selectedBirthTime, setSelectedBirthTime] = useState<Date>(() => {
+    const defaultDate = new Date();
+    defaultDate.setFullYear(1990);
+    defaultDate.setMonth(0);
+    defaultDate.setDate(1);
+    defaultDate.setHours(12);
+    defaultDate.setMinutes(0);
+    return defaultDate;
+  });
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [aiAnalysis, setAIAnalysis] = useState<string>('');
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisComplete, setAnalysisComplete] = useState(false);
+  const [question, setQuestion] = useState<string>(''); // 改为问事，可选
+  const [hasPerformedDivination, setHasPerformedDivination] = useState(false);
+  const animationDurationMs = 1800;
+  const animationTimeoutRef = useRef<number | null>(null);
+
+  const { selectedMaster } = useMaster();
+  const { error, setError } = useUI();
+  const navigate = useNavigate();
+  const { session, setSessionData, setSessionAnalysis, resetSession, stopSession } = useDivinationSession('bazi');
+  
+  // 使用通用的自动滚动Hook
+  const { contentRef: analysisRef } = useAutoScroll({
+    isAnalyzing: isAnalyzing,
+    content: aiAnalysis
+  });
+
+  useEffect(() => {
+    if (!session) {
+      return;
+    }
+
+    if (session.data !== chartData) {
+      setChartData(session.data);
+    }
+
+    if (session.analysis.text !== aiAnalysis) {
+      setAIAnalysis(session.analysis.text);
+    }
+
+    const nextAnalyzing = session.analysis.status === 'running';
+    if (nextAnalyzing !== isAnalyzing) {
+      setIsAnalyzing(nextAnalyzing);
+    }
+
+    const nextComplete = session.analysis.status === 'completed';
+    if (nextComplete !== analysisComplete) {
+      setAnalysisComplete(nextComplete);
+    }
+
+    const nextHasChart = !!session.data;
+    if (nextHasChart !== hasPerformedDivination) {
+      setHasPerformedDivination(nextHasChart);
+    }
+  }, [session, chartData, aiAnalysis, isAnalyzing, analysisComplete, hasPerformedDivination]);
+
+  // 自动清除错误提示
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => {
+        setError(null);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [error, setError]);
+
+  useEffect(() => {
+    if (animationTimeoutRef.current) {
+      window.clearTimeout(animationTimeoutRef.current);
+    }
+    return () => {
+      if (animationTimeoutRef.current) {
+        window.clearTimeout(animationTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  // 动画变体
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        duration: 0.6,
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.5 }
+    }
+  };
+
+  // 格式化时间为输入控件格式
+  const formatDateTimeForInput = (date: Date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}`;
+  };
+
+  // 处理时间变化
+  const handleBirthTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputDateTime = e.target.value;
+    const selectedDate = new Date(inputDateTime);
+    setSelectedBirthTime(selectedDate);
+    
+    // 更新birthInfo
+    setBirthInfo(prev => ({ 
+      ...prev, 
+      birthDate: selectedDate,
+      birthTime: selectedDate.getHours()
+    }));
+    
+    // 清理当前盘局，需要重新起盘
+    setChartData(null);
+    setHasPerformedDivination(false);
+    setAIAnalysis('');
+    setAnalysisComplete(false);
+    stopSession('bazi');
+    resetSession('bazi');
+  };
+
+  const resetChart = () => {
+    stopSession('bazi');
+    resetSession('bazi');
+    setChartData(null);
+    setAIAnalysis('');
+    setIsAnalyzing(false);
+    setAnalysisComplete(false);
+    setHasPerformedDivination(false);
+    stopSession('bazi');
+    resetSession('bazi');
+  };
+
+  // 动画完成的回调
+  const completeGeneration = () => {
+    generateChart();
+    setIsGenerating(false);
+    setHasPerformedDivination(true);
+  };
+
+  // 执行起盘
+  const performDivination = async () => {
+    if (!birthInfo.name.trim()) {
+      setError('请输入您的姓名');
+      return;
+    }
+
+    setIsGenerating(true);
+    setChartData(null);
+    setAIAnalysis('');
+    setIsAnalyzing(false);
+    setAnalysisComplete(false);
+    setHasPerformedDivination(false);
+    if (animationTimeoutRef.current) {
+      window.clearTimeout(animationTimeoutRef.current);
+    }
+    animationTimeoutRef.current = window.setTimeout(() => {
+      completeGeneration();
+      animationTimeoutRef.current = null;
+    }, animationDurationMs);
+  };
+
+  const generateChart = () => {
+    try {
+      // 使用选择的出生时间
+      const finalBirthInfo = {
+        ...birthInfo,
+        birthDate: selectedBirthTime,
+        birthTime: selectedBirthTime.getHours(),
+        isLunar: false // 固定为阳历
+      };
+      
+      const chart = generateBaZiChart(finalBirthInfo);
+      setChartData(chart);
+      setSessionData('bazi', chart);
+      setAIAnalysis(''); // 清除之前的分析
+      
+      console.log('八字推命起盘成功:', {
+        finalBirthInfo,
+        chart
+      });
+    } catch (error) {
+      console.error('生成八字盘失败:', error);
+      setError('起盘失败，请重试');
+    }
+  };
+
+  // 处理姓名变化
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBirthInfo(prev => ({ ...prev, name: e.target.value }));
+  };
+
+  // 处理性别变化
+  const handleGenderChange = (gender: '男' | '女') => {
+    setBirthInfo(prev => ({ ...prev, gender }));
+  };
+
+  // 获取AI分析（流式处理）
+  const getAnalysis = async () => {
+    if (!chartData) {
+      setError('请先起盘');
+      return;
+    }
+
+    if (!selectedMaster) {
+      setError('请先选择大师');
+      return;
+    }
+
+    const controller = new AbortController();
+
+    setSessionAnalysis('bazi', {
+      status: 'running',
+      text: '',
+      error: null,
+      startedAt: Date.now(),
+      completedAt: null,
+      controller
+    });
+    setIsAnalyzing(true);
+    setAnalysisComplete(false);
+    setError(null);
+    setAIAnalysis(''); // 清空之前的分析结果
+
+    try {
+      // 根据是否有问事内容来调整分析方式
+      const hasQuestion = question.trim().length > 0;
+      
+      // 准备分析数据
+      const analysisData = {
+        type: 'bazi',
+        question: hasQuestion ? question.trim() : '个人命盘综合报告',
+        chartData,
+        name: chartData.name,
+        gender: chartData.gender,
+        birthTime: getTimeRangeByHour(chartData.birthTime),
+        zodiacAnimal: chartData.zodiacAnimal,
+        guardianBuddha: chartData.guardianBuddha,
+        constellation: chartData.constellation,
+        fourPillars: chartData.fourPillars,
+        wuxingAnalysis: chartData.wuxingAnalysis,
+        personalityTraits: chartData.personalityTraits,
+        timestamp: chartData.timestamp
+      };
+
+
+      const userInfoForAI = { question: hasQuestion ? question.trim() : '' };
+
+      // 使用流式分析，实时更新结果
+      const analysisResult = await getAIAnalysisStream(
+        analysisData,
+        selectedMaster,
+        'bazi',
+        userInfoForAI, // 传递问事信息
+        (streamText) => {
+          setSessionAnalysis('bazi', { text: streamText });
+        },
+        controller.signal
+      );
+
+      // 分析完成
+      setAnalysisComplete(true);
+      setSessionAnalysis('bazi', {
+        status: 'completed',
+        completedAt: Date.now(),
+        controller: null
+      });
+
+      // 保存到历史记录
+      const record: DivinationRecord = {
+        id: chartData.id,
+        type: 'bazi',
+        timestamp: chartData.timestamp,
+        data: analysisData,
+        master: selectedMaster ? {
+          id: selectedMaster.id,
+          name: selectedMaster.name,
+          description: selectedMaster.description
+        } : null,
+        analysis: analysisResult
+      };
+
+      addRecord(record);
+
+      console.log('八字推命AI分析完成，结果已保存到历史记录');
+      
+    } catch (error) {
+      if (isAbortError(error)) {
+        setSessionAnalysis('bazi', {
+          status: 'stopped',
+          completedAt: Date.now(),
+          controller: null
+        });
+        return;
+      }
+
+      console.error('AI分析失败:', error);
+      const message = error instanceof Error ? error.message : '分析过程中发生错误';
+      setSessionAnalysis('bazi', {
+        status: 'error',
+        error: message,
+        completedAt: Date.now(),
+        controller: null
+      });
+      setError(message);
+      setAnalysisComplete(false);
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  return (
+    <motion.div
+      className="min-h-screen text-[var(--ui-text)]"
+      variants={containerVariants}
+      initial="hidden"
+      animate="visible"
+    >
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        {/* 页面标题 */}
+        <motion.div variants={itemVariants} className="text-center mb-2">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-[var(--ui-text)] via-[var(--ui-muted-2)] to-[var(--ui-accent)] bg-clip-text text-transparent">八字推命</h1>
+          <p className="text-xl text-[var(--ui-muted-2)] max-w-3xl mx-auto leading-relaxed">承古圣贤智慧，析命理玄机，知己知命方能改运</p>
+        </motion.div>
+
+        <div className="space-y-8">
+          {/* 信息输入区域 */}
+          <motion.div className="p-8" variants={itemVariants}>
+            {/* 姓名输入 - 排在首位，必填 */}
+            <div className="flex justify-center mb-4">
+              <div className="flex items-center gap-4 w-full max-w-xl">
+                <label className="text-lg font-medium text-[var(--ui-text)] whitespace-nowrap w-24 text-right">
+                * 姓名
+                </label>
+                <input
+                  type="text"
+                  value={birthInfo.name}
+                  onChange={handleNameChange}
+                  className="w-48 px-6 py-3 bg-[var(--ui-surface-2)] border-2 border-[var(--ui-border)] text-[var(--ui-text)] rounded-xl text-lg font-medium focus:outline-none focus:ring-2 focus:ring-[var(--ui-accent)] focus:border-[var(--ui-accent)] placeholder:text-[var(--ui-muted-2)]"
+                  placeholder="请输入您的姓名"
+                  disabled={isGenerating}
+                />
+              </div>
+            </div>
+
+            {/* 问事输入 - 可选 */}
+            <div className="flex justify-center mb-4">
+              <div className="flex items-center gap-4 w-full max-w-xl">
+                <label className="text-lg font-medium text-[var(--ui-text)] whitespace-nowrap w-24 text-right">
+                  问事
+                </label>
+                <input
+                  type="text"
+                  value={question}
+                  onChange={(e) => setQuestion(e.target.value)}
+                  placeholder="有具体想问的事情吗？"
+                  className="flex-1 px-6 py-3 bg-[var(--ui-surface-2)] border-2 border-[var(--ui-border)] text-[var(--ui-text)] rounded-xl text-lg font-medium focus:outline-none focus:ring-2 focus:ring-[var(--ui-accent)] focus:border-[var(--ui-accent)] placeholder:text-[var(--ui-muted-2)]"
+                  disabled={isGenerating}
+                />
+              </div>
+            </div>
+
+            {/* 性别和出生时间 - 同一行 */}
+            <div className="flex justify-center mb-6">
+              <div className="w-full max-w-xl">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  {/* 性别 */}
+                  <div className="flex items-center gap-4">
+                    <label className="text-lg font-medium text-[var(--ui-text)] whitespace-nowrap w-24 text-right">
+                      性别
+                    </label>
+                    <div className="flex gap-1">
+                      {(['男', '女'] as const).map(gender => (
+                        <label key={gender} className="flex items-center">
+                          <input
+                            type="radio"
+                            name="gender"
+                            value={gender}
+                            checked={birthInfo.gender === gender}
+                            onChange={() => handleGenderChange(gender)}
+                            className="w-4 h-4 text-[var(--ui-accent)] border-[var(--ui-border)] focus:ring-[var(--ui-accent)]"
+                            disabled={isGenerating}
+                          />
+                          <span className="ml-2 text-[var(--ui-muted-2)] text-lg">{gender}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* 出生时间 */}
+                  <div className="flex items-center gap-4">
+                    <label className="text-lg font-medium text-[var(--ui-text)] whitespace-nowrap w-24 text-right">
+                      出生时间
+                    </label>
+                    <div className="flex-1">
+                      <input
+                        type="datetime-local"
+                        value={formatDateTimeForInput(selectedBirthTime)}
+                        onChange={handleBirthTimeChange}
+                        className="w-full bg-[var(--ui-surface-2)] border border-black rounded-lg px-3 py-2 text-[var(--ui-text)] text-base focus:border-[var(--ui-accent)] focus:outline-none [&::-webkit-datetime-edit]:text-[var(--ui-text)] [&::-webkit-datetime-edit-text]:text-[var(--ui-text)] [&::-webkit-datetime-edit-month-field]:text-[var(--ui-text)] [&::-webkit-datetime-edit-day-field]:text-[var(--ui-text)] [&::-webkit-datetime-edit-year-field]:text-[var(--ui-text)] [&::-webkit-datetime-edit-hour-field]:text-[var(--ui-text)] [&::-webkit-datetime-edit-minute-field]:text-[var(--ui-text)] [&::-webkit-calendar-picker-indicator]:brightness-0 [&::-webkit-calendar-picker-indicator]:invert"
+                        style={{
+                          colorScheme: 'dark',
+                          color: 'white !important',
+                          WebkitTextFillColor: 'white',
+                          minHeight: '36px',
+                          height: '36px',
+                          lineHeight: '1.4',
+                          fontSize: '16px'
+                        }}
+                        disabled={isGenerating}
+                      />
+                      <div className="text-[10px] text-[var(--ui-muted-2)] font-bold uppercase tracking-widest mt-2">
+                        排盘规则：传统子平（23:00后换日）
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* 开始起盘按钮 */}
+            <div className="flex justify-center">
+              <motion.button 
+                onClick={performDivination}
+                disabled={isGenerating || !birthInfo.name.trim()}
+                className={`px-12 py-4 rounded-xl font-bold text-xl transition-all duration-300 shadow-lg flex items-center justify-center ${
+                  isGenerating || !birthInfo.name.trim()
+                    ? 'bg-[var(--ui-muted)] text-[var(--ui-muted-2)] cursor-not-allowed'
+                    : 'bg-gradient-to-r from-[var(--ui-accent)] to-[var(--ui-accent-strong)] text-white hover:from-[var(--ui-accent-strong)] hover:to-[var(--ui-accent-strong)] hover:shadow-xl hover:shadow-[0_12px_30px_rgba(37,94,234,0.25)]'
+                }`}
+                whileHover={!isGenerating && birthInfo.name.trim() ? { scale: 1.05, y: -2 } : {}}
+                whileTap={!isGenerating && birthInfo.name.trim() ? { scale: 0.98 } : {}}
+              >
+                {isGenerating ? (
+                  <span className="flex items-center gap-3">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-current"></div>
+                    正在起盘...
+                  </span>
+                ) : (
+                  '开始八字推命'
+                )}
+              </motion.button>
+            </div>
+          </motion.div>
+
+          {/* 起盘动画区域 */}
+          <AnimatePresence>
+            {isGenerating && (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.3 }}
+              >
+                <div className="text-center">
+                  <h3 className="text-2xl font-semibold text-[var(--ui-text)] mb-6">八字推演，命理推测</h3>
+                  
+                  {/* 起盘动画区域 */}
+                  <div className="flex justify-center">
+                    <div className="bg-[var(--ui-surface-2)] flex items-center justify-center relative overflow-hidden rounded-xl" style={{ width: '560px', height: '315px' }}>
+                      <DivinationAnimation symbol="命" label="八字" />
+                    </div>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* 八字排盘结果 */}
+          {chartData && !isGenerating && hasPerformedDivination && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              {/* 与视频相同尺寸的八字盘显示容器 */}
+              <div className="flex justify-center">
+                <div style={{ width: '560px', minHeight: '315px' }}>
+                  {/* 基本信息条 */}
+                  <motion.div 
+                    style={{
+                      background: 'var(--ui-surface-2)',
+                      border: '1px solid var(--ui-border)',
+                      padding: '20px 24px',
+                      borderRadius: '12px 12px 0 0'
+                    }}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.1 }}
+                  >
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: '1fr 1fr 1fr 1fr',
+                      gap: '32px',
+                      textAlign: 'center'
+                    }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ color: 'var(--ui-muted-2)', fontSize: '14px', fontWeight: '500' }}>生肖</div>
+                        <div style={{ color: 'var(--ui-accent)', fontSize: '16px', fontWeight: '700', whiteSpace: 'nowrap' }}>属{chartData.zodiacAnimal}</div>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ color: 'var(--ui-muted-2)', fontSize: '14px', fontWeight: '500' }}>本命佛</div>
+                        <div style={{ color: 'var(--ui-accent)', fontSize: '16px', fontWeight: '600', whiteSpace: 'nowrap' }}>{chartData.guardianBuddha}</div>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ color: 'var(--ui-muted-2)', fontSize: '14px', fontWeight: '500' }}>星座</div>
+                        <div style={{ color: 'var(--ui-success)', fontSize: '16px', fontWeight: '600', whiteSpace: 'nowrap' }}>{chartData.constellation}</div>
+                      </div>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        <div style={{ color: 'var(--ui-muted-2)', fontSize: '14px', fontWeight: '500' }}>时辰</div>
+                        <div style={{ color: 'white', fontSize: '16px', fontWeight: '600', whiteSpace: 'nowrap' }}>{getTimeRangeByHour(chartData.birthTime)}</div>
+                      </div>
+                    </div>
+                  </motion.div>
+
+                  {/* 八字盘主体 - 深色卡片 */}
+                  <motion.div 
+                    className="bg-[var(--ui-surface-2)] border border-[var(--ui-border)] p-6 flex flex-col"
+                    style={{ 
+                      minHeight: '400px',
+                      borderRadius: '0 0 16px 16px',
+                      overflow: 'hidden'
+                    }}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: 0.2 }}
+                  >
+                                          {/* 四柱八字 */}
+                      <div className="flex-1 overflow-hidden mb-4">
+                        <h4 className="text-lg font-medium text-[var(--ui-text)] mb-4 text-center">四柱八字</h4>
+                        <div className="grid grid-cols-4 gap-4 mb-6">
+                          {[
+                            { name: '年柱', pillar: chartData.fourPillars.year },
+                            { name: '月柱', pillar: chartData.fourPillars.month },
+                            { name: '日柱', pillar: chartData.fourPillars.day },
+                            { name: '时柱', pillar: chartData.fourPillars.hour }
+                          ].map(({ name, pillar }, index) => {
+                            const stemColor = getWuxingColor(getGanZhiWuxing(pillar.stem));
+                            const branchColor = getWuxingColor(getGanZhiWuxing(pillar.branch));
+                            return (
+                              <div key={index} className="text-center">
+                                <div className="text-sm text-[var(--ui-muted-2)] mb-2">{name}</div>
+                                <div className="space-y-2">
+                                  <div 
+                                    className="w-12 h-12 mx-auto rounded-lg flex items-center justify-center text-[var(--ui-text)] font-bold text-lg shadow-lg transition-all duration-300 hover:scale-105"
+                                    style={{ 
+                                      backgroundColor: `color-mix(in srgb, ${stemColor} 18%, transparent)`,
+                                      border: `1px solid color-mix(in srgb, ${stemColor} 70%, transparent)`,
+                                      boxShadow: `0 0 10px color-mix(in srgb, ${stemColor} 45%, transparent)`,
+                                      textShadow: `0 0 6px color-mix(in srgb, ${stemColor} 70%, transparent)`,
+                                      color: stemColor
+                                    }}
+                                  >
+                                    {pillar.stem}
+                                  </div>
+                                  <div 
+                                    className="w-12 h-12 mx-auto rounded-lg flex items-center justify-center text-[var(--ui-text)] font-bold text-lg shadow-lg transition-all duration-300 hover:scale-105"
+                                    style={{ 
+                                      backgroundColor: `color-mix(in srgb, ${branchColor} 18%, transparent)`,
+                                      border: `1px solid color-mix(in srgb, ${branchColor} 70%, transparent)`,
+                                      boxShadow: `0 0 10px color-mix(in srgb, ${branchColor} 45%, transparent)`,
+                                      textShadow: `0 0 6px color-mix(in srgb, ${branchColor} 70%, transparent)`,
+                                      color: branchColor
+                                    }}
+                                  >
+                                    {pillar.branch}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                        
+                        {/* 五行分析 */}
+                        <h4 className="text-lg font-medium text-[var(--ui-text)] mb-6 text-center">五行分析</h4>
+                        <div className="space-y-4">
+                          {Object.entries(chartData.wuxingAnalysis).map(([element, count]) => {
+                            const color = getWuxingColor(element);
+                            const maxCount = Math.max(...Object.values(chartData.wuxingAnalysis));
+                            const fillPercentage = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                            const statusColor = count > 2
+                              ? 'var(--ui-success)'
+                              : count > 1
+                                ? '#60a5fa'
+                                : count === 1
+                                  ? '#f59e0b'
+                                  : '#ef4444';
+                            
+                            return (
+                              <div key={element} className="flex items-center gap-2">
+                                {/* 五行艺术字标签 */}
+                                <div className="w-8 flex justify-center">
+                                  <span 
+                                    className="text-2xl font-black tracking-tight"
+                                    style={{ 
+                                      color: color,
+                                      textShadow: `
+                                        0 0 8px color-mix(in srgb, ${color} 55%, transparent),
+                                        0 0 12px color-mix(in srgb, ${color} 35%, transparent),
+                                        1px 1px 2px rgba(0,0,0,0.8)
+                                      `,
+                                      filter: `drop-shadow(0 0 4px color-mix(in srgb, ${color} 55%, transparent))`
+                                    }}
+                                  >
+                                    {element}
+                                  </span>
+                                </div>
+                                
+                                {/* 能量条容器 */}
+                                <div className="flex-1 relative">
+                                  {/* 背景轨道 */}
+                                  <div 
+                                    className="h-6 rounded border"
+                                    style={{
+                                      backgroundColor: 'var(--ui-surface-2)',
+                                      borderColor: 'var(--ui-border)'
+                                    }}
+                                  />
+                                  
+                                  {/* 能量填充条 */}
+                                  <div 
+                                    className="absolute top-0 left-0 h-6 rounded transition-all duration-1200 ease-out overflow-hidden"
+                                    style={{
+                                      width: `${fillPercentage}%`,
+                                      background: `linear-gradient(90deg, color-mix(in srgb, ${color} 92%, transparent), color-mix(in srgb, ${color} 78%, transparent), color-mix(in srgb, ${color} 62%, transparent))`,
+                                      boxShadow: `
+                                        0 0 10px color-mix(in srgb, ${color} 55%, transparent),
+                                        inset 0 2px 4px rgba(255,255,255,0.1),
+                                        inset 0 -2px 4px rgba(0,0,0,0.2)
+                                      `,
+                                      border: `1px solid color-mix(in srgb, ${color} 55%, transparent)`
+                                    }}
+                                  >
+                                    {/* 能量条内部闪光效果 */}
+                                    <div 
+                                      className="absolute inset-0 opacity-30"
+                                      style={{
+                                        background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)`,
+                                        animation: count > 0 ? 'shimmer 2s infinite' : 'none'
+                                      }}
+                                    />
+                                  </div>
+                                  
+                                  {/* 数量和状态标签 */}
+                                  <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center gap-2">
+                                    <span className="text-[var(--ui-text)] font-bold text-sm">{count}</span>
+                                  </div>
+                                </div>
+                                
+                                {/* 状态指示 */}
+                                <div className="w-12 text-right">
+                                  <span 
+                                    className="text-xs font-medium px-2 py-1 rounded-full"
+                                    style={{
+                                      backgroundColor: `color-mix(in srgb, ${statusColor} 18%, transparent)`,
+                                      color: statusColor,
+                                      border: `1px solid color-mix(in srgb, ${statusColor} 45%, transparent)`
+                                    }}
+                                  >
+                                    {count > 2 ? '旺' : count > 1 ? '平' : count === 1 ? '弱' : '缺'}
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                    {/* 大师分析按钮 - 底部固定 */}
+                    <div style={{ margin: '15px' }}>
+                      <motion.button 
+                        onClick={getAnalysis}
+                        disabled={isAnalyzing || !selectedMaster || analysisComplete}
+                        className={`w-full px-4 py-3 rounded-xl font-bold text-lg transition-all duration-300 shadow-lg flex items-center justify-center ${
+                          isAnalyzing || !selectedMaster || analysisComplete
+                            ? 'bg-[var(--ui-muted)] cursor-not-allowed'
+                            : 'bg-gradient-to-r from-[var(--ui-accent)] to-[var(--ui-accent-strong)] hover:from-[var(--ui-accent-strong)] hover:to-[var(--ui-accent-strong)] hover:shadow-xl hover:shadow-[0_12px_30px_rgba(37,94,234,0.25)]'
+                        }`}
+                        style={{
+                          color: isAnalyzing || !selectedMaster || analysisComplete ? 'var(--ui-muted-2)' : 'var(--ui-text)'
+                        }}
+                        whileHover={!isAnalyzing && selectedMaster && !analysisComplete ? { scale: 1.02 } : {}}
+                        whileTap={!isAnalyzing && selectedMaster && !analysisComplete ? { scale: 0.98 } : {}}
+                      >
+                        {isAnalyzing ? (
+                          <span 
+                            className="flex items-center justify-center gap-3"
+                            style={{ color: 'var(--ui-muted-2)' }}
+                          >
+                            <div 
+                              className="animate-spin rounded-full h-4 w-4 border-b-2"
+                              style={{ borderColor: 'var(--ui-muted-2)' }}
+                            ></div>
+                            <span style={{ color: 'var(--ui-muted-2)' }}>
+                              {aiAnalysis ? `${selectedMaster?.name}正在分析...` : `${selectedMaster?.name}解盘中...`}
+                            </span>
+                          </span>
+                        ) : (
+                          <span style={{ color: isAnalyzing || !selectedMaster || analysisComplete ? 'var(--ui-muted-2)' : 'var(--ui-text)' }}>
+                            {analysisComplete ? `${selectedMaster?.name}解盘完成` : (question.trim() ? '问事解析' : '命盘解读')}
+                          </span>
+                        )}
+                      </motion.button>
+
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {chartData && !isAnalyzing && (
+                          <motion.button
+                            onClick={resetChart}
+                            className="flex-1 px-4 py-2 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-2)] text-[var(--ui-text)] text-sm font-semibold hover:bg-[var(--ui-surface-3)] transition-all flex items-center justify-center gap-2"
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            <RefreshCw className="w-4 h-4" />
+                            重新生成
+                          </motion.button>
+                        )}
+                        {isAnalyzing && (
+                          <motion.button
+                            onClick={() => stopSession('bazi')}
+                            className="flex-1 px-4 py-2 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface-2)] text-[var(--ui-danger)] text-sm font-semibold hover:bg-[var(--ui-surface-3)] transition-all flex items-center justify-center"
+                            whileHover={{ scale: 1.01 }}
+                            whileTap={{ scale: 0.98 }}
+                          >
+                            停止生成
+                          </motion.button>
+                        )}
+                      </div>
+
+                      {!selectedMaster && (
+                        <motion.button 
+                          onClick={() => navigate('/settings')}
+                          className="w-full mt-2 bg-gradient-to-r from-[var(--ui-accent)] to-[var(--ui-accent-strong)] text-white px-4 py-3 rounded-xl font-bold text-sm hover:from-[var(--ui-accent-strong)] hover:to-[var(--ui-accent-strong)] transition-all duration-300 shadow-lg hover:shadow-[0_12px_30px_rgba(37,94,234,0.25)] flex items-center justify-center"
+                          whileHover={{ scale: 1.02 }}
+                          whileTap={{ scale: 0.98 }}
+                        >
+                          前往设置选择大师
+                        </motion.button>
+                      )}
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* 大师分析结果 */}
+          {aiAnalysis && (
+            <motion.div 
+              ref={analysisRef}
+              className="p-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <div 
+                style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  marginBottom: '20rem',
+                }}
+              >
+                <StreamingMarkdown
+                  content={aiAnalysis}
+                  showCursor={isAnalyzing && !analysisComplete}
+                  isStreaming={isAnalyzing}
+                />
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </div>
+
+      {/* 错误提示 */}
+      <ErrorToast
+        isVisible={!!error}
+        message={error || ''}
+        onClose={() => setError(null)}
+      />
+    </motion.div>
+  );
+};
+
+export default BaZiPage; 

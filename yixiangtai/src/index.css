@@ -1,0 +1,637 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Manrope:wght@300;400;500;600;700&display=swap');
+
+/* TailwindCSS 现在使用 CDN 版本，不再需要本地编译 */
+/* @tailwind base; */
+/* @tailwind components; */
+/* @tailwind utilities; */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html, body {
+  height: 100%;
+}
+
+:root {
+  font-family: "Manrope", "PingFang SC", "Microsoft YaHei", sans-serif;
+  line-height: 1.6;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  --ui-bg: #f3f5f8;
+  --ui-bg-2: #e9edf2;
+  --ui-surface: #ffffff;
+  --ui-surface-2: #f4f6f9;
+  --ui-surface-3: #eef2f6;
+  --ui-border: #d7dde5;
+  --ui-border-soft: #e3e8ef;
+  --ui-text: #14181f;
+  --ui-muted: #5d6672;
+  --ui-muted-2: #8a94a0;
+  --ui-accent: #3b7cff;
+  --ui-accent-strong: #255eea;
+  --ui-accent-soft: #e5efff;
+  --ui-success: #16a34a;
+  --ui-danger: #dc2626;
+  --ui-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+  --ui-glow: 0 0 0 1px rgba(59, 124, 255, 0.25), 0 10px 30px rgba(59, 124, 255, 0.18);
+  --ui-glass: rgba(255, 255, 255, 0.7);
+  --ui-glass-strong: rgba(255, 255, 255, 0.88);
+  --ui-font-display: "Manrope", "PingFang SC", "Microsoft YaHei", sans-serif;
+}
+
+html.theme-dark {
+  --ui-bg: #0f1115;
+  --ui-bg-2: #141821;
+  --ui-surface: #171b24;
+  --ui-surface-2: #1d2330;
+  --ui-surface-3: #232a3a;
+  --ui-border: #2c3445;
+  --ui-border-soft: #374158;
+  --ui-text: #e6eaf0;
+  --ui-muted: #a2adba;
+  --ui-muted-2: #7d8793;
+  --ui-accent: #5b8cff;
+  --ui-accent-strong: #3d6bff;
+  --ui-accent-soft: #1c2b4a;
+  --ui-success: #22c55e;
+  --ui-danger: #ef4444;
+  --ui-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+  --ui-glow: 0 0 0 1px rgba(91, 140, 255, 0.3), 0 12px 36px rgba(91, 140, 255, 0.35);
+  --ui-glass: rgba(17, 22, 30, 0.72);
+  --ui-glass-strong: rgba(17, 22, 30, 0.9);
+}
+
+html.theme-light {
+  color-scheme: light;
+  --ui-text: #1b2430;
+  --ui-muted: #4f5d72;
+  --ui-muted-2: #6c7f98;
+}
+
+html.theme-dark {
+  color-scheme: dark;
+}
+
+body {
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  background-color: var(--ui-bg);
+  color: var(--ui-text);
+}
+
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+}
+
+input, button, textarea, select {
+  font: inherit;
+}
+
+p, h1, h2, h3, h4, h5, h6 {
+  overflow-wrap: break-word;
+}
+
+#root, #__next {
+  isolation: isolate;
+  background-color: transparent;
+  color: inherit;
+  min-height: 100vh;
+}
+
+a {
+  font-weight: 500;
+  color: var(--ui-accent);
+  text-decoration: inherit;
+}
+
+a:hover {
+  color: var(--ui-accent-strong);
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--ui-font-display);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+button {
+  border-radius: 10px;
+  border: 1px solid transparent;
+  padding: 0.6em 1.2em;
+  font-size: 1em;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.25s, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:not([style*="background"]):not([class*="bg-"]) {
+  background: var(--ui-surface-2);
+  color: var(--ui-text);
+  border-color: var(--ui-border);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+}
+
+button:not([style*="background"]):not([class*="bg-"]):hover {
+  border-color: var(--ui-accent);
+  transform: translateY(-1px);
+  box-shadow: 0 16px 30px rgba(15, 23, 42, 0.12);
+}
+
+button:focus,
+button:focus-visible {
+  outline: 3px auto -webkit-focus-ring-color;
+}
+
+.group:hover .icon-rotate-on-hover {
+  transform: rotate(360deg);
+  transition: transform 0.6s ease-in-out;
+}
+
+.icon-rotate-on-hover {
+  transition: transform 0.6s ease-in-out;
+}
+
+input, select, textarea {
+  background-color: var(--ui-surface-2);
+  color: var(--ui-text);
+  border-color: var(--ui-border);
+}
+
+input[type="datetime-local"] {
+  color: var(--ui-text);
+  background-color: var(--ui-surface-2);
+  border-color: var(--ui-border);
+  min-height: 36px;
+  height: 36px;
+  font-size: 16px;
+  line-height: 1.4;
+  vertical-align: middle;
+}
+
+html.theme-dark input[type="datetime-local"] {
+  color-scheme: dark;
+}
+
+html.theme-light input[type="datetime-local"] {
+  color-scheme: light;
+}
+
+input[type="datetime-local"]::-webkit-datetime-edit,
+input[type="datetime-local"]::-webkit-datetime-edit-text,
+input[type="datetime-local"]::-webkit-datetime-edit-month-field,
+input[type="datetime-local"]::-webkit-datetime-edit-day-field,
+input[type="datetime-local"]::-webkit-datetime-edit-year-field,
+input[type="datetime-local"]::-webkit-datetime-edit-hour-field,
+input[type="datetime-local"]::-webkit-datetime-edit-minute-field {
+  color: var(--ui-text);
+  -webkit-text-fill-color: var(--ui-text);
+}
+
+html.theme-dark input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: brightness(0) invert(1);
+}
+
+html.theme-light input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  filter: none;
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+  opacity: 0.85;
+  cursor: pointer;
+}
+
+input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+.app-shell {
+  min-height: 100vh;
+  background-image: linear-gradient(180deg, var(--ui-bg) 0%, var(--ui-bg-2) 100%);
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: var(--ui-text);
+}
+
+.lux-card {
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
+  box-shadow: var(--ui-shadow);
+  backdrop-filter: blur(12px);
+}
+
+.lux-pill {
+  border: 1px solid var(--ui-border);
+  background: var(--ui-surface-2);
+  color: var(--ui-text);
+  box-shadow: 0 10px 24px rgba(15, 23, 42, 0.12);
+}
+
+.lux-title {
+  font-family: var(--ui-font-display);
+  letter-spacing: 0.01em;
+  text-transform: none;
+}
+
+.surface-dark {
+  background: var(--ui-surface-2);
+  border: 1px solid var(--ui-border);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(14px);
+}
+
+.surface-light {
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.08);
+  color: var(--ui-text);
+}
+
+.text-ink {
+  color: var(--ui-text);
+}
+
+.text-ivory {
+  color: var(--ui-text);
+}
+
+.hairline {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--ui-border), transparent);
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+.animate-fade-out {
+  animation: fadeOut 0.3s ease-in forwards;
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in-from-top {
+  animation: slideInFromTop 0.4s ease-out forwards;
+}
+
+@keyframes slideInFromBottom {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-in-from-bottom {
+  animation: slideInFromBottom 0.4s ease-out forwards;
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-from-left {
+  animation: slideInFromLeft 0.4s ease-out forwards;
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-from-right {
+  animation: slideInFromRight 0.4s ease-out forwards;
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out forwards;
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-bounce-in {
+  animation: bounceIn 0.6s ease-out forwards;
+}
+
+@keyframes spinSlow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin-slow {
+  animation: spinSlow 2s linear infinite;
+}
+
+.animation-delay-100 {
+  animation-delay: 0.1s;
+}
+
+.animation-delay-200 {
+  animation-delay: 0.2s;
+}
+
+.animation-delay-300 {
+  animation-delay: 0.3s;
+}
+
+.animation-delay-400 {
+  animation-delay: 0.4s;
+}
+
+.animation-delay-500 {
+  animation-delay: 0.5s;
+}
+
+/* Divination animation canvas */
+.divination-animation {
+  --anim-accent: var(--ui-accent);
+  --anim-accent-strong: var(--ui-accent-strong);
+  --anim-accent-soft: color-mix(in srgb, var(--anim-accent) 28%, transparent);
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 120% at 10% 12%, color-mix(in srgb, var(--anim-accent) 18%, transparent) 0%, transparent 55%),
+    radial-gradient(140% 120% at 85% 82%, color-mix(in srgb, var(--anim-accent-strong) 20%, transparent) 0%, transparent 60%),
+    linear-gradient(140deg, color-mix(in srgb, var(--ui-surface-2) 92%, transparent), color-mix(in srgb, var(--ui-surface-3) 92%, transparent));
+  border: 1px solid color-mix(in srgb, var(--ui-border) 70%, transparent);
+}
+
+.divination-animation__grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(to right, color-mix(in srgb, var(--ui-border) 25%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in srgb, var(--ui-border) 25%, transparent) 1px, transparent 1px);
+  background-size: 46px 46px;
+  opacity: 0.18;
+  animation: divination-drift 18s linear infinite;
+}
+
+.divination-animation__sweep {
+  position: absolute;
+  inset: -40%;
+  background: linear-gradient(120deg, transparent 35%, color-mix(in srgb, var(--anim-accent) 22%, transparent) 50%, transparent 65%);
+  opacity: 0.6;
+  transform: translateX(-30%) rotate(6deg);
+  animation: divination-sweep 7s ease-in-out infinite;
+}
+
+.divination-animation__ring {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--anim-accent) 45%, transparent);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--anim-accent) 25%, transparent);
+  opacity: 0.7;
+}
+
+.divination-animation__ring--outer {
+  width: 230px;
+  height: 230px;
+  animation: divination-spin 14s linear infinite;
+}
+
+.divination-animation__ring--inner {
+  width: 150px;
+  height: 150px;
+  border-color: color-mix(in srgb, var(--anim-accent-strong) 55%, transparent);
+  animation: divination-spin-reverse 10s linear infinite;
+}
+
+.divination-animation__pulse {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--anim-accent) 32%, transparent) 0%, transparent 70%);
+  animation: divination-pulse 3s ease-in-out infinite;
+}
+
+.divination-animation__core {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  z-index: 2;
+}
+
+.divination-animation__glyph {
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--anim-accent);
+  letter-spacing: 6px;
+  text-shadow:
+    0 0 12px color-mix(in srgb, var(--anim-accent) 60%, transparent),
+    0 0 30px color-mix(in srgb, var(--anim-accent) 35%, transparent);
+  animation: divination-glyph 2.6s ease-in-out infinite;
+}
+
+.divination-animation__label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ui-muted-2);
+}
+
+.divination-animation__label-part {
+  min-width: 16px;
+  text-align: center;
+  line-height: 1;
+  letter-spacing: 0.2em;
+}
+
+.divination-animation__sparkle {
+  position: absolute;
+  left: var(--sparkle-x);
+  top: var(--sparkle-y);
+  width: var(--sparkle-size);
+  height: var(--sparkle-size);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--anim-accent) 70%, white 30%);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--anim-accent) 45%, transparent);
+  opacity: 0.75;
+  animation: divination-float var(--sparkle-duration) ease-in-out infinite;
+  animation-delay: var(--sparkle-delay);
+}
+
+@keyframes divination-spin {
+  from {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+@keyframes divination-spin-reverse {
+  from {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+  to {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+}
+
+@keyframes divination-pulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(0.96);
+    opacity: 0.7;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.08);
+    opacity: 1;
+  }
+}
+
+@keyframes divination-glyph {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.9;
+  }
+  50% {
+    transform: scale(1.08);
+    opacity: 1;
+  }
+}
+
+@keyframes divination-sweep {
+  0% {
+    transform: translateX(-35%) rotate(6deg);
+  }
+  50% {
+    transform: translateX(20%) rotate(6deg);
+  }
+  100% {
+    transform: translateX(-35%) rotate(6deg);
+  }
+}
+
+@keyframes divination-float {
+  0%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.6;
+  }
+  50% {
+    transform: translateY(-10px);
+    opacity: 1;
+  }
+}
+
+@keyframes divination-drift {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 46px 46px;
+  }
+}
